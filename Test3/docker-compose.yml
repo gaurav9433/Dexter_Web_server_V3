@@ -171,6 +171,8 @@ services:
     restart: on-failure
     command: python amc_integration.py
     env_file: .env
+    ports:
+      - "5000:5000"
     volumes: *vol-cred
     networks:
       - dexter-net
