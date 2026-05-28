@@ -499,7 +499,7 @@ services:
       - dexter-net
 
   # ── OTA cron script ───────────────────────────────────────────────────────
-  # docker/ota_update.sh runs hourly via Pi crontab.
+  # docker/ota_update.sh runs at 3 PM daily via Pi crontab; retries at 3 AM if 3 PM failed.
   # It logs into ECR, pulls dexter-edge:latest, and restarts the stack if
   # the image changed. Rollback: docker/docker_rollback.sh sha-<7char>
 

@@ -1,6 +1,8 @@
 #!/bin/bash
 # OTA update: check ECR for a new dexter-edge:latest and restart if changed.
-# Runs once daily via cron (2 AM).
+# Runs once daily via cron (3 PM).
+# If the 3 PM run fails, a second cron entry at 3 AM calls this script with
+# --retry; it re-runs only when the last attempt was recorded as FAILED.
 #
 # Ethernet mode: pull directly over eth0 — no extra steps.
 # GSM mode     : briefly bring up ppp0 (pon c16qs) for the pull, then hold
@@ -13,10 +15,24 @@ ECR="901178127457.dkr.ecr.ap-south-1.amazonaws.com"
 REGION="ap-south-1"
 COMPOSE_DIR="/home/pi/Test3"
 LOG_TAG="dexter-ota"
+OTA_FLAG="/tmp/dexter_ota_lastrun"
 
 log() { echo "[$(date '+%Y-%m-%d %H:%M:%S')] $*"; logger -t "$LOG_TAG" "$*"; }
 
-# Read network_type from modem_config.db
+# ── retry guard ───────────────────────────────────────────────────────────────
+# When called with --retry (3 AM cron), skip if the last 3 PM run succeeded.
+if [[ "${1:-}" == "--retry" ]]; then
+    if grep -q "^OK" "$OTA_FLAG" 2>/dev/null; then
+        log "Retry check: last run OK — no retry needed."
+        exit 0
+    fi
+    log "Retry check: last run FAILED — retrying OTA now."
+fi
+
+# Write FAILED to the flag on any error; overwritten with OK at the end.
+trap 'echo "FAILED $(date +%Y-%m-%d\ %H:%M:%S)" > "$OTA_FLAG"; log "OTA failed — flag written for 3 AM retry."' ERR
+
+# ── network setup ─────────────────────────────────────────────────────────────
 NETWORK_TYPE=$(python3 -c "
 import sqlite3
 try:
@@ -38,11 +54,13 @@ if [ "$NETWORK_TYPE" = "gsm" ]; then
     sleep 25  # wait for ppp0 to establish and get IP
 fi
 
+# ── ECR login ─────────────────────────────────────────────────────────────────
 # Refresh ECR login (token valid 12h)
 aws ecr get-login-password --region "$REGION" \
   | docker login --username AWS --password-stdin "$ECR" > /dev/null 2>&1 \
   || { log "ECR login failed"; $GSM_MODE && { poff c16qs || true; }; exit 1; }
 
+# ── docker image pull ─────────────────────────────────────────────────────────
 # Pull latest image — outputs "Image is up to date" or "Pull complete"
 cd "$COMPOSE_DIR"
 PULL_OUT=$(docker compose pull dexter-core 2>&1)
@@ -57,6 +75,7 @@ else
     log "Already up to date. No action taken."
 fi
 
+# ── GSM cleanup ───────────────────────────────────────────────────────────────
 if $GSM_MODE; then
     log "Holding ppp0 up for 90s — Prometheus remote_write flushing queued metrics to EC2..."
     sleep 90
@@ -64,3 +83,7 @@ if $GSM_MODE; then
     poff c16qs || true
     log "GSM OTA + metrics flush complete. SerialCommunication.py will re-open serial automatically."
 fi
+
+# ── success flag ──────────────────────────────────────────────────────────────
+echo "OK $(date '+%Y-%m-%d %H:%M:%S')" > "$OTA_FLAG"
+log "OTA complete — status flag: OK"

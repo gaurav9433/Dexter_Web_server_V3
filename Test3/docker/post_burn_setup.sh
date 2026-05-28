@@ -60,6 +60,18 @@ log "Stack started."
 log "Container status:"
 docker compose ps --format "table {{.Name}}\t{{.Status}}"
 
+# ── Step 8: install OTA cron jobs ─────────────────────────────────────────────
+# Primary:  3 PM daily — check ECR and pull new image if available.
+# Retry:    3 AM daily — re-run only if the 3 PM attempt was recorded as FAILED.
+OTA_SCRIPT="$SCRIPTS_DIR/ota_update.sh"
+OTA_LOG="/var/log/dexter-ota.log"
+CRON_PRIMARY="0 15 * * * $OTA_SCRIPT >> $OTA_LOG 2>&1"
+CRON_RETRY="0 3  * * * $OTA_SCRIPT --retry >> $OTA_LOG 2>&1"
+
+# Add only if not already present
+(crontab -l 2>/dev/null | grep -v "ota_update.sh"; echo "$CRON_PRIMARY"; echo "$CRON_RETRY") | crontab -
+log "OTA cron installed: 3 PM daily (primary) + 3 AM daily (retry on failure)."
+
 log ""
 log "post_burn_setup complete for $DEVICE_NAME."
-log "OTA cron will check ECR hourly. ECR token refreshes every 6 h."
+log "OTA cron: checks ECR at 3 PM; retries at 3 AM if 3 PM failed. ECR token valid 12 h."
