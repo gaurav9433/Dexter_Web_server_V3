@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial Dashboard - DexBank</title>
+    <link rel="stylesheet" href="{{url_for('static',filename='css/styles.css')}}">
+    <link rel="stylesheet" href="{{url_for('static',filename='css/financial.css')}}">
+    <link rel="stylesheet" href="{{url_for('static',filename='css/layout.css')}}">
+</head>
+<body>
+    <div class="financial-container">
+        <!-- Header -->
+        <div class="fin-header">
+            <div class="fin-logo">💰 DexBank</div>
+            <div class="fin-user-info">
+                <span>Welcome, John Doe</span>
+                <div class="fin-user-avatar">JD</div>
+            </div>
+        </div>
+        
+        <!-- Main Grid -->
+        <div class="fin-grid">
+            <!-- Balance Card -->
+            <div class="fin-card fin-balance-card">
+                <div class="fin-balance-label">Total Balance</div>
+                <div class="fin-balance-amount">$24,589.00</div>
+                <div class="fin-card-number">•••• •••• •••• 4829</div>
+                <div class="fin-quick-actions">
+                    <button class="fin-action-btn primary">
+                        <span>💸</span>
+                        <span>Transfer</span>
+                    </button>
+                    <button class="fin-action-btn primary">
+                        <span>📄</span>
+                        <span>Pay Bills</span>
+                    </button>
+                    <button class="fin-action-btn primary">
+                        <span>📊</span>
+                        <span>Statistics</span>
+                    </button>
+                    <button class="fin-action-btn primary">
+                        <span>💳</span>
+                        <span>Cards</span>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Income Stat -->
+            <div class="fin-card fin-stat-card">
+                <div class="fin-stat-icon income">⬆️</div>
+                <div class="fin-stat-value">$8,450</div>
+                <div class="fin-stat-label">Income</div>
+            </div>
+            
+            <!-- Expense Stat -->
+            <div class="fin-card fin-stat-card">
+                <div class="fin-stat-icon expense">⬇️</div>
+                <div class="fin-stat-value">$3,280</div>
+                <div class="fin-stat-label">Expenses</div>
+            </div>
+            
+            <!-- Savings Stat -->
+            <div class="fin-card fin-stat-card">
+                <div class="fin-stat-icon savings">💎</div>
+                <div class="fin-stat-value">$5,310</div>
+                <div class="fin-stat-label">Savings</div>
+            </div>
+        </div>
+        
+        <!-- Second Row -->
+        <div class="fin-grid">
+            <!-- Recent Transactions -->
+            <div class="fin-card">
+                <div class="fin-section-title">Recent Transactions</div>
+                <div class="fin-transaction-list">
+                    <div class="fin-transaction-item">
+                        <div class="fin-transaction-info">
+                            <div class="fin-transaction-icon" style="background: rgba(255, 193, 7, 0.2);">🛒</div>
+                            <div class="fin-transaction-details">
+                                <h4>Amazon Shopping</h4>
+                                <p>Today, 10:30 AM</p>
+                            </div>
+                        </div>
+                        <div class="fin-transaction-amount negative">-$125.00</div>
+                    </div>
+                    
+                    <div class="fin-transaction-item">
+                        <div class="fin-transaction-info">
+                            <div class="fin-transaction-icon" style="background: rgba(0, 255, 136, 0.2);">💰</div>
+                            <div class="fin-transaction-details">
+                                <h4>Salary Deposit</h4>
+                                <p>Yesterday, 9:00 AM</p>
+                            </div>
+                        </div>
+                        <div class="fin-transaction-amount positive">+$4,500.00</div>
+                    </div>
+                    
+                    <div class="fin-transaction-item">
+                        <div class="fin-transaction-info">
+                            <div class="fin-transaction-icon" style="background: rgba(255, 77, 77, 0.2);">⚡</div>
+                            <div class="fin-transaction-details">
+                                <h4>Electricity Bill</h4>
+                                <p>Mar 25, 2026</p>
+                            </div>
+                        </div>
+                        <div class="fin-transaction-amount negative">-$89.50</div>
+                    </div>
+                    
+                    <div class="fin-transaction-item">
+                        <div class="fin-transaction-info">
+                            <div class="fin-transaction-icon" style="background: rgba(0, 212, 255, 0.2);">🍔</div>
+                            <div class="fin-transaction-details">
+                                <h4>Restaurant Payment</h4>
+                                <p>Mar 24, 2026</p>
+                            </div>
+                        </div>
+                        <div class="fin-transaction-amount negative">-$45.00</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Weekly Spending Chart -->
+            <div class="fin-card">
+                <div class="fin-section-title">Weekly Spending</div>
+                <div class="fin-chart-placeholder">
+                    <div class="fin-chart-bars">
+                        <div class="fin-chart-bar" style="--bar-height: 60px; height: 60px;"></div>
+                        <div class="fin-chart-bar" style="--bar-height: 90px; height: 90px;"></div>
+                        <div class="fin-chart-bar" style="--bar-height: 45px; height: 45px;"></div>
+                        <div class="fin-chart-bar" style="--bar-height: 120px; height: 120px;"></div>
+                        <div class="fin-chart-bar" style="--bar-height: 80px; height: 80px;"></div>
+                        <div class="fin-chart-bar" style="--bar-height: 100px; height: 100px;"></div>
+                        <div class="fin-chart-bar" style="--bar-height: 70px; height: 70px;"></div>
+                    </div>
+                </div>
+                <div class="fin-chart-labels">
+                    <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+                </div>
+            </div>
+            
+            <!-- Upcoming Bills -->
+            <div class="fin-card">
+                <div class="fin-section-title">Upcoming Bills</div>
+                <div class="fin-bill-item">
+                    <div class="fin-bill-info">
+                        <div class="fin-bill-icon" style="background: rgba(255, 193, 7, 0.2);">🏠</div>
+                        <div class="fin-bill-details">
+                            <h4>Rent</h4>
+                            <p>Due: Apr 1, 2026</p>
+                        </div>
+                    </div>
+                    <button class="fin-pay-btn pay">$1,200</button>
+                </div>
+                
+                <div class="fin-bill-item">
+                    <div class="fin-bill-info">
+                        <div class="fin-bill-icon" style="background: rgba(0, 212, 255, 0.2);">📱</div>
+                        <div class="fin-bill-details">
+                            <h4>Internet</h4>
+                            <p>Due: Apr 5, 2026</p>
+                        </div>
+                    </div>
+                    <button class="fin-pay-btn paid">Paid</button>
+                </div>
+                
+                <div class="fin-bill-item">
+                    <div class="fin-bill-info">
+                        <div class="fin-bill-icon" style="background: rgba(255, 77, 77, 0.2);">🚗</div>
+                        <div class="fin-bill-details">
+                            <h4>Car Insurance</h4>
+                            <p>Due: Apr 10, 2026</p>
+                        </div>
+                    </div>
+                    <button class="fin-pay-btn pay">$150</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Add interactivity to action buttons
+        document.querySelectorAll('.fin-action-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const action = this.querySelector('span:last-child').textContent;
+                alert(action + ' feature coming soon!');
+            });
+        });
+        
+        // Add interactivity to pay buttons
+        document.querySelectorAll('.fin-pay-btn.pay').forEach(btn => {
+            btn.addEventListener('click', function() {
+                this.textContent = 'Paid';
+                this.classList.remove('pay');
+                this.classList.add('paid');
+                alert('Payment successful!');
+            });
+        });
+        
+        // Animate chart bars on load
+        setTimeout(function() {
+            document.querySelectorAll('.fin-chart-bar').forEach(function(bar) {
+                var height = bar.style.height;
+                bar.style.height = '0';
+                setTimeout(function() {
+                    bar.style.height = height;
+                }, 100);
+            });
+        }, 500);
+    </script>
+</body>
+</html>

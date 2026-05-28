@@ -1,0 +1,176 @@
+# =============================================================================
+# settings.yaml — Dexter HMS Centralised Configuration
+# =============================================================================
+#
+# ARCH-03 FIX: All configuration previously scattered across 40+ modules as
+# hardcoded magic numbers, inline constants, and default parameter values is
+# centralised here. This is the single authoritative source of truth.
+#
+# Load at startup:   from dexter_config import settings
+# Access a value:    settings.mqtt.broker
+# Override per-env:  Copy to settings.local.yaml (gitignored) and set values.
+#                    dexter_config.py merges local overrides at runtime.
+#
+# NEVER store secrets here — credentials stay in /etc/dexter/.env
+# =============================================================================
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# MQTT / ThingsBoard
+# ─────────────────────────────────────────────────────────────────────────────
+mqtt:
+  port:            8883          # TLS-only port — plain 1883 is prohibited
+  qos:             1             # QoS-1: at-least-once delivery
+  keepalive_sec:   60
+  poll_interval_sec: 5           # ChildProgram.run() sleep between DB reads
+  backoff_min_sec: 1             # Exponential backoff floor on reconnect
+  backoff_max_sec: 300           # Exponential backoff ceiling (5 minutes)
+
+  topics:
+    telemetry:   "v1/devices/me/telemetry"
+    attributes:  "v1/devices/me/attributes"
+    rpc_request: "v1/devices/me/rpc/request/+"
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Database Paths
+# ─────────────────────────────────────────────────────────────────────────────
+database:
+  base_dir:          "/home/pi/Test3"
+  modem_config:      "/home/pi/Test3/modem_config.db"
+  panel:             "/home/pi/Test3/panel.db"
+  payloads:          "/home/pi/Test3/payloads.db"
+  buffer:            "/home/pi/Test3/buffer.db"
+  system_settings:   "/home/pi/Test3/system_settings.db"
+  cavli_running:     "/home/pi/Test3/cavliRunningParam.db"
+  controller_params: "/home/pi/Test3/controller_params.db"
+  securelink:        "/home/pi/Test3/securelink.db"
+  nvr_dvr_bacs:      "/home/pi/Test3/nvr_dvr_bacs_integration.db"
+  operator_codes:    "/home/pi/Test3/operator_codes.db"
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Buffer Manager
+# ─────────────────────────────────────────────────────────────────────────────
+buffer:
+  max_rows:        50000         # Hard cap — oldest rows purged on overflow
+  ttl_days:        7             # Records older than this are expired
+  cleanup_days:    60            # RPi_Task_Manager stats retention
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Watchdog Timeouts
+# ─────────────────────────────────────────────────────────────────────────────
+watchdog:
+  default_timeout_sec:      3600   # 1 hour — most polling modules
+  serial_comm_timeout_sec:  1800   # 30 min — SerialCommunication.py
+  tl_main_timeout_sec:      1800   # 30 min — TLChronosProMAIN_391.py
+  alert_stream_timeout_sec: 1800   # 30 min — xml_parsing_field_log.py
+  serial_logger_timeout_sec: 600   # 10 min — serial_data_logger.py
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# NVR / DVR Poll Schedules
+# ─────────────────────────────────────────────────────────────────────────────
+nvr:
+  # Hikvision
+  hik_device_info_time:    "17:05"  # xml_parsing3.py condition_1
+  hik_heartbeat_interval_sec: 300   # xml_parsing3.py condition_2
+  hik_rtc_sync_interval_sec:  600   # xml_parsing3.py condition_3
+  hik_hdd_status_time:     "17:12"  # xml_parsing3.py condition_4
+  hik_sd_card_time:        "17:15"  # Hik_SD_Card.py
+  hik_recording_scan_time: "17:42"  # hiknvrlite7.py
+
+  # CP Plus
+  cp_plus_heartbeat_interval_min: 2    # cp_plus_nvr_dvr_information.py
+  cp_plus_rtc_sync_interval_min:  3
+  cp_plus_camera_info_time: "17:25"
+  cp_plus_hdd_info_time:    "17:30"
+  cp_plus_sd_card_time:     "17:10"
+
+  # Dahua
+  dahua_heartbeat_interval_min:  5    # dahua_nvr_dvr_information.py
+  dahua_rtc_sync_interval_min:   10
+  dahua_camera_info_time:   "17:25"
+  dahua_hdd_info_time:      "17:30"
+  dahua_sd_card_time:       "17:10"
+
+  # Cam status (all vendors)
+  cam_status_interval_hr:   1
+  cam_status_interval_min:  63        # Dahua offset to avoid collision
+
+  # Health check timeouts
+  health_check_timeout_sec: 10
+  parallel_check_max_workers: 4       # PERF-01 ThreadPoolExecutor
+
+  # Circuit breaker thresholds (ARCH-04)
+  circuit_breaker_degraded_threshold:     2   # failures before DEGRADED
+  circuit_breaker_open_threshold:         5   # failures before DISCONNECTED
+  circuit_breaker_half_open_timeout_sec:  60  # wait before RECOVERING probe
+  circuit_breaker_recovery_timeout_sec:   300 # backoff cap in DISCONNECTED
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# RTC Sync
+# ─────────────────────────────────────────────────────────────────────────────
+rtc:
+  sync_interval_hr:    1       # All three vendors: cp_plus, dahua, hik
+  drift_tolerance_sec: 300     # Only sync if drift > this threshold
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# RPi System Health
+# ─────────────────────────────────────────────────────────────────────────────
+rpi:
+  stats_interval_sec:   60     # RPi_Task_Manager log_stats() cycle
+  send_stats_interval_hr: 1    # RPi_Task_Manager send_current_stats()
+  cpu_alert_threshold:   90.0  # %
+  mem_alert_threshold:   90.0  # %
+  disk_alert_threshold:  90.0  # %
+  temp_alert_threshold:  75.0  # °C — RPi4 throttles at 80°C
+  freq_alert_threshold:  1900.0 # MHz
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Serial Communication
+# ─────────────────────────────────────────────────────────────────────────────
+serial:
+  port:            "/dev/ttyS0"
+  baudrate:        115200
+  timeout_sec:     1
+  usage_report_interval_min: 15
+  usage_alert_limit_mb:      25    # check_and_notify_usage_limit default
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# OTA Update Pipeline
+# ─────────────────────────────────────────────────────────────────────────────
+ota:
+  rate_limit_per_hour:    1        # rate_limiter.py
+  reboot_rate_per_hour:   3
+  backup_keep_count:      3        # ota_restore_backup.py — keep last N
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# ThingsBoard Telemetry Schedule
+# ─────────────────────────────────────────────────────────────────────────────
+telemetry:
+  schedule_update_2_tb:              30   # SCHEDULE_UPDATE_2_TB tick count
+  schedule_update_2_active_device:   10   # SCHEDULE_UPDATE_2_ACTIVE_DEVICE_TB
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Logging
+# ─────────────────────────────────────────────────────────────────────────────
+logging:
+  log_file:          "/var/log/dexter/dexter.log"
+  max_bytes:         10485760    # 10 MB per file
+  backup_count:      5           # 5 rotated files = 50 MB max
+  retention_days:    30
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Tailscale
+# ─────────────────────────────────────────────────────────────────────────────
+tailscale:
+  cgnat_range: "100.64.0.0/10"   # Valid Tailscale IP range for security checks

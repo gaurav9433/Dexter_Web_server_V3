@@ -1,0 +1,22 @@
+[Unit]
+Description=Dexter HMS — Prometheus Debug Exporter
+After=network-online.target dexter-main.service
+Wants=network-online.target
+PartOf=dexter.target
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/home/pi/Test3
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/usr/bin/python3 /home/pi/Test3/dexter_debug_exporter.py
+Restart=on-failure
+RestartSec=15
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=dexter-exporter
+MemoryMax=64M
+CPUQuota=10%
+
+[Install]
+WantedBy=dexter.target

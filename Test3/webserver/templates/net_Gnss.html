@@ -1,0 +1,140 @@
+{% extends "layout.html" %}
+{% block title %}eSim Settings{% endblock %}
+{% block head %}
+    {{ super() }}
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/network.css') }}">
+{% endblock %}
+{% block body %}
+  
+
+<div class="main-content">
+    
+    <div class= "path_content" id="path_content"> 
+        <div id="breadcrumbContainer">
+            <h5><img src="https://img.icons8.com/3d-fluency/94/satellite-sending-signal.png" 
+                class="menu-icon" style="width: 30px; height: 30px; vertical-align: middle; margin-right: 8px;">
+                Network Settings > Gnss </h5>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="control">
+            <h1>GNSS Settings</h1>
+            <input type="checkbox" class="toggle-button" id="gnssToggle">
+        </div>
+        <div class="status" id="status"></div>
+    </div>
+    </div>
+    <script>
+
+        document.addEventListener("DOMContentLoaded", function(){
+            function sendData(gnss_activated){
+
+                var data ={
+                    "gnss_activated" : gnss_activated,
+                };
+                
+                fetch("/net_gnss", {
+                    method: "PUT",
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                })
+                .then(response=>{
+                    if(response.ok){
+                        console.log("data sent successfully");
+                    }else{
+                        console.log("Error sending data");
+                    }
+                })
+                .catch(error=>{
+                    console.log("Error sending data");
+                })
+            }
+
+            function togglegnss(){
+                var gnssToggle = document.getElementById("gnssToggle");
+                var status = document.getElementById("status")
+                if(gnssToggle.checked){
+                    sendData(true);
+                    status.textContent = "GNSS is enabled"
+                    status.style.backgroundColor = "var(--success-color)";
+                    status.style.color = "white";
+                }else{
+                    sendData(false);
+                    status.textContent = "GNSS is disabled"
+                    status.style.backgroundColor = "var(--gray-color)";
+                    status.style.color = "white";
+                }
+
+            }
+
+            function initializegnss(){
+                fetch('/get_gnss')
+                .then(response=>{
+                    if (!response.ok){
+                        throw new Error('Faild to get data')
+                    }
+                    return response.json();
+
+                })
+                .then(data=>{
+                    var gnssToggle = document.getElementById("gnssToggle");
+                    var status = document.getElementById("status");
+
+                    var gnss_activated = parseInt(data[0][1]);
+
+                    gnssToggle.checked = gnss_activated;
+                    
+                    if(gnss_activated){
+                        status.textContent = "GNSS is enabled"
+                        status.style.backgroundColor = "var(--success-color)";
+                        status.style.color = "white";
+                    }else{
+                        status.textContent = "GNSS is disabled"
+                        status.style.backgroundColor = "var(--gray-color)";
+                        status.style.color = "white";
+                    }
+
+                    //console.log(data)
+                })
+                .catch(error=>{
+                    console.log("Error getting data")
+                })
+            }
+
+            initializegnss();
+
+            var gnssToggle = document.getElementById("gnssToggle");
+
+            if(gnssToggle){
+                gnssToggle.addEventListener("change", togglegnss);
+            }
+        
+            // Add haptic feedback for touch devices
+            var toggle = document.querySelector('.toggle-button');
+            if (toggle) {
+                toggle.addEventListener('touchstart', function() {
+                    if ('vibrate' in navigator) {
+                        navigator.vibrate(15);
+                    }
+                });
+            }
+        })
+
+        
+
+
+
+       
+
+
+
+    </script>
+    
+
+<!-- <script src="{{url_for('static',filename='js/network.js')}}"></script>  -->
+
+{% endblock %}

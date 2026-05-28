@@ -1,0 +1,513 @@
+# =============================================================================
+# Dexter HMS Edge Agent — docker-compose.yml
+#
+# All services share the same Docker image (dexter-edge).
+# Each container runs a different Python entry point.
+#
+# Restart policies:
+#   unless-stopped  — always-running services (serial, monitor, core)
+#   on-failure      — integration services that exit 0 when disabled in DB
+#
+# Migration strategy: /home/pi/Test3 is bind-mounted from the host so
+# existing SQLite databases and config files are shared with all containers.
+# Stop each systemd service, start its Docker counterpart —
+# databases stay intact, no data migration needed.
+#
+# Usage:
+#   docker compose up -d              # start all services
+#   docker compose logs -f            # stream logs
+#   # OTA updates handled automatically by dexter-watchtower (polls ECR hourly)
+# =============================================================================
+
+# ── Reusable volume blocks (YAML anchors) ─────────────────────────────────────
+# Use as:  volumes: *vol-common        (no cred key needed)
+#          volumes: *vol-cred          (includes /etc/dexter:ro)
+x-vol-common: &vol-common
+  - /home/pi/Test3:/home/pi/Test3       # shared DBs + configs
+  - /var/log/dexter:/var/log/dexter     # persistent log directory
+  - /dev/log:/dev/log                   # syslog socket for logging handlers
+
+x-vol-cred: &vol-cred
+  - /home/pi/Test3:/home/pi/Test3       # shared DBs + configs
+  - /var/log/dexter:/var/log/dexter     # persistent log directory
+  - /dev/log:/dev/log                   # syslog socket for logging handlers
+  - /etc/dexter:/etc/dexter:ro          # Fernet key + credential auth key
+
+services:
+
+  # ── Main HMS Controller ────────────────────────────────────────────────────
+  # Runs TLChronosProMAIN_391.py — needs GPIO, serial port, I2C (RTC)
+  dexter-core:
+    image: ${DEXTER_IMAGE:-dexter-edge:latest}
+    container_name: dexter-core
+    restart: unless-stopped
+    command: python TLChronosProMAIN_391.py
+    env_file: .env
+    privileged: true
+    pid: host                           # nsenter for reboot, pon/poff, provisioning
+    devices:
+      - /dev/ttyS0:/dev/ttyS0           # Serial port — security panel comms
+      - /dev/i2c-1:/dev/i2c-1           # I2C bus — DS1307 RTC
+      - /dev/gpiomem:/dev/gpiomem       # GPIO memory map (legacy compat)
+      - /dev/gpiochip0:/dev/gpiochip0   # GPIO char device — required by rpi-lgpio
+    volumes:
+      - /home/pi/Test3:/home/pi/Test3
+      - /var/log/dexter:/var/log/dexter
+      - /dev/log:/dev/log
+      - /etc/dexter:/etc/dexter:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /etc/ppp:/etc/ppp:ro                        # PPP peer configs (GSM provisioning)
+      - /etc/chatscripts:/etc/chatscripts:ro         # PPP chat scripts (GSM provisioning)
+    networks:
+      - dexter-net
+
+  # ── Flask Web Server ───────────────────────────────────────────────────────
+  # Runs webserver/seple.py — HTTPS on port 5001
+  #
+  # privileged + pid:host — required so the webserver can use nsenter to
+  # reach the host OS for: RPi reboot, systemd timer (weekly reboot
+  # schedule), and host clock/hwclock (date-time setting).
+  # /dev/i2c-1 — DS1307 RTC access for date-time setting.
+  # /var/run/docker.sock — start/stop integration containers from the UI.
+  dexter-webserver:
+    image: ${DEXTER_IMAGE:-dexter-edge:latest}
+    container_name: dexter-webserver
+    restart: unless-stopped
+    working_dir: /home/pi/Test3/webserver
+    command: python seple.py
+    env_file: .env
+    privileged: true
+    pid: host
+    ports:
+      - "5001:5001"
+    devices:
+      - /dev/i2c-1:/dev/i2c-1
+    volumes:
+      - /home/pi/Test3:/home/pi/Test3
+      - /var/log/dexter:/var/log/dexter
+      - /dev/log:/dev/log
+      - /etc/dexter:/etc/dexter:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /etc/ppp:/etc/ppp:ro                        # PPP peer configs (GSM provisioning)
+      - /etc/chatscripts:/etc/chatscripts:ro         # PPP chat scripts (GSM provisioning)
+    networks:
+      - dexter-net
+
+  # ── Serial Communication Controller ───────────────────────────────────────
+  # Runs SerialCommunication.py — Cavli cellular modem via ttyAMA0 (mapped as
+  # ttyS0 inside container to match settings.yaml port config)
+  dexter-serial-comm:
+    image: ${DEXTER_IMAGE:-dexter-edge:latest}
+    container_name: dexter-serial-comm
+    restart: unless-stopped
+    command: python SerialCommunication.py
+    env_file: .env
+    privileged: true
+    pid: host                           # nsenter for host pon/poff and webcall commands
+    devices:
+      - /dev/ttyAMA0:/dev/ttyS0         # Cavli modem UART (ttyS0 → ttyAMA0 on RPi 4)
+      - /dev/ttyUSB0:/dev/ttyUSB0       # USB-serial adapter — security panel
+    volumes:
+      - /home/pi/Test3:/home/pi/Test3
+      - /var/log/dexter:/var/log/dexter
+      - /dev/log:/dev/log
+      - /etc/dexter:/etc/dexter:ro
+      - /etc/ppp:/etc/ppp:ro            # PPP peer configs (GSM send_dexter_config)
+      - /etc/chatscripts:/etc/chatscripts:ro
+    networks:
+      - dexter-net
+
+  # ── Serial Data Logger ─────────────────────────────────────────────────────
+  # Runs serial_data_logger.py — logs panel_current, battery, ac_voltage to DB
+  dexter-serial-logger:
+    image: ${DEXTER_IMAGE:-dexter-edge:latest}
+    container_name: dexter-serial-logger
+    restart: unless-stopped
+    command: python serial_data_logger.py
+    env_file: .env
+    depends_on:
+      - dexter-serial-comm
+    devices:
+      - /dev/ttyUSB0:/dev/ttyUSB0       # shared with serial-comm (same port)
+    volumes: *vol-common
+    networks:
+      - dexter-net
+
+  # ── RPi System Health Monitor ──────────────────────────────────────────────
+  # Runs RPi_Task_Manager.py — CPU, memory, disk, temperature telemetry
+  # pid: host so psutil reads HOST metrics (not container-level)
+  # privileged: true so thermal sensor (/sys/class/thermal) is accessible
+  dexter-rpi-task:
+    image: ${DEXTER_IMAGE:-dexter-edge:latest}
+    container_name: dexter-rpi-task
+    restart: unless-stopped
+    command: python RPi_Task_Manager.py
+    env_file: .env
+    pid: host
+    privileged: true
+    volumes: *vol-common
+    networks:
+      - dexter-net
+
+  # ── ThingsBoard MQTT Publisher ─────────────────────────────────────────────
+  # Runs thingsboard_mqtt_publisher.py — Ethernet/Wi-Fi devices only.
+  # Exits 0 when network_type != 'ethernet' — on-failure prevents restart loop.
+  dexter-mqtt:
+    image: ${DEXTER_IMAGE:-dexter-edge:latest}
+    container_name: dexter-mqtt
+    restart: on-failure
+    command: python thingsboard_mqtt_publisher.py
+    env_file: .env
+    volumes: *vol-cred
+    networks:
+      - dexter-net
+
+  # ── AMC X412V BAS Integration ──────────────────────────────────────────────
+  # Runs amc_integration.py — SIA-DCS / ADM-CID active integration
+  # Exits 0 when integration disabled in DB — on-failure prevents restart loop.
+  dexter-amc:
+    image: ${DEXTER_IMAGE:-dexter-edge:latest}
+    container_name: dexter-amc
+    restart: on-failure
+    command: python amc_integration.py
+    env_file: .env
+    volumes: *vol-cred
+    networks:
+      - dexter-net
+
+  # ── Texecom BAS Integration ────────────────────────────────────────────────
+  # Runs texecomConnect.py — TCP/IP to Texecom alarm panel (SIA-DCS protocol)
+  # Exits 0 when integration disabled in DB — on-failure prevents restart loop.
+  dexter-texecom-bas:
+    image: ${DEXTER_IMAGE:-dexter-edge:latest}
+    container_name: dexter-texecom-bas
+    restart: on-failure
+    command: python texecomConnect.py
+    env_file: .env
+    volumes: *vol-cred
+    networks:
+      - dexter-net
+
+  # ── Hikvision BAS Integration ──────────────────────────────────────────────
+  dexter-hik-bas:
+    image: ${DEXTER_IMAGE:-dexter-edge:latest}
+    container_name: dexter-hik-bas
+    restart: on-failure
+    command: python hikvision_bas_integration.py
+    env_file: .env
+    volumes: *vol-cred
+    networks:
+      - dexter-net
+
+  # ── Hikvision BAS RTC Sync ─────────────────────────────────────────────────
+  dexter-rtc-hik-bas:
+    image: ${DEXTER_IMAGE:-dexter-edge:latest}
+    container_name: dexter-rtc-hik-bas
+    restart: on-failure
+    command: python hik_bas_rtc_sync.py
+    env_file: .env
+    volumes: *vol-cred
+    networks:
+      - dexter-net
+
+  # ── Hikvision NVR Poller ───────────────────────────────────────────────────
+  dexter-nvr-hikvision:
+    image: ${DEXTER_IMAGE:-dexter-edge:latest}
+    container_name: dexter-nvr-hikvision
+    restart: on-failure
+    command: python xml_parsing3.py
+    env_file: .env
+    volumes: *vol-cred
+    networks:
+      - dexter-net
+
+  # ── Hikvision Alert Stream ─────────────────────────────────────────────────
+  dexter-nvr-hikvision-field:
+    image: ${DEXTER_IMAGE:-dexter-edge:latest}
+    container_name: dexter-nvr-hikvision-field
+    restart: on-failure
+    command: python xml_parsing_field_log.py
+    env_file: .env
+    volumes: *vol-cred
+    networks:
+      - dexter-net
+
+  # ── Hikvision Biometric BACS ───────────────────────────────────────────────
+  dexter-nvr-hikvision-bacs:
+    image: ${DEXTER_IMAGE:-dexter-edge:latest}
+    container_name: dexter-nvr-hikvision-bacs
+    restart: on-failure
+    command: python hikvision1_biometric_14.py
+    env_file: .env
+    volumes: *vol-cred
+    networks:
+      - dexter-net
+
+  # ── Hikvision Recording Analytics ─────────────────────────────────────────
+  dexter-nvr-hik-lite:
+    image: ${DEXTER_IMAGE:-dexter-edge:latest}
+    container_name: dexter-nvr-hik-lite
+    restart: on-failure
+    command: python hiknvrlite7.py
+    env_file: .env
+    volumes: *vol-cred
+    networks:
+      - dexter-net
+
+  # ── Hikvision RTC Sync ─────────────────────────────────────────────────────
+  dexter-rtc-hikvision:
+    image: ${DEXTER_IMAGE:-dexter-edge:latest}
+    container_name: dexter-rtc-hikvision
+    restart: on-failure
+    command: python hik_RTC_sync.py
+    env_file: .env
+    volumes: *vol-cred
+    networks:
+      - dexter-net
+
+  # ── Hikvision SD/HDD Recorder ─────────────────────────────────────────────
+  dexter-sd-hikvision:
+    image: ${DEXTER_IMAGE:-dexter-edge:latest}
+    container_name: dexter-sd-hikvision
+    restart: on-failure
+    command: python Hik_SD_Card.py
+    env_file: .env
+    volumes: *vol-cred
+    networks:
+      - dexter-net
+
+  # ── Dahua NVR Poller ───────────────────────────────────────────────────────
+  dexter-nvr-dahua:
+    image: ${DEXTER_IMAGE:-dexter-edge:latest}
+    container_name: dexter-nvr-dahua
+    restart: on-failure
+    command: python dahua_nvr_dvr_information.py
+    env_file: .env
+    volumes: *vol-cred
+    networks:
+      - dexter-net
+
+  # ── Dahua Event Log Extractor ──────────────────────────────────────────────
+  dexter-extract-dahua:
+    image: ${DEXTER_IMAGE:-dexter-edge:latest}
+    container_name: dexter-extract-dahua
+    restart: on-failure
+    command: python Extract_Logs_Dahua_41.py
+    env_file: .env
+    volumes: *vol-cred
+    networks:
+      - dexter-net
+
+  # ── Dahua RTC Sync ─────────────────────────────────────────────────────────
+  dexter-rtc-dahua:
+    image: ${DEXTER_IMAGE:-dexter-edge:latest}
+    container_name: dexter-rtc-dahua
+    restart: on-failure
+    command: python dahua_RTC_sync.py
+    env_file: .env
+    volumes: *vol-cred
+    networks:
+      - dexter-net
+
+  # ── Dahua SD/HDD Recorder ─────────────────────────────────────────────────
+  dexter-sd-dahua:
+    image: ${DEXTER_IMAGE:-dexter-edge:latest}
+    container_name: dexter-sd-dahua
+    restart: on-failure
+    command: python Dahua_SD_Card_HDD_Recording.py
+    env_file: .env
+    volumes: *vol-cred
+    networks:
+      - dexter-net
+
+  # ── Dahua NVR Recording Info ───────────────────────────────────────────────
+  dexter-rec-dahua:
+    image: ${DEXTER_IMAGE:-dexter-edge:latest}
+    container_name: dexter-rec-dahua
+    restart: on-failure
+    command: python dahua_nvr_rec7.py
+    env_file: .env
+    volumes: *vol-cred
+    networks:
+      - dexter-net
+
+  # ── CP Plus NVR Poller ─────────────────────────────────────────────────────
+  dexter-nvr-cpplus:
+    image: ${DEXTER_IMAGE:-dexter-edge:latest}
+    container_name: dexter-nvr-cpplus
+    restart: on-failure
+    command: python cp_plus_nvr_dvr_information.py
+    env_file: .env
+    volumes: *vol-cred
+    networks:
+      - dexter-net
+
+  # ── CP Plus Event Log Extractor ────────────────────────────────────────────
+  dexter-extract-cpplus:
+    image: ${DEXTER_IMAGE:-dexter-edge:latest}
+    container_name: dexter-extract-cpplus
+    restart: on-failure
+    command: python Extract_Logs_CP_Plus_42.py
+    env_file: .env
+    volumes: *vol-cred
+    networks:
+      - dexter-net
+
+  # ── CP Plus RTC Sync ───────────────────────────────────────────────────────
+  dexter-rtc-cpplus:
+    image: ${DEXTER_IMAGE:-dexter-edge:latest}
+    container_name: dexter-rtc-cpplus
+    restart: on-failure
+    command: python cp_plus_RTC_sync.py
+    env_file: .env
+    volumes: *vol-cred
+    networks:
+      - dexter-net
+
+  # ── CP Plus SD/HDD Recorder ────────────────────────────────────────────────
+  dexter-sd-cpplus:
+    image: ${DEXTER_IMAGE:-dexter-edge:latest}
+    container_name: dexter-sd-cpplus
+    restart: on-failure
+    command: python CP_Plus_SD_Card_HDD_Recording.py
+    env_file: .env
+    volumes: *vol-cred
+    networks:
+      - dexter-net
+
+  # ── CP Plus NVR Recording Info ─────────────────────────────────────────────
+  dexter-rec-cpplus:
+    image: ${DEXTER_IMAGE:-dexter-edge:latest}
+    container_name: dexter-rec-cpplus
+    restart: on-failure
+    command: python cpplusNvrRec.py
+    env_file: .env
+    volumes: *vol-cred
+    networks:
+      - dexter-net
+
+  # ── DSC Neo BAS Integration ───────────────────────────────────────────────
+  # Runs dsc_neo_integration.py — TCP listener for DSC Neo TL280 alarm panels
+  # Exits 0 when integration disabled in DB — on-failure prevents restart loop.
+  dexter-dsc-neo-bas:
+    image: ${DEXTER_IMAGE:-dexter-edge:latest}
+    container_name: dexter-dsc-neo-bas
+    restart: on-failure
+    command: python dsc_neo_integration.py
+    env_file: .env
+    volumes: *vol-cred
+    networks:
+      - dexter-net
+
+  # ── Prometheus Debug Exporter ─────────────────────────────────────────────
+  # Runs dexter_debug_exporter.py — exposes /metrics on port 8000
+  # Prometheus on dev laptop scrapes this for local debugging.
+  # pid: host + privileged so psutil reads HOST CPU/mem/temp metrics.
+  dexter-exporter:
+    image: ${DEXTER_IMAGE:-dexter-edge:latest}
+    container_name: dexter-exporter
+    restart: unless-stopped
+    command: python dexter_debug_exporter.py
+    env_file: .env
+    pid: host
+    privileged: true
+    ports:
+      - "8000:8000"
+    volumes: *vol-cred
+    networks:
+      - dexter-net
+
+  # ── Prometheus ────────────────────────────────────────────────────────────
+  # Scrapes dexter-exporter:8000 every 15s. Data retained for 30 days.
+  # UI accessible at http://<pi-ip>:9090
+  dexter-prometheus:
+    image: prom/prometheus:v2.53.0
+    container_name: dexter-prometheus
+    restart: unless-stopped
+    environment:
+      - DEVICE_NAME=${DEVICE_NAME:-dexter-pi}
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=30d'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--enable-feature=expand-external-labels'
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    networks:
+      - dexter-net
+
+  # ── Grafana ────────────────────────────────────────────────────────────────
+  # Dashboard auto-provisioned from monitoring/grafana/ on first boot.
+  # UI accessible at http://<pi-ip>:3000  (admin / dexter@2025)
+  dexter-grafana:
+    image: grafana/grafana:11.6.0
+    container_name: dexter-grafana
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=dexter@2025
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_ANALYTICS_REPORTING_ENABLED=false
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    networks:
+      - dexter-net
+
+  # ── Portainer Edge Agent ───────────────────────────────────────────────────
+  # Dials OUT to Portainer Server (3.111.214.115:8000) — works through NAT.
+  # Each Pi gets its own EDGE_ID + EDGE_KEY from Portainer UI when adding
+  # a new Edge environment. No inbound ports needed.
+  portainer-agent:
+    image: portainer/agent:2.39.2
+    container_name: portainer_edge_agent
+    restart: always
+    env_file: .env          # PORTAINER_EDGE_ID + PORTAINER_EDGE_KEY written by portainer_register()
+    environment:
+      - EDGE=1
+      - EDGE_ID=${PORTAINER_EDGE_ID}
+      - EDGE_KEY=${PORTAINER_EDGE_KEY}
+      - EDGE_INSECURE_POLL=1
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/lib/docker/volumes:/var/lib/docker/volumes
+      - /:/host
+      - portainer_agent_data:/data
+    networks:
+      - dexter-net
+
+  # ── OTA Restore Pipeline ───────────────────────────────────────────────────
+  # Runs ota_main_restore.py — backup/restore Python files on failed OTA.
+  # Note: reboot is triggered via nsenter into host PID 1 namespace.
+  dexter-ota-restore:
+    image: ${DEXTER_IMAGE:-dexter-edge:latest}
+    container_name: dexter-ota-restore
+    restart: on-failure
+    command: python ota_main_restore.py
+    env_file: .env
+    pid: host                           # nsenter for host reboot on restore
+    privileged: true
+    volumes: *vol-common
+    networks:
+      - dexter-net
+
+  # ── OTA cron script ───────────────────────────────────────────────────────
+  # docker/ota_update.sh runs hourly via Pi crontab.
+  # It logs into ECR, pulls dexter-edge:latest, and restarts the stack if
+  # the image changed. Rollback: docker/docker_rollback.sh sha-<7char>
+
+networks:
+  dexter-net:
+    driver: bridge
+
+volumes:
+  portainer_agent_data:
+  prometheus_data:
+  grafana_data:

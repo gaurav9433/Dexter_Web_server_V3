@@ -1,0 +1,192 @@
+:root {
+    --background-color: #f5f5f5;
+    --text-color: #333;
+    --primary-color: #1d4370;
+    --white: #ffffff;
+    --accent-color: #fca311;
+    --success-color: #28a745;
+    --danger-color: #dc3545;
+    --gray-color: #6c757d;
+    --border-radius: 8px;
+    --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+body {
+    font-family: Arial, sans-serif;
+    margin-top: 50px;
+    margin-left: 0;
+    padding: 0;
+    display: flex;
+    height: 100vh;
+    overflow: hidden; /* Prevent body from scrolling */
+    background-color: var(--background-color);
+}
+
+/* navbar css are in layout.css */
+
+/* Add a black background color to the top navigation */
+
+
+.main-content {
+    margin-left: 300px; /* Same as the width of the side menu */
+    padding: 20px;
+    overflow-y: auto; /* Enable scrolling for the main content */
+    flex: 1;
+    width: calc(100% - 250px);
+    transition: margin-left 0.3s ease, width 0.3s ease;
+}
+
+
+/* body starts */
+
+/* path display css */
+
+.path_content{
+height: fit-conent;
+width: 100%;
+}
+
+
+#breadcrumbContainer {
+  font-size: 18px;
+  color: var(--text-color);
+  background-color: var(--white);
+  padding: 10px;
+  padding-left:30px;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 15px;
+}
+
+#breadcrumbContainer h5 {
+    margin: 0;
+    font-size: 16px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* path display css */  
+
+/* Main content */  
+.container {
+    margin: 20px auto;
+    text-align: center;
+    background: var(--white);
+    padding: 30px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    max-width: 800px;
+    width: 90%;
+    transition: all 0.3s ease;
+}
+
+.maintenance-icon {
+    font-size: 80px;
+    color: var(--primary-color);
+    margin-bottom: 20px;
+    transition: all 0.3s ease;
+}
+
+h1 {
+    font-size: 32px;
+    margin-bottom: 20px;
+    color: var(--primary-color);
+    transition: all 0.3s ease;
+}
+
+p {
+    font-size: 16px;
+    color: var(--text-color);
+    margin: 10px 0;
+    line-height: 1.5;
+}
+
+/* Responsive Styles */
+@media (max-width: 1024px) {
+    .container {
+        width: 95%;
+        padding: 25px;
+    }
+    
+    .maintenance-icon {
+        font-size: 70px;
+    }
+    
+    h1 {
+        font-size: 30px;
+    }
+}
+
+@media (max-width: 768px) {
+    .main-content {
+        margin-left: 0;
+        width: 100%;
+        padding: 15px;
+    }
+    
+    #breadcrumbContainer {
+        padding-left: 15px;
+        font-size: 16px;
+    }
+    
+    .container {
+        width: 90%;
+        margin: 10px auto;
+        padding: 20px;
+    }
+    
+    .maintenance-icon {
+        font-size: 60px;
+        margin-bottom: 15px;
+    }
+    
+    h1 {
+        font-size: 26px;
+        margin-bottom: 15px;
+    }
+    
+    p {
+        font-size: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 15px;
+    }
+    
+    .maintenance-icon {
+        font-size: 50px;
+        margin-bottom: 15px;
+    }
+    
+    h1 {
+        font-size: 24px;
+        margin-bottom: 15px;
+    }
+    
+    p {
+        font-size: 14px;
+    }
+    
+    #breadcrumbContainer h5 {
+        font-size: 14px;
+    }
+}
+
+/* Animation */
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+.maintenance-icon i {
+    animation: pulse 2s infinite ease-in-out;
+    display: inline-block;
+}
+

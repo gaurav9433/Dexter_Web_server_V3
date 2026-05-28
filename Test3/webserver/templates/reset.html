@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="{{url_for('static',filename='css/styles.css')}}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Reset Password</title>
+    <link rel="icon" href="{{ url_for('static', filename='asset/TitleLogo.png') }}" type="image/x-icon" >
+</head>
+<body>
+    <div class="center">
+        <!-- <div class="container mh">Welcome to the Dexter WebServer</div> -->
+    <div class="container">
+        <div class="heading">Reset your password</div>
+        <form class="form" action="/resetpassword" method="post">
+            <div class="user-type-selector">
+                <label class="radio-label">
+                    <input type="radio" name="user_type" value="user" checked>
+                    <span class="radio-custom"></span>
+                    USER (Restricted Access)
+                </label>
+                <label class="radio-label">
+                    <input type="radio" name="user_type" value="site_engineer">
+                    <span class="radio-custom"></span>
+                    ADMIN (Full Access)
+                </label>
+            </div>
+            
+            <input 
+            placeholder="Username"
+            id="username"
+            name="username"
+            type="text"
+            class="input"
+            required autocomplete="username"/>
+
+            <input 
+            placeholder="Old Password"
+            id="old-password"
+            name="password"
+            type="password"
+            class="input"
+            required autocomplete="current-password"/>
+
+            <input 
+            placeholder="New Password"
+            id="new-password"
+            name="newpassword"
+            type="password"
+            class="input"
+            required autocomplete="new-password"/>
+
+            <input 
+            placeholder="Confirm New Password"
+            id="confirm-password"
+            name="cpassword"
+            type="password"
+            class="input"
+            required autocomplete="new-password"/>
+
+            <span class="forgot-password"><a href="/login"><b>Back to Login page?</b></a></span>
+            <input value="Submit" type="submit" class="login-button"/>
+        </form>
+    </div></div>
+    {% if wrong_password %}
+<script>
+  alert("username or password not found");
+</script>
+{% endif %}
+{% if not_same %}
+<script>
+  alert("your new password and confirm password are different");
+</script>
+{% endif %}
+</body>
+</html>
+
+
+
+
+
+
+
+

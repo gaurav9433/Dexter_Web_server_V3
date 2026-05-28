@@ -1,0 +1,95 @@
+# =============================================================================
+# Dexter HMS — Auto-update KNOWLEDGE_BASE.md Recent Changes table
+#
+# Runs on every push to main EXCEPT commits made by this workflow itself
+# (author "github-actions[bot]").  Prepends a new row to the
+# "Recent Changes" table so the newest entry is always at the top.
+# =============================================================================
+
+name: Update Knowledge Base
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  update-kb:
+    name: Append commit to Recent Changes
+    runs-on: ubuntu-latest
+
+    # Skip bot commits to avoid infinite loop
+    if: github.actor != 'github-actions[bot]'
+
+    permissions:
+      contents: write
+
+    steps:
+      # ── 1. Checkout full history ──────────────────────────────────────────
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      # ── 2. Inject row via Python (git + file edit in one step) ────────────
+      - name: Inject Recent Changes row
+        env:
+          GITHUB_SHA: ${{ github.sha }}
+        run: |
+          python3 - <<'PYEOF'
+          import re, os, sys, subprocess
+
+          sha      = os.environ["GITHUB_SHA"]
+          short    = sha[:7]
+          date_str = subprocess.check_output(
+              ["git", "log", "-1", "--format=%as", sha], text=True
+          ).strip()
+          msg = subprocess.check_output(
+              ["git", "log", "-1", "--format=%s", sha], text=True
+          ).strip()
+          # Sanitise: pipe chars and backticks break markdown tables
+          msg = msg.replace("|", "-").replace("`", "'")
+
+          new_row = f"| {date_str} | `{short}` | {msg} |"
+
+          kb = "KNOWLEDGE_BASE.md"
+          with open(kb, "r", encoding="utf-8") as f:
+              content = f.read()
+
+          # Insert after the separator row of the Recent Changes table
+          # The table header block looks like:
+          #   | Date | Commit | Change |
+          #   |------|--------|--------|
+          header_pat = re.compile(
+              r"(\| Date \| Commit \| Change \|\n\|[-| ]+\|\n)"
+          )
+          m = header_pat.search(content)
+          if not m:
+              print("ERROR: Recent Changes table header not found", file=sys.stderr)
+              sys.exit(1)
+
+          new_content = content[: m.end()] + new_row + "\n" + content[m.end() :]
+          with open(kb, "w", encoding="utf-8") as f:
+              f.write(new_content)
+
+          print(f"Inserted: {new_row}")
+          PYEOF
+
+      # ── 3. Commit & push if file changed ─────────────────────────────────
+      - name: Commit updated Knowledge Base
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add KNOWLEDGE_BASE.md
+
+          if git diff --cached --quiet; then
+            echo "No changes — skipping commit."
+            exit 0
+          fi
+
+          SHORT="${GITHUB_SHA:0:7}"
+          git commit -m "docs: knowledge base — sha-${SHORT} added to Recent Changes [skip ci]"
+          git push origin main

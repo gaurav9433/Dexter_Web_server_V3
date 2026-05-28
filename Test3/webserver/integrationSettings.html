@@ -1,0 +1,729 @@
+
+{% extends "layout.html" %}
+{% block title %}Integration Settings{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="integrationSettings.css">
+
+{% endblock %}
+
+{% block body %}
+<div class="main-content">
+    <div id="breadcrumbContainer">
+        <h5><img src="https://img.icons8.com/3d-fluency/94/puzzle.png" class="menu-icon"
+                style="width: 30px; height: 30px; vertical-align: middle; margin-right: 8px;">
+            Device Integration > Integration Settings</h5>
+    </div>
+
+    <!-- Active Integration Section -->
+    <div class="integration-container">
+        <h2 class="section-title"><i class="fas fa-toggle-on"></i> Active Integration</h2>
+
+        <div class="integration-cards">
+            <!-- HIKVISION NVR Setup -->
+            <div class="integration-card">
+                <div class="card-header">
+                    <h3 class="card-title">HIKVISION NVR</h3>
+                </div>
+
+                <form method="POST" action="/save_integration_hiknvr" id="hikvisionNvrForm">
+                    <input type="hidden" name="device_type" value="hikvision-nvr">
+                    <input type="hidden" name="cameras_json" id="hikvisionNvrCamerasJson">
+
+                    <div class="form-group">
+                        <label for="hikvision_nvr_ip">NVR IP Address</label>
+                        <input type="text" id="hikvision_nvr_ip" name="ip_address" class="ip-input"
+                            value="{{ hikvision_nvr_data.ip_address if hikvision_nvr_data else '' }}"
+                            placeholder="e.g. 192.168.1.100" required>
+                        <div id="hikvision_nvr_ip_message" class="validation-message"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="hikvision_nvr_port">NVR Port Number</label>
+                        <input type="text" id="hikvision_nvr_port" name="port_number"
+                            value="{{ hikvision_nvr_data.port_number if hikvision_nvr_data else '8000' }}"
+                            placeholder="e.g. 8000" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="hikvision_nvr_username">NVR Username</label>
+                        <input type="text" id="hikvision_nvr_username" name="username"
+                            value="{{ hikvision_nvr_data.username if hikvision_nvr_data else '' }}"
+                            placeholder="Username" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="hikvision_nvr_password">NVR Password</label>
+                        <p>Tetst eye</p>
+                        <input type="password" id="hikvision_nvr_password" name="password"
+                            value="{{ hikvision_nvr_data.password if hikvision_nvr_data else '' }}"
+                            placeholder="Password">
+                                                       
+                    </div>
+
+                    <input type="hidden" name="device_type_d" value="HikvisionNVR1">
+
+                    <div class="cameras-list">
+                        <h4>Connected Cameras</h4>
+                        <div id="hikvisionNvrCamerasContainer" class="cameras-container">
+                            <!-- Cameras will be listed here -->
+                        </div>
+                    </div>
+
+                    <div class="camera-actions-bottom">
+                        <button type="button" id="hikvisionNvrAddCameraBtn" class="btn btn-secondary">
+                            <i class="fas fa-plus"></i> Add Camera
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Save 
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- HIKVISION BACS Setup -->
+            <div class="integration-card">
+                <div class="card-header">
+                    <h3 class="card-title">HIKVISION BACS</h3>
+                </div>
+
+                <form method="POST" action="/save_integration_hiknvr" id="hikvisionBacsForm">
+                    <input type="hidden" name="device_type" value="hikvision-bacs">
+                    <input type="hidden" name="cameras_json" id="hikvisionBacsCamerasJson">
+
+                    <div class="form-group">
+                        <label for="hikvision_bacs_ip">IP Address</label>
+                        <input type="text" id="hikvision_bacs_ip" name="ip_address" class="ip-input"
+                            value="{{ hikvision_bacs_data.ip_address if hikvision_bacs_data else '' }}"
+                            placeholder="e.g. 192.168.1.100" required>
+                        <div id="hikvision_bacs_ip_message" class="validation-message"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="hikvision_bacs_port">Port Number</label>
+                        <input type="text" id="hikvision_bacs_port" name="port_number"
+                            value="{{ hikvision_bacs_data.port_number if hikvision_bacs_data else '8000' }}"
+                            placeholder="e.g. 8000" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="hikvision_bacs_username">Username</label>
+                        <input type="text" id="hikvision_bacs_username" name="username"
+                            value="{{ hikvision_bacs_data.username if hikvision_bacs_data else '' }}"
+                            placeholder="Username" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="hikvision_bacs_password">Password</label>
+                        <input type="password" id="hikvision_bacs_password" name="password"
+                            value="{{ hikvision_bacs_data.password if hikvision_bacs_data else '' }}"
+                            placeholder="Password">
+                    </div>
+                    <input type="hidden" name="device_type_d" value="HikvisionBioMetric1">
+
+                    <div class="cameras-list">
+                        <h4>Connected Cameras</h4>
+                        <div id="hikvisionBacsCamerasContainer" class="cameras-container">
+                            <!-- Cameras will be listed here -->
+                        </div>
+                    </div>
+
+                    <div class="camera-actions-bottom">
+                        <button type="button" id="hikvisionBacsAddCameraBtn" class="btn btn-secondary">
+                            <i class="fas fa-plus"></i> Add Camera
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Save 
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="integration-card">
+                <div class="card-header">
+                    <h3 class="card-title">DAHUA NVR</h3>
+                </div>
+
+                <form method="POST" action="/save_integration_hiknvr" id="dahuaNvrForm">
+                    <input type="hidden" name="device_type" value="dahua-nvr">
+                    <input type="hidden" name="cameras_json" id="dahuaNvrCamerasJson">
+
+                    <div class="form-group">
+                        <label for="dahua_nvr_ip">IP Address</label>
+                        <input type="text" id="dahua_nvr_ip" name="ip_address" class="ip-input"
+                            value="{{ dahua_nvr_data.ip_address if dahua_nvr_data else '' }}"
+                            placeholder="e.g. 192.168.1.100" required>
+                        <div id="dahua_nvr_ip_message" class="validation-message"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="dahua_nvr_port">Port Number</label>
+                        <input type="text" id="dahua_nvr_port" name="port_number"
+                            value="{{ dahua_nvr_data.port_number if dahua_nvr_data else '37777' }}"
+                            placeholder="e.g. 37777" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="dahua_nvr_username">Username</label>
+                        <input type="text" id="dahua_nvr_username" name="username"
+                            value="{{ dahua_nvr_data.username if dahua_nvr_data else '' }}" placeholder="Username"
+                            required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="dahua_nvr_password">Password</label>
+                        <input type="password" id="dahua_nvr_password" name="password"
+                            value="{{ dahua_nvr_data.password if dahua_nvr_data else '' }}" placeholder="Password">
+                    </div>
+                    <input type="hidden" name="device_type_d" value="DahuaNVR1">
+
+                    <div class="cameras-list">
+                        <h4>Connected Cameras</h4>
+                        <div id="dahuaNvrCamerasContainer" class="cameras-container">
+                            <!-- Cameras will be listed here -->
+                        </div>
+                    </div>
+
+                    <div class="camera-actions-bottom">
+                        <button type="button" id="dahuaNvrAddCameraBtn" class="btn btn-secondary">
+                            <i class="fas fa-plus"></i> Add Camera
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Save 
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="integration-container">
+        <h2 class="section-title"><i class="fas fa-clock"></i> Passive Integrations</h2>
+
+        <div class="integration-cards">
+            <!-- Available for future integration -->
+            <div class="passive-integration">
+                <div class="passive-icon">
+                    <i class="fas fa-plug"></i>
+                </div>
+                <h3>More Integrations Coming Soon</h3>
+                <p class="passive-message">Additional device integration options will be available in future updates.
+                </p>
+            </div>
+
+            <!-- Another future integration option -->
+            <div class="passive-integration">
+                <div class="passive-icon">
+                    <i class="fas fa-cloud"></i>
+                </div>
+                <h3>Cloud Integration</h3>
+                <p class="passive-message">Cloud-based integration services are under development.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Camera Modal for Hikvision NVR -->
+<div id="hikvisionNvrCameraModal" class="modal">
+    <div class="modal-content">
+        <span class="close hikvision-nvr-close">&times;</span>
+        <h3>Add Camera - Hikvision NVR</h3>
+        <form id="hikvisionNvrCameraForm">
+            <div class="form-group">
+                <label for="hikvisionNvrCameraIp">Camera IP Address</label>
+                <input type="text" id="hikvisionNvrCameraIp" class="ip-input" placeholder="e.g. 192.168.1.101" required>
+                <div id="hikvisionNvrCameraIp_message" class="validation-message"></div>
+            </div>
+            <div class="form-group">
+                <label for="hikvisionNvrCameraUsername">Username</label>
+                <input type="text" id="hikvisionNvrCameraUsername" placeholder="Camera username" required>
+            </div>
+            <div class="form-group">
+                <label for="hikvisionNvrCameraPassword">Password</label>
+                <input type="password" id="hikvisionNvrCameraPassword" placeholder="Camera password" required>
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary hikvision-nvr-cancel-btn">Cancel</button>
+                <button type="submit" class="btn btn-primary">Save Camera</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Add Camera Modal for Hikvision BACS -->
+<div id="hikvisionBacsCameraModal" class="modal">
+    <div class="modal-content">
+        <span class="close hikvision-bacs-close">&times;</span>
+        <h3>Add Camera - Hikvision BACS</h3>
+        <form id="hikvisionBacsCameraForm">
+            <div class="form-group">
+                <label for="hikvisionBacsCameraIp">Camera IP Address</label>
+                <input type="text" id="hikvisionBacsCameraIp" class="ip-input" placeholder="e.g. 192.168.1.101" required>
+                <div id="hikvisionBacsCameraIp_message" class="validation-message"></div>
+            </div>
+            <div class="form-group">
+                <label for="hikvisionBacsCameraUsername">Username</label>
+                <input type="text" id="hikvisionBacsCameraUsername" placeholder="Camera username" required>
+            </div>
+            <div class="form-group">
+                <label for="hikvisionBacsCameraPassword">Password</label>
+                <input type="password" id="hikvisionBacsCameraPassword" placeholder="Camera password" required>
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary hikvision-bacs-cancel-btn">Cancel</button>
+                <button type="submit" class="btn btn-primary">Save Camera</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Add Camera Modal for Dahua NVR -->
+<div id="dahuaNvrCameraModal" class="modal">
+    <div class="modal-content">
+        <span class="close dahua-nvr-close">&times;</span>
+        <h3>Add Camera - Dahua NVR</h3>
+        <form id="dahuaNvrCameraForm">
+            <div class="form-group">
+                <label for="dahuaNvrCameraIp">Camera IP Address</label>
+                <input type="text" id="dahuaNvrCameraIp" class="ip-input" placeholder="e.g. 192.168.1.101" required>
+                <div id="dahuaNvrCameraIp_message" class="validation-message"></div>
+            </div>
+            <div class="form-group">
+                <label for="dahuaNvrCameraUsername">Username</label>
+                <input type="text" id="dahuaNvrCameraUsername" placeholder="Camera username" required>
+            </div>
+            <div class="form-group">
+                <label for="dahuaNvrCameraPassword">Password</label>
+                <input type="password" id="dahuaNvrCameraPassword" placeholder="Camera password" required>
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary dahua-nvr-cancel-btn">Cancel</button>
+                <button type="submit" class="btn btn-primary">Save Camera</button>
+            </div>
+        </form>
+    </div>
+</div>
+<script>
+    const hikcamera = {{ c1 | tojson }};
+    const hikbacscamera = {{c2 | tojson}};
+    const dahuacamera = {{c3 | tojson}};
+    // console.log(hikbacscamera)
+    localStorage.setItem('hikvisionNvrCameras', JSON.stringify(hikcamera));
+    localStorage.setItem('hikvisionBacsCameras', JSON.stringify(hikbacscamera));
+    localStorage.setItem('dahuaNvrCameras', JSON.stringify(dahuacamera));
+
+</script>
+<script>
+// show password
+document.addEventListener("DOMContentLoaded", function () {
+    const passwordInput = document.getElementById("hikvision_bacs_password");
+    const toggleIcon = document.getElementById("hikvision_bacs_togglePassword");
+
+    toggleIcon.addEventListener("click", function () {
+        const isPassword = passwordInput.type === "password";
+        passwordInput.type = isPassword ? "text" : "password";
+        this.classList.toggle("fa-eye");
+        this.classList.toggle("fa-eye-slash");
+    });
+});
+
+    const passwordInput = document.getElementById('hikvision_nvr_password');
+    const toggleIcon = document.getElementById('togglePassword');
+
+    toggleIcon.addEventListener('click', function () {
+        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordInput.setAttribute('type', type);
+        this.classList.toggle('fa-eye');
+        this.classList.toggle('fa-eye-slash');
+    });
+
+    // alert(JSON.stringify(hikcamera));
+    function isValidIP(ip) {
+        const ipRegex = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/;
+        const match = ip.match(ipRegex);
+        
+        if (!match) return false;
+        
+        // Check if each octet is between 0-255
+        for (let i = 1; i <= 4; i++) {
+            const octet = parseInt(match[i]);
+            if (octet < 0 || octet > 255) return false;
+        }
+        
+        return true;
+    }
+    
+    // Function to validate IP input in real-time
+    function setupIPValidation(inputId, messageId) {
+        const input = document.getElementById(inputId);
+        const message = document.getElementById(messageId);
+        
+        if (!input || !message) return; // Safety check
+        
+        // Only allow numbers and dots
+        input.addEventListener('input', function(e) {
+            // Remove any characters that aren't numbers or dots
+            let value = e.target.value.replace(/[^0-9.]/g, '');
+            
+            // Prevent multiple consecutive dots
+            value = value.replace(/\.{2,}/g, '.');
+            
+            // Prevent starting with a dot
+            if (value.startsWith('.')) {
+                value = value.substring(1);
+            }
+            
+            // Limit to 4 octets (3 dots maximum)
+            const dots = value.split('.').length - 1;
+            if (dots > 3) {
+                const parts = value.split('.');
+                value = parts.slice(0, 4).join('.');
+            }
+            
+            // Limit each octet to 3 digits
+            const octets = value.split('.');
+            value = octets.map(octet => octet.length > 3 ? octet.substring(0, 3) : octet).join('.');
+            
+            e.target.value = value;
+            
+            // Validate the IP
+            validateIP(input, message);
+        });
+        
+        // Prevent pasting invalid content
+        input.addEventListener('paste', function(e) {
+            e.preventDefault();
+            const pastedText = (e.clipboardData || window.clipboardData).getData('text');
+            const cleanedText = pastedText.replace(/[^0-9.]/g, '');
+            
+            // Set the cleaned text and validate
+            input.value = cleanedText;
+            input.dispatchEvent(new Event('input'));
+        });
+        
+        // Validate on blur
+        input.addEventListener('blur', function() {
+            validateIP(input, message);
+        });
+        
+        // Initial validation if there's already a value
+        if (input.value.trim()) {
+            validateIP(input, message);
+        }
+    }
+    
+    // Function to validate and show feedback
+    function validateIP(input, messageElement) {
+        const value = input.value.trim();
+        
+        if (!value) {
+            input.className = input.className.replace(/ (valid|invalid)/g, '');
+            messageElement.textContent = '';
+            return;
+        }
+        
+        if (isValidIP(value)) {
+            input.className = input.className.replace(/ (valid|invalid)/g, '') + ' valid';
+            messageElement.className = 'validation-message valid-message';
+            messageElement.textContent = '✓ Valid IP address';
+        } else {
+            input.className = input.className.replace(/ (valid|invalid)/g, '') + ' invalid';
+            messageElement.className = 'validation-message invalid-message';
+            
+            // Provide specific error messages
+            if (value.split('.').length !== 4) {
+                messageElement.textContent = '✗ IP must have 4 octets (e.g., 192.168.1.100)';
+            } else if (value.split('.').some(octet => octet === '' || parseInt(octet) > 255)) {
+                messageElement.textContent = '✗ Each octet must be between 0-255';
+            } else {
+                messageElement.textContent = '✗ Invalid IP address format';
+            }
+        }
+    }
+
+    // Camera Management
+    document.addEventListener('DOMContentLoaded', function () {
+        // Initialize IP validation for all IP inputs
+        setupIPValidation('hikvision_nvr_ip', 'hikvision_nvr_ip_message');
+        setupIPValidation('hikvision_bacs_ip', 'hikvision_bacs_ip_message');
+        setupIPValidation('dahua_nvr_ip', 'dahua_nvr_ip_message');
+        setupIPValidation('hikvisionNvrCameraIp', 'hikvisionNvrCameraIp_message');
+        setupIPValidation('hikvisionBacsCameraIp', 'hikvisionBacsCameraIp_message');
+        setupIPValidation('dahuaNvrCameraIp', 'dahuaNvrCameraIp_message');
+        // Detect if the device is mobile
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+        // Initialize camera management for each system
+        initCameraManagement('hikvisionNvr', 'hikvisionNvrCameras');
+        initCameraManagement('hikvisionBacs', 'hikvisionBacsCameras');
+        initCameraManagement('dahuaNvr', 'dahuaNvrCameras');
+
+        // Function to initialize camera management for a specific system
+        function initCameraManagement(systemPrefix, storageKey) {
+            // Get modal elements
+            const modal = document.getElementById(`${systemPrefix}CameraModal`);
+            const addBtn = document.getElementById(`${systemPrefix}AddCameraBtn`);
+            const closeBtn = modal.querySelector(`.${systemPrefix.replace(/([A-Z])/g, '-$1').toLowerCase()}-close`);
+            const cancelBtn = modal.querySelector(`.${systemPrefix.replace(/([A-Z])/g, '-$1').toLowerCase()}-cancel-btn`);
+            const cameraForm = document.getElementById(`${systemPrefix}CameraForm`);
+            const camerasContainer = document.getElementById(`${systemPrefix}CamerasContainer`);
+            const mainForm = document.getElementById(`${systemPrefix}Form`);
+            const camerasJsonInput = document.getElementById(`${systemPrefix}CamerasJson`);
+
+            // Load cameras from localStorage or initialize empty array
+            let cameras = [];
+            try {
+                const savedCameras = localStorage.getItem(storageKey);
+                console.log(saveCamera)
+                cameras = savedCameras ? JSON.parse(savedCameras) : [];
+                if (!Array.isArray(cameras)) {
+                    console.warn(`Stored ${storageKey} was not an array, resetting to empty array`);
+                    cameras = [];
+                }
+            } catch (e) {
+                console.error(`Error loading ${storageKey} from localStorage:`, e);
+                cameras = [];
+            }
+
+            // Display existing cameras
+            function displayCameras() {
+                if (cameras.length === 0) {
+                    camerasContainer.innerHTML = '<div class="no-cameras">No cameras added yet</div>';
+                    return;
+                }
+
+                camerasContainer.innerHTML = '';
+                cameras.forEach((camera, index) => {
+                    const cameraElement = document.createElement('div');
+                    cameraElement.className = 'camera-item';
+                    cameraElement.innerHTML = `
+                        <div class="camera-info">
+                            <span class="camera-serial">${index + 1}.</span>
+                            <span class="camera-ip">${camera.ip_address}</span>
+                            <span class="camera-username">${camera.username}</span>
+                        </div>
+                        <div class="camera-actions">
+                            <button type="button" class="btn-icon edit-camera" data-index="${index}" title="Edit">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button type="button" class="btn-icon delete-camera" data-index="${index}" title="Delete">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    `;
+                    camerasContainer.appendChild(cameraElement);
+                });
+
+                // Add event listeners for edit and delete buttons
+                camerasContainer.querySelectorAll('.edit-camera').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const index = e.currentTarget.getAttribute('data-index');
+                        editCamera(parseInt(index));
+                    });
+                });
+
+                camerasContainer.querySelectorAll('.delete-camera').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const index = e.currentTarget.getAttribute('data-index');
+                        deleteCamera(parseInt(index));
+                    });
+                });
+
+                // Update the hidden JSON input with the current cameras data
+                updateCamerasJsonInput();
+            }
+
+            // Update the hidden JSON input with the current cameras data
+            function updateCamerasJsonInput() {
+                if (camerasJsonInput) {
+                    camerasJsonInput.value = JSON.stringify(cameras);
+                }
+            }
+
+            // Show modal
+            function showModal(editIndex = null) {
+                document.body.style.overflow = 'hidden';
+                modal.style.display = 'block';
+                setTimeout(() => {
+                    modal.classList.add('show');
+                }, 10);
+
+                if (editIndex !== null) {
+                    // Edit mode
+                    const camera = cameras[editIndex];
+                    document.getElementById(`${systemPrefix}CameraIp`).value = camera.ip_address;
+                    document.getElementById(`${systemPrefix}CameraUsername`).value = camera.username;
+                    document.getElementById(`${systemPrefix}CameraPassword`).value = ''; // Don't show password for security
+                    cameraForm.setAttribute('data-edit-index', editIndex);
+                } else {
+                    // Add new mode
+                    cameraForm.reset();
+                    cameraForm.removeAttribute('data-edit-index');
+                }
+            }
+
+            // Hide modal
+            function hideModal() {
+                document.body.style.overflow = 'auto';
+                modal.classList.remove('show');
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                }, 300);
+                cameraForm.reset();
+                cameraForm.removeAttribute('data-edit-index');
+            }
+
+            // Save camera
+            function saveCamera(e) {
+                e.preventDefault();
+
+                const ip = document.getElementById(`${systemPrefix}CameraIp`).value.trim();
+                const username = document.getElementById(`${systemPrefix}CameraUsername`).value.trim();
+                const password = document.getElementById(`${systemPrefix}CameraPassword`).value;
+
+                if (!ip || !username) {
+                    alert('Please fill in all required fields');
+                    return;
+                }
+
+                const editIndex = cameraForm.getAttribute('data-edit-index');
+                const cameraData = {
+                    ip_address: ip,
+                    username,
+                    // Only update password if provided (for editing)
+                    password: password || (editIndex !== null ? cameras[editIndex]?.password || '' : '')
+                };
+
+                if (editIndex !== null) {
+                    // Update existing camera
+                    cameras[editIndex] = cameraData;
+                } else {
+                    // Check if maximum limit reached
+                    if (cameras.length >= 16) {
+                        alert('Maximum limit of 16 cameras reached');
+                        return;
+                    }
+                    // Add new camera
+                    cameras.push(cameraData);
+                }
+
+                // Ensure cameras is an array before saving
+                if (!Array.isArray(cameras)) {
+                    console.warn(`${storageKey} was not an array, resetting to empty array`);
+                    cameras = [];
+                }
+                // Save to localStorage
+                // try {
+                //     localStorage.setItem(storageKey, JSON.stringify(cameras));
+                // } catch (e) {
+                //     console.error(`Error saving ${storageKey} to localStorage:`, e);
+                // }
+
+                // Update display and close modal
+                displayCameras();
+                hideModal();
+            }
+
+            // Edit camera
+            function editCamera(index) {
+                showModal(index);
+            }
+
+            // Delete camera
+            function deleteCamera(index) {
+                if (confirm('Are you sure you want to delete this camera?')) {
+                    cameras.splice(index, 1);
+                    localStorage.setItem(storageKey, JSON.stringify(cameras));
+                    displayCameras();
+                }
+            }
+
+            // Event listeners
+            addBtn.addEventListener('click', () => showModal());
+            closeBtn.addEventListener('click', hideModal);
+            cancelBtn.addEventListener('click', hideModal);
+            cameraForm.addEventListener('submit', saveCamera);
+
+            // Add form submit event to ensure cameras JSON is included
+            if (mainForm) {
+                mainForm.addEventListener('submit', function (e) {
+                    // Update the hidden JSON input with the current cameras data
+                    updateCamerasJsonInput();
+                });
+            }
+
+            // Close modal when clicking outside the content
+            window.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    hideModal();
+                }
+            });
+
+            // Initialize
+            displayCameras();
+
+            // Add touch event handling for mobile devices
+            if (isMobile) {
+                // Add touch effect for camera items on mobile
+                function addTouchEffects() {
+                    camerasContainer.querySelectorAll('.camera-item').forEach(item => {
+                        item.addEventListener('touchstart', function () {
+                            this.style.backgroundColor = '#f5f5f5';
+                        });
+                        item.addEventListener('touchend', function () {
+                            this.style.backgroundColor = '';
+                        });
+                    });
+                }
+
+                // Add touch effects initially and after camera list updates
+                addTouchEffects();
+
+                // Override displayCameras to include touch effects after updates
+                const originalDisplayCameras = displayCameras;
+                displayCameras = function () {
+                    originalDisplayCameras();
+                    addTouchEffects();
+                };
+            }
+        }
+
+        // Add general mobile device enhancements
+        if (isMobile) {
+            document.body.classList.add('mobile-device');
+
+            // Add touch feedback for buttons
+            const buttons = document.querySelectorAll('.btn');
+            buttons.forEach(function (button) {
+                button.addEventListener('touchstart', function () {
+                    this.classList.add('touch-active');
+                });
+                button.addEventListener('touchend', function () {
+                    this.classList.remove('touch-active');
+                });
+            });
+
+            // Add vibration feedback for button presses
+            document.querySelectorAll('.btn').forEach(function (button) {
+                button.addEventListener('click', function () {
+                    if (navigator.vibrate) {
+                        navigator.vibrate(50);
+                    }
+                });
+            });
+
+            // Make form inputs more touch-friendly
+            const inputs = document.querySelectorAll('input');
+            inputs.forEach(function (input) {
+                input.addEventListener('touchstart', function () {
+                    this.classList.add('touch-active');
+                });
+                input.addEventListener('touchend', function () {
+                    this.classList.remove('touch-active');
+                });
+            });
+        }
+    });
+     
+</script>
+{% endblock %}

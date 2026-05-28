@@ -1,0 +1,388 @@
+{% extends "layout.html" %}
+{% block title %}Device Zone Settings{% endblock %}
+{% block head %}
+    {{ super() }}
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/device_config.css') }}">
+{% endblock %}
+{% block body %}
+<div class="main-content">
+    
+    <div class= "path_content" id="path_content"> 
+        <div id="breadcrumbContainer"><h5><img src="https://img.icons8.com/3d-fluency/94/flow-chart.png"  class="menu-icon" style="width: 30px; height: 30px; vertical-align: middle; margin-right: 8px;"
+            >Device Configuration > Normal Zone Configuration</h5></div>
+    </div>
+    
+    <div class="container">
+        <h1>Device Zone Selector</h1>
+        <div id="zonesContainer"></div>
+         <button class="save-button" onclick="saveZones()" id="saveButton">Save</button>
+    </div>
+</div>
+<script>
+    const devices = ['BAS', 'FAS', 'Time Lock', 'BACS' ,'IAS'];
+    let zones = [];
+    let isMobileDevice = window.innerWidth <= 768;
+  
+    function initializeZones() {
+        fetch('/get_zone')
+            .then(response => {
+                if (!response.ok) {
+                    defaultZoneUI();
+                    return;
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (!data) {
+                    defaultZoneUI();
+                    return;
+                }
+                zones = data.map((item, index) => ({
+                    zoneId: index + 1,
+                    activated: parseInt(item[1]),
+                    selectedDevice: item[2],
+                    buzzerStatus: item[3]
+                }));
+                updateZoneUI();
+            })
+            .catch(() => {
+                defaultZoneUI();
+            });
+    }
+    
+    function defaultZoneUI() {
+        const zonesContainer = document.getElementById('zonesContainer');
+        for (let i = 1; i <= 16; i++) {
+            const zone = {
+                zoneId: i,
+                activated: 0, // Set to 0 initially for off
+                selectedDevice: null,
+                buzzerStatus: 'off'
+            };
+            zones.push(zone);
+            createZoneElement(zone, zonesContainer);
+        }
+    }
+
+    function updateZoneUI() {
+        const zonesContainer = document.getElementById('zonesContainer');
+        zonesContainer.innerHTML = ''; // Clear existing zones
+        for (let i = 1; i <= 16; i++) {
+            const zone = zones.find(z => z.zoneId === i);
+            if (zone) {
+                createZoneElement(zone, zonesContainer);
+            } else {
+                createEmptyZoneElement(i, zonesContainer);
+            }
+        }
+        
+        // Add touch event listeners after creating elements
+        addTouchEvents();
+    }
+
+    function createZoneElement(zone, container) {
+        const zoneDiv = document.createElement('div');
+        zoneDiv.className = 'zone';
+        zoneDiv.id = `zone-${zone.zoneId}`;
+
+        let deviceOptions = devices;
+        if([7,8,15,16].includes(zone.zoneId)){
+            deviceOptions = ['CCTV']
+        }
+
+        zoneDiv.innerHTML = `
+        <label for="zone-${zone.zoneId}-select">Zone ${zone.zoneId}</label>
+        <div class="toggle-switch-container">
+            <div class="toggle-switch">
+                <label class="toggle-slider">
+                    <input type="checkbox" id="zone-${zone.zoneId}-toggle" ${zone.activated ? 'checked' : ''} onchange="toggleZone(${zone.zoneId})">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <select id="zone-${zone.zoneId}-select" onchange="handleDeviceChange(${zone.zoneId})" ${zone.activated ? '' : 'disabled'}>
+                <option value="" selected disabled>Select Device</option>
+                ${deviceOptions.map(device => `<option value="${device}" ${zone.selectedDevice === device ? 'selected' : ''}>${device}</option>`).join('')}
+            </select>
+        </div>
+        <div class="buzzer-switch-container">
+            <div class="buzzer-switch">
+                <input type="checkbox" id="zone-${zone.zoneId}-buzzer-switch" ${zone.buzzerStatus === 'on' ? 'checked' : ''} onchange="toggleBuzzer(${zone.zoneId})" ${zone.activated && zone.selectedDevice ? '' : 'disabled'}>
+                <label for="zone-${zone.zoneId}-buzzer-switch">Buzzer: ${zone.buzzerStatus.charAt(0).toUpperCase() + zone.buzzerStatus.slice(1)}</label>
+            </div>
+        </div>
+    `;
+        container.appendChild(zoneDiv);
+    }
+
+    function createEmptyZoneElement(zoneId, container) {
+        const zoneDiv = document.createElement('div');
+        zoneDiv.className = 'zone';
+        zoneDiv.id = `zone-${zoneId}`;
+        
+        let deviceOptions = devices;
+        if([7,8,15,16].includes(zoneId)){
+            deviceOptions = ['CCTV']
+        }
+        
+        zoneDiv.innerHTML = `
+            <label for="zone-${zoneId}-select">Zone ${zoneId}</label>
+            <div class="toggle-switch-container">
+                <div class="toggle-switch">
+                    <label class="toggle-slider">
+                        <input type="checkbox" id="zone-${zoneId}-toggle" onchange="toggleZone(${zoneId})">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <select id="zone-${zoneId}-select" onchange="handleDeviceChange(${zoneId})" disabled>
+                    <option value="" selected disabled>Select Device</option>
+                    ${deviceOptions.map(device => `<option value="${device}">${device}</option>`).join('')}
+                </select>
+            </div>
+            <div class="buzzer-switch-container">
+                <div class="buzzer-switch">
+                    <input type="checkbox" id="zone-${zoneId}-buzzer-switch" onchange="toggleBuzzer(${zoneId})" disabled>
+                    <label for="zone-${zoneId}-buzzer-switch">Buzzer: Off</label>
+                </div>
+            </div>
+        `;
+        container.appendChild(zoneDiv);
+    }
+
+    function toggleZone(zoneId) {
+        let zone = zones.find(z => z.zoneId === zoneId);
+        if (!zone) {
+            zone = {
+                zoneId: zoneId,
+                activated: 1,
+                selectedDevice: null,
+                buzzerStatus: 'off'
+            };
+            zones.push(zone);
+        } else {
+            zone.activated = zone.activated === 1 ? 0 : 1;
+        }
+
+        // Update the checkbox visual state
+        const toggleInput = document.getElementById(`zone-${zoneId}-toggle`);
+        toggleInput.checked = zone.activated === 1;
+
+        const selectElement = document.getElementById(`zone-${zoneId}-select`);
+        const buzzerSwitch = document.getElementById(`zone-${zoneId}-buzzer-switch`);
+
+        // Always keep the selected device in the zone object, just update the UI state
+        if (zone.activated) {
+            selectElement.removeAttribute('disabled');
+            if (zone.selectedDevice) {
+                buzzerSwitch.removeAttribute('disabled');
+                buzzerSwitch.checked = zone.buzzerStatus === 'on';
+            }
+        } else {
+            selectElement.disabled = true;
+            buzzerSwitch.disabled = true;
+            // Don't clear the selectedDevice, just update the UI state
+            const buzzerLabel = document.querySelector(`#zone-${zoneId}-buzzer-switch + label`);
+            if (buzzerLabel) {
+                buzzerLabel.textContent = `Buzzer: ${zone.buzzerStatus.charAt(0).toUpperCase() + zone.buzzerStatus.slice(1)}`;
+            }
+        }
+    }
+
+    function toggleBuzzer(zoneId) {
+        const zone = zones.find(z => z.zoneId === zoneId);
+        if (!zone) {
+            console.error(`Zone with id ${zoneId} not found`);
+            return;
+        }
+        const buzzerSwitch = document.getElementById(`zone-${zoneId}-buzzer-switch`);
+
+        if (zone.selectedDevice) {
+            zone.buzzerStatus = buzzerSwitch.checked ? 'on' : 'off';
+            const buzzerLabel = document.querySelector(`#zone-${zoneId}-buzzer-switch + label`);
+            buzzerLabel.textContent = `Buzzer: ${zone.buzzerStatus.charAt(0).toUpperCase() + zone.buzzerStatus.slice(1)}`;
+            
+            // Add visual feedback for the buzzer toggle
+            buzzerLabel.classList.add('active');
+            setTimeout(() => {
+                buzzerLabel.classList.remove('active');
+            }, 300);
+        }
+    }
+
+    function handleDeviceChange(zoneId) {
+        const zone = zones.find(z => z.zoneId === zoneId);
+        if (!zone) {
+            console.error(`Zone with id ${zoneId} not found`);
+            return;
+        }
+        const selectElement = document.getElementById(`zone-${zoneId}-select`);
+        zone.selectedDevice = selectElement.value;
+        const buzzerSwitch = document.getElementById(`zone-${zoneId}-buzzer-switch`);
+
+        if (zone.selectedDevice) {
+            buzzerSwitch.disabled = false;
+        } else {
+            buzzerSwitch.checked = false;
+            buzzerSwitch.disabled = true;
+            zone.buzzerStatus = 'off';
+            const buzzerLabel = document.querySelector(`#zone-${zoneId}-buzzer-switch + label`);
+            buzzerLabel.textContent = 'Buzzer: Off';
+        }
+    }
+
+    function saveZones() {
+        const saveButton = document.getElementById('saveButton');
+        saveButton.textContent = "Saving...";
+        saveButton.style.backgroundColor = "#6c757d";
+        saveButton.disabled = true;
+        
+        const result = [];
+        for (let i = 1; i <= 16; i++) {
+            const zone = zones.find(z => z.zoneId === i);
+            if (zone) {
+                result.push({
+                    zoneId: zone.zoneId,
+                    activated: zone.activated,
+                    selectedDevice: zone.selectedDevice || null,
+                    buzzerStatus: zone.buzzerStatus || 'off'
+                });
+            } else {
+                result.push({
+                    zoneId: i,
+                    activated: 0,
+                    selectedDevice: null,
+                    buzzerStatus: 'off'
+                });
+            }
+        }
+        
+        fetch('/update_zone', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(result),
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error();
+            }
+            return response.json();
+        })
+        .then(() => {
+            saveButton.textContent = "Saved!";
+            saveButton.style.backgroundColor = "#28a745";
+            setTimeout(() => {
+                saveButton.textContent = "Save";
+                saveButton.style.backgroundColor = "";
+                saveButton.disabled = false;
+            }, 2000);
+            alert("Your selected options have been saved successfully!");
+        })
+        .catch((error) => {
+            console.error("Error saving zones:", error);
+            alert("Failed to save changes. Please try again.");
+            saveButton.textContent = "Save";
+            saveButton.style.backgroundColor = "";
+            saveButton.disabled = false;
+        });
+    }
+    
+    // Function to add touch event listeners for better mobile experience
+    function addTouchEvents() {
+        // Enhanced touch support for toggle sliders
+        document.querySelectorAll('.toggle-slider').forEach(slider => {
+            const sliderSpan = slider.querySelector('.slider');
+            const input = slider.querySelector('input[type="checkbox"]');
+            const zoneId = parseInt(input.id.split('-')[1]);
+            
+            // Remove any existing event listeners
+            slider.removeEventListener('touchstart', handleTouchStart);
+            slider.removeEventListener('touchend', handleTouchEnd);
+            
+            function handleTouchStart(e) {
+                e.preventDefault();
+                sliderSpan.classList.add('touch-active');
+                if ('vibrate' in navigator) {
+                    navigator.vibrate(15);
+                }
+            }
+            
+            function handleTouchEnd(e) {
+                e.preventDefault();
+                sliderSpan.classList.remove('touch-active');
+                
+                // Toggle the input state first
+                input.checked = !input.checked;
+                
+                // Then call the toggle function
+                toggleZone(zoneId);
+            }
+            
+            slider.addEventListener('touchstart', handleTouchStart);
+            slider.addEventListener('touchend', handleTouchEnd);
+        });
+        
+        // Enhanced touch support for buzzer labels
+        document.querySelectorAll('.buzzer-switch label').forEach(label => {
+            const input = document.getElementById(label.getAttribute('for'));
+            const zoneId = parseInt(input.id.split('-')[1]);
+            
+            // Remove any existing event listeners
+            label.removeEventListener('touchstart', handleBuzzerTouchStart);
+            label.removeEventListener('touchend', handleBuzzerTouchEnd);
+            
+            function handleBuzzerTouchStart(e) {
+                e.preventDefault();
+                this.classList.add('touch-active');
+                if ('vibrate' in navigator) {
+                    navigator.vibrate(15);
+                }
+            }
+            
+            function handleBuzzerTouchEnd(e) {
+                e.preventDefault();
+                this.classList.remove('touch-active');
+                
+                // Toggle the input state first
+                input.checked = !input.checked;
+                
+                // Then call the toggle function
+                toggleBuzzer(zoneId);
+            }
+            
+            label.addEventListener('touchstart', handleBuzzerTouchStart);
+            label.addEventListener('touchend', handleBuzzerTouchEnd);
+        });
+        
+        // Touch support for save button
+        const saveButton = document.getElementById('saveButton');
+        if (saveButton) {
+            saveButton.addEventListener('touchstart', function(e) {
+                this.style.transform = 'scale(0.97)';
+                if ('vibrate' in navigator) {
+                    navigator.vibrate(20);
+                }
+            });
+            
+            saveButton.addEventListener('touchend', function() {
+                this.style.transform = '';
+            });
+        }
+    }
+    
+    // Handle window resize for responsive adjustments
+    window.addEventListener('resize', function() {
+        isMobileDevice = window.innerWidth <= 768;
+    });
+
+    window.onload = function() {
+        initializeZones();
+        
+        // Add CSS class for mobile styling if on mobile device
+        if (window.innerWidth <= 768) {
+            document.body.classList.add('mobile-device');
+        }
+    };
+</script>
+{% endblock %}

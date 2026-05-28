@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}My Flask App{% endblock %}</title>
+    <link rel="icon" href="{{ url_for('static', filename='asset/TitleLogo.png') }}" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/layout.css') }}">
+
+
+    {% if request.endpoint in ['device_config', 'powerzone_config'] %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/device_config.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+
+
+    {% elif request.endpoint == 'output_controls' %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/output_controls.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+
+
+    {% elif request.endpoint == 'general' %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/general.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+
+    {% elif request.endpoint == 'advanced' %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/advanced.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    {% elif request.endpoint == 'maintenance' %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/maintenance.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+
+
+
+
+    {% elif request.endpoint == 'logs' %}
+    <link rel="stylesheet" href="{{url_for('static',filename='css/logs.css')}}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+
+
+
+    {% elif request.endpoint =='connection'%}
+    <link rel="stylesheet" href="{{url_for('static',filename='css/connection.css')}}">
+
+
+
+    {% elif request.endpoint =='home'%}
+    <link rel="stylesheet" href="{{url_for('static',filename='css/land.css')}}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
+
+
+    {% elif request.endpoint == 'reports' %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="{{url_for('static',filename='css/reports.css')}}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+
+
+
+    {% elif request.endpoint in ['connectivity_settings','gnss', 'net_gsm', 'lan'] %}
+    <link rel="stylesheet" href="{{url_for('static',filename='css/network.css')}}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+    {% elif request.endpoint == 'quick_settings' %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/quick_settings.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+
+
+
+
+
+
+
+    {% elif request.endpoint == 'provision' %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/provisioning.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+
+
+
+    {% elif request.endpoint == 'OTA' %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/OTA.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    {% elif request.endpoint == 'system_test' %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/systemTest.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+
+
+
+    {% elif request.endpoint == 'device_management' %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/deviceManagement.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+
+    {% elif request.endpoint == 'protocol_config' %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/protocol_config.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+
+    {% elif request.endpoint == 'device_credential' %}
+    <link rel="stylesheet" href="{{url_for('static',filename='css/deviceCredential.css')}}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+
+    {% elif request.endpoint == 'come_soon' %}
+    <link rel="stylesheet" href="{{url_for('static',filename='css/coming_soon.css')}}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    {% elif request.endpoint == 'integration_settings' %}
+    <link rel="stylesheet" href="{{url_for('static',filename='css/integrationSettings.css')}}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    {% endif %}
+    {% block head %}{% endblock %}
+</head>
+
+<body>
+
+    <div class="topnav" id="myTopnav">
+        <div class="nav-left">
+            <button id="menuToggle" class="menu-toggle" type="button" aria-label="Toggle menu"
+                onclick="toggleMobileMenu()">
+                <img src="https://img.icons8.com/external-flaticons-flat-flat-icons/64/external-menu-100-most-used-icons-flaticons-flat-flat-icons-2.png" alt="Menu" style="width: 30px; height: 30px;">
+            </button>
+        </div>
+        <div class="nav-center">
+            <img class="logo" src="{{url_for('static',filename='asset/Dexter2.png')}}" alt="Logo">
+        </div>
+        <div class="nav-right">
+            <div class="dropdown2">
+                <button class="dropbtn2">
+                    <img src="https://img.icons8.com/external-tal-revivo-shadow-tal-revivo/24/external-vertical-ellipsis-menu-with-three-dots-expansion-basic-shadow-tal-revivo.png" alt="Menu" style="width: 20px; height: 20px;">
+                </button>
+                <div class="dropdown-content2">
+                    <a href="#" onclick="handleLogout()"><img src="{{ url_for('static', filename='asset/user.gif') }}"
+                            alt="Profile"
+                            style="width: 20px; height: 20px; margin-right: 10px; vertical-align: middle;">{{ session.username }}
+                        {% if session.master_login %}
+                            <span style="color: #ff6b6b; font-size: 10px; background: #fff; padding: 2px 4px; border-radius: 3px; margin-left: 5px;">MASTER</span>
+                        {% endif %}
+                    </a>
+                    <a href="#" onclick="handleLogout()"><img
+                            src="{{ url_for('static', filename='asset/logout2.gif') }}" alt="Logout"
+                            style="width: 20px; height: 20px; margin-right: 8px; vertical-align: middle;">Logout</a>
+                    <a href="#" onclick="handleReboot()"><img src="{{ url_for('static', filename='asset/reboot.gif') }}"
+                            alt="Reboot"
+                            style="width: 20px; height: 20px; margin-right: 8px; vertical-align: middle;">Reboot</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Overlay for mobile menu -->
+    <div id="menuOverlay" class="menu-overlay" onclick="closeMobileMenu()"></div>
+
+    <!-- side-menu starts -->
+    <div class="side-menu" id="sideMenu">
+        <div class="menu-item {% if request.endpoint == 'home' %}active{% endif %}">
+            <a href="/home"><img src="https://img.icons8.com/3d-fluency/94/home.png" class="menu-icon"
+                    style="width: 30px; height: 30px; margin-right: 8px; vertical-align: middle;">Home</a>
+        </div>
+
+        <div
+            class="menu-item {% if request.endpoint in ['device_config', 'powerzone_config', 'output_controls'] %}active{% endif %}">
+            <a href="#" class="submenu-toggle"><img src="https://img.icons8.com/3d-fluency/94/administrative-tools.png"
+                    class="menu-icon"
+                    style="width: 30px; height: 30px; margin-right: 8px; vertical-align: middle;">DeviceConfiguration</a>
+            <div class="submenu">
+                <a href="/device_config" {% if request.endpoint=='device_config' %}class="active" {% endif %}><img
+                        src="https://img.icons8.com/3d-fluency/94/flow-chart.png" class="menu-icon"
+                        style="width: 28px; height: 28px; margin-right: 8px; vertical-align: middle;">Normal Zone Config</a>
+                <a href="/powerzone_config" {% if request.endpoint=='powerzone_config' %}class="active" {% endif %}><img
+                        src="https://img.icons8.com/3d-fluency/94/electricity.png" class="menu-icon"
+                        style="width: 28px; height: 28px; margin-right: 8px; vertical-align: middle;">Power Zone
+                    Config</a>
+                <a href="/output_controls" {% if request.endpoint=='output_controls' %}class="active" {% endif %}><img
+                        src="https://img.icons8.com/fluency/96/output.png" class="menu-icon"
+                        style="width: 28px; height: 28px; margin-right: 8px; vertical-align: middle;">Output
+                    Management</a>
+            </div>
+        </div>
+
+        <div class="menu-item {% if request.endpoint in ['logs', 'reports'] %}active{% endif %}">
+            <a href="#" class="submenu-toggle"><img src="https://img.icons8.com/arcade/64/management.png"
+                    class="menu-icon"
+                    style="width: 30px; height: 30px; margin-right: 8px; vertical-align: middle;">Events & Log
+                Management</a>
+            <div class="submenu">
+                <a href="/logs" {% if request.endpoint=='logs' %}class="active" {% endif %}><img
+                        src="https://img.icons8.com/fluency/96/data-migration.png" class="menu-icon"
+                        style="width: 28px; height: 28px; margin-right: 8px; vertical-align: middle;">Logs</a>
+                <a href="/reports" {% if request.endpoint=='reports' %}class="active" {% endif %}><img
+                        src="https://img.icons8.com/3d-fluency/94/business-report.png" class="menu-icon"
+                        style="width: 28px; height: 28px; margin-right: 8px; vertical-align: middle;">Event Reports</a>
+            </div>
+        </div>
+        {% if session.get('user_type') == 'site_engineer' %}
+        <div
+            class="menu-item {% if request.endpoint in ['connectivity_settings', 'gnss', 'device_credential', 'net_gsm','lan'] %}active{% endif %}">
+            <a href="#" class="submenu-toggle"><img src="https://img.icons8.com/3d-fluency/94/networking-manager.png"
+                    class="menu-icon"
+                    style="width: 30px; height: 30px; margin-right: 8px; vertical-align: middle;">Network & Comms
+                Settings</a>
+            <div class="submenu">
+              <a href="/connectivity_settings" {% if request.endpoint=='connectivity_settings' %}class="active" {%
+                    endif %}><img src="https://img.icons8.com/3d-fluency/94/wifi-router.png"
+                        class="menu-icon"
+                        style="width: 28px; height: 28px; margin-right: 8px; vertical-align: middle;">Connectivity
+                    Settings</a> 
+             <!--   <a href="/gnss" {% if request.endpoint=='gnss' %}class="active" {% endif %}><img
+                        src="https://img.icons8.com/3d-fluency/94/satellite-sending-signal.png" class="menu-icon"
+                        style="width: 28px; height: 28px; margin-right: 8px; vertical-align: middle;">GNSS Settings</a> --> 
+
+                <!-- Device Credential - Only for Site Engineers -->
+                {% if session.get('user_type') == 'site_engineer' %}
+                <a href="/device_credential" {% if request.endpoint=='device_credential' %}class="active" {% endif
+                    %}><img src="https://img.icons8.com/3d-fluency/94/user-credentials.png" class="menu-icon"
+                        style="width: 28px; height: 28px; margin-right: 8px; vertical-align: middle;">Device
+                    Credential</a>
+                {% endif %}
+
+                
+           <!--     <a href="/net_gsm" {% if request.endpoint=='net_gsm' %}class="active" {% endif %}><img
+                        src="https://img.icons8.com/3d-fluency/94/sim-card.png" class="menu-icon"
+                        style="width: 28px; height: 28px; margin-right: 8px; vertical-align: middle;">GSM Settings</a>   -->
+                
+                <!-- LAN Setup - Only for Site Engineers -->
+                {% if session.get('user_type') == 'site_engineer' %}
+                <a href="/lan" {% if request.endpoint=='lan' %}class="active" {% endif %}><img
+                        src="https://img.icons8.com/3d-fluency/94/ethernet-on.png" class="menu-icon"
+                        style="width: 28px; height: 28px; margin-right: 8px; vertical-align: middle;">Lan Setup</a>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+
+
+        <div
+            class="menu-item {% if request.endpoint in ['integration_settings', 'device_management'] %}active{% endif %}">
+            <a href="#" class="submenu-toggle"><img
+                    src="https://img.icons8.com/3d-fluency/94/device-manager.png" class="menu-icon"
+                    style="width: 30px; height: 30px; margin-right: 8px; vertical-align: middle;">Device Integration</a>
+            <div class="submenu">
+                <a href="/integration_settings" {% if request.endpoint=='integration_settings' %}class="active" {% endif
+                    %}><img src="https://img.icons8.com/3d-fluency/94/puzzle.png" class="menu-icon"
+                        style="width: 28px; height: 28px; margin-right: 8px; vertical-align: middle;">Integration
+                    Settings</a>
+
+        <!--   
+                    <a href="/device_management" {% if request.endpoint=='device_management' %}class="active" {% endif
+                    %}><img src="https://img.icons8.com/3d-fluency/94/hub.png" class="menu-icon"
+                        style="width: 28px; height: 28px; margin-right: 8px; vertical-align: middle;">Device
+                    Management</a> 
+                    -->
+            </div>
+        </div>
+
+
+         <!--     
+        <div class="menu-item {% if request.endpoint == 'come_soon' and 'power' in request.args %}active{% endif %}">
+            <a href="#" class="submenu-toggle"><img src="https://img.icons8.com/3d-fluency/94/electricity-hazard.png"
+                    class="menu-icon"
+                    style="width: 30px; height: 30px; margin-right: 8px; vertical-align: middle;">Power Management</a>
+            <div class="submenu">
+                <a href="/come_soon?power=battery" {% if request.endpoint=='come_soon' and
+                    request.args.get('power')=='battery' %}class="active" {% endif %}><img src="https://img.icons8.com/3d-fluency/94/low-battery--v2.png" class="menu-icon"
+                    style="width: 28px; height: 28px; margin-right: 8px; vertical-align: middle;">Low Battery</a>
+                <a href="/come_soon?power=backup" {% if request.endpoint=='come_soon' and
+                    request.args.get('power')=='backup' %}class="active" {% endif %}><img src="https://img.icons8.com/3d-fluency/94/hydroelectric.png" class="menu-icon"
+                    style="width: 28px; height: 28px; margin-right: 8px; vertical-align: middle;">Power Backup</a>
+            </div>
+        </div> 
+                -->
+
+
+
+        <div class="menu-item {% if request.endpoint in ['general', 'maintenance', 'advanced'] %}active{% endif %}">
+            <a href="#" class="submenu-toggle"><img src="https://img.icons8.com/3d-fluency/94/tune.png"
+                    class="menu-icon"
+                    style="width: 30px; height: 30px; margin-right: 8px; vertical-align: middle;">System Settings</a>
+            <div class="submenu">
+                <a href="/general" {% if request.endpoint=='general' %}class="active" {% endif %}><img
+                        src="https://img.icons8.com/3d-fluency/94/two-gears.png" class="menu-icon"
+                        style="width: 28px; height: 28px; margin-right: 8px; vertical-align: middle;">General
+                    Settings</a>
+                <a href="/maintenance" {% if request.endpoint=='maintenance' %}class="active" {% endif %}><img
+                        src="https://img.icons8.com/3d-fluency/94/tools.png" class="menu-icon"
+                        style="width: 28px; height: 28px; margin-right: 8px; vertical-align: middle;">Maintenance</a>
+               <!-- <a href="/advanced" {% if request.endpoint=='advanced' %}class="active" {% endif %}><img
+                        src="https://img.icons8.com/3d-fluency/94/administrative-tools.png" class="menu-icon"
+                        style="width: 28px; height: 28px; margin-right: 8px; vertical-align: middle;">Advanced
+                    Settings</a>
+               -->
+            </div>
+        </div>
+
+                     <!--   
+        <div class="menu-item {% if request.endpoint == 'system_test' %}active{% endif %}">
+            <a href="/system_test"><img src="https://img.icons8.com/3d-fluency/94/test-passed.png"
+                    class="menu-icon"
+                    style="width: 30px; height: 30px; margin-right: 8px; vertical-align: middle;">System Test</a></div>
+                     -->
+
+                <!--
+                     <div class="menu-item {% if request.endpoint ==  'protocol_config' %}active{% endif %}">
+            <a href="/protocol_config"><img src="https://img.icons8.com/3d-fluency/94/multichannel.png"
+                class="menu-icon"
+                style="width: 30px; height: 30px; margin-right: 8px; vertical-align: middle;">Protocol Configuration</a>
+        </div>
+                 -->
+
+
+        <!-- Device Provisioning - Only for Site Engineers -->
+        {% if session.get('user_type') == 'site_engineer' %}
+        <div class="menu-item {% if request.endpoint in [ 'provision'] %}active{% endif %}">
+            <a href="#" class="submenu-toggle"><img
+                    src="https://img.icons8.com/3d-fluency/94/form.png" class="menu-icon"
+                    style="width: 30px; height: 30px; margin-right: 8px; vertical-align: middle;">Device
+                Registration</a>
+            <div class="submenu">
+                <!-- <a href="/SOL" {% if request.endpoint == 'SOL' %}class="active"{% endif %}>SOL ID</a> -->
+                <a href="/provision" {% if request.endpoint=='provision' %}class="active" {% endif %}><img
+                        src="https://img.icons8.com/fluency/96/window-other.png" class="menu-icon"
+                        style="width: 28px; height: 28px; margin-right: 8px; vertical-align: middle;">Device
+                    Provisioning</a>
+            </div>
+        </div>
+        {% endif %}
+
+      <!-- 
+        <div class="menu-item {% if request.endpoint == 'OTA' %}active{% endif %}" style="border-bottom: 2px solid #112a495b">
+            <a href="/OTA"><img src="https://img.icons8.com/3d-fluency/94/cloud-sync.png"
+                class="menu-icon"
+                style="width: 30px; height: 30px; margin-right: 8px; vertical-align: middle;">OTA Update</a>
+        </div>
+        -->
+
+        <div class="menu-item {% if request.endpoint == 'quick_settings' %}active{% endif %}">
+            <a href="/quick_settings"><img src="https://img.icons8.com/3d-fluency/94/administrative-tools.png"
+                    class="menu-icon"
+                    style="width: 30px; height: 30px; margin-right: 8px; vertical-align: middle;">Quick Settings</a>
+        </div>
+    </div>
+
+    {% block body %}
+
+
+    {% endblock %}
+
+
+    <script>
+        function restart() {
+            // Ask for login password before proceeding
+            var password = prompt('Please enter your login password to confirm restart:');
+            
+            if (password === null) {
+                // User cancelled the prompt
+                return;
+            }
+            
+            if (password.trim() === '') {
+                alert('Password is required to restart the system.');
+                return;
+            }
+            
+            fetch('/restart', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ password: password })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    alert('System restart initiated.');
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        function terminate() {
+            fetch('/terminate', { method: 'POST' })
+                .then(response => response.text())
+                .then(data => {
+                    console.log(data);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('loading-screen').style.display = 'none';
+                });
+        }
+
+        function handleLogout() {
+            // Show a loading indicator or spinner
+            const loadingOverlay = document.createElement('div');
+            loadingOverlay.classList.add('loading-overlay');
+            loadingOverlay.innerHTML = '<div class="loading-spinner"></div><p>Logging out...</p>';
+            document.body.appendChild(loadingOverlay);
+
+            // Redirect to the logout route
+            window.location.href = "/logout";
+        }
+
+        function handleReboot() {
+            // Ask for login password before proceeding
+            var password = prompt('Please enter your login password to confirm reboot:');
+            
+            if (password === null) {
+                // User cancelled the prompt
+                return;
+            }
+            
+            if (password.trim() === '') {
+                alert('Password is required to reboot the system.');
+                return;
+            }
+            
+            if (confirm("Are you sure you want to reboot the system?")) {
+                // Show a loading indicator
+                const loadingOverlay = document.createElement('div');
+                loadingOverlay.classList.add('loading-overlay');
+                loadingOverlay.innerHTML = '<div class="loading-spinner"></div><p>System is rebooting...</p>';
+                document.body.appendChild(loadingOverlay);
+
+                // Send POST request to /restart with password
+                fetch('/restart', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ password: password })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            // Keep overlay — system reboots in ~5 seconds
+                        } else {
+                            document.body.removeChild(loadingOverlay);
+                            alert('Error: ' + data.message);
+                        }
+                    })
+                    .catch(error => {
+                        document.body.removeChild(loadingOverlay);
+                        console.error("Error:", error);
+                        alert("Could not reach the server. Please check your connection.");
+                    });
+            }
+        }
+
+
+
+
+
+        // Toggle dropdown on button click
+        document.querySelector('.dropbtn2').addEventListener('click', function (event) {
+            event.stopPropagation();
+            let dropdownContent = document.querySelector('.dropdown-content2');
+            if (dropdownContent.style.display === 'block') {
+                dropdownContent.style.display = 'none';
+            } else {
+                dropdownContent.style.display = 'block';
+            }
+        });
+
+        // Close the dropdown if the user clicks outside of it
+        window.onclick = function (event) {
+            if (!event.target.matches('.dropbtn2')) {
+                let dropdownContent = document.querySelector('.dropdown-content2');
+                if (dropdownContent.style.display === 'block') {
+                    dropdownContent.style.display = 'none';
+                }
+            }
+        };
+
+        // Function to show the red dot
+        function showNotification() {
+            document.getElementById('notificationBadge').style.display = 'block';
+        }
+
+        // Function to hide the red dot when the button is clicked
+        function hideNotification() {
+            document.getElementById('notificationBadge').style.display = 'none';
+        }
+
+        // Event listener for button click
+        document.getElementById('notificationButton').addEventListener('click', hideNotification);
+
+        // Example function to simulate new logs arrival
+        function fetchLogs() {
+            // Simulate fetching logs
+            console.log("Fetching new logs...");
+            // Show notification red dot when new logs arrive
+            showNotification();
+        }
+
+        // Simulate fetching logs every 10 seconds
+        setInterval(fetchLogs, 10000);
+
+        // Make the entire menu item clickable, not just the text
+        document.querySelectorAll('.side-menu .menu-item').forEach(function (menuItem) {
+            menuItem.addEventListener('click', function (e) {
+                // Get the anchor element within this menu item
+                const link = this.querySelector('a');
+
+                // If the click was not directly on a submenu link
+                if (!e.target.closest('.submenu')) {
+                    e.preventDefault();
+
+                    // If the link has the submenu-toggle class, toggle the submenu
+                    if (link.classList.contains('submenu-toggle')) {
+                        // The default tabindex and :focus-within CSS will handle the actual toggling
+                        link.focus();
+                    } else {
+                        // For direct links (no submenu), navigate to the href
+                        window.location.href = link.getAttribute('href');
+                    }
+                }
+            });
+        });
+
+        // Debug helper - add to window load
+        window.addEventListener('load', function () {
+            console.log("Window loaded - checking menu toggle");
+            const menuToggle = document.getElementById('menuToggle');
+            if (menuToggle) {
+                console.log("Menu toggle found:", menuToggle);
+                console.log("Menu toggle display:", getComputedStyle(menuToggle).display);
+                console.log("Menu toggle visibility:", getComputedStyle(menuToggle).visibility);
+
+                // Force display the menu toggle button on mobile
+                if (window.innerWidth <= 768) {
+                    console.log("Mobile view detected - forcing menu toggle visibility");
+                    menuToggle.style.display = 'flex';
+                    menuToggle.style.visibility = 'visible';
+                    menuToggle.style.opacity = '1';
+                }
+            } else {
+                console.error("Menu toggle not found!");
+            }
+        });
+
+        // Simple mobile menu toggle function
+        function toggleMobileMenu() {
+            console.log("Toggle menu function called");
+            var sideMenu = document.getElementById('sideMenu');
+            var menuOverlay = document.getElementById('menuOverlay');
+            var body = document.body;
+
+            if (sideMenu.classList.contains('open')) {
+                sideMenu.classList.remove('open');
+                menuOverlay.classList.remove('active');
+                body.classList.remove('menu-open');
+                console.log("Menu closed");
+            } else {
+                sideMenu.classList.add('open');
+                menuOverlay.classList.add('active');
+                body.classList.add('menu-open');
+                console.log("Menu opened");
+            }
+
+            return false;
+        }
+
+        function closeMobileMenu() {
+            var sideMenu = document.getElementById('sideMenu');
+            var menuOverlay = document.getElementById('menuOverlay');
+            var body = document.body;
+
+            sideMenu.classList.remove('open');
+            menuOverlay.classList.remove('active');
+            body.classList.remove('menu-open');
+        }
+
+        // Handle submenu toggle on mobile
+        document.addEventListener('DOMContentLoaded', function () {
+            // Ensure submenu behavior is consistent on mobile
+            const submenuToggles = document.querySelectorAll('.submenu-toggle');
+
+            submenuToggles.forEach(function (toggle) {
+                toggle.addEventListener('click', function (e) {
+                    if (window.innerWidth <= 768) {
+                        // Don't close the mobile menu when opening a submenu
+                        e.stopPropagation();
+
+                        // Only handle submenu display/toggle
+                        const menuItem = this.closest('.menu-item');
+                        const submenu = menuItem.querySelector('.submenu');
+
+                        if (submenu) {
+                            if (window.getComputedStyle(submenu).display === 'flex') {
+                                submenu.style.display = 'none';
+                            } else {
+                                submenu.style.display = 'flex';
+                            }
+                        }
+                    }
+                });
+            });
+
+            // Close mobile menu when clicking a direct link
+            const directLinks = document.querySelectorAll('.side-menu .menu-item a:not(.submenu-toggle), .side-menu .submenu a');
+
+            directLinks.forEach(function (link) {
+                link.addEventListener('click', function () {
+                    if (window.innerWidth <= 768 && !this.classList.contains('submenu-toggle')) {
+                        closeMobileMenu();
+                    }
+                });
+            });
+        });
+
+    </script>
+
+</body>
+
+</html>

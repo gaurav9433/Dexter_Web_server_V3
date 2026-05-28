@@ -1,0 +1,147 @@
+{% extends "layout.html" %}
+{% block title %}Prov{% endblock %}
+{% block body %}
+
+
+
+
+
+
+
+
+<div class="main-content">
+    <div class="path_content" id="path_content"> 
+        <div id="breadcrumbContainer"><h5>Device Provisioning > SOL ID ADD</h5></div>
+    </div>
+        <div class="container">
+            <div class="section-card">
+        <div class="toggle-buttons">
+            <button class="toggle-button active" data-form="digitalIdentityForm" onclick="toggleForm('digitalIdentityForm')"> e-SIM Device Management </button>
+            <button class="toggle-button inactive" data-form="mqttLiteForm" onclick="toggleForm('mqttLiteForm')"> Ethernet Device Management </button>
+        </div>
+        <div id="digitalIdentityForm" class="form-section active">
+            <h2>Device Access Keys</h2>
+            <form action="/send_data" method="post">
+                <div class="form-group">
+                    <label for="deviceKey">Device Key</label>
+                    <input type="text" id="deviceKey" name="deviceKey" value="u8vv15xntm7ej2ykym2u">
+                </div>
+                <div class="form-group">
+                    <label for="deviceSecret">Device Secret</label>
+                    <input type="text" id="deviceSecret" name="deviceSecret" value="417d8yts3p3zxi8888r7">
+                </div>
+                <div class="form-group">
+                    <label for="deviceName">SOL ID</label>
+                    <input type="text" id="deviceName" value="{{data[0][0]}}" name="deviceName">
+                </div>
+             
+                <div class="form-group">
+                    <label for="id">Client ID</label>
+                    <input type="text" id="id" value="{{data[0][1]}}" name="id">
+                </div>
+                <div class="form-group">
+                    <label for="userName">User Name</label>
+                    <input type="text" id="userName" value="{{data[0][2]}}" name="userName">
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" value="{{data[0][3]}}" name="password">
+                </div>
+                <div class="btn-container">
+                    <button type="submit" class="btn">Update</button>
+                </div>
+            </form>
+        </div>
+        <div id="mqttLiteForm" class="form-section">
+            <h2>Ethernet Device Keys</h2>
+            <form action="/send_data2", method="post">
+                <div class="form-group">
+                    <label for="ethernetDeviceKey">Device Key</label>
+                    <input type="text" id="ethernetDeviceKey" name="ethernetDeviceKey" value="ausq5buwkxn1a9cqhmlh">
+                </div>
+                <div class="form-group">
+                    <label for="ethernetDeviceSecret">Device Secret</label>
+                    <input type="text" id="ethernetDeviceSecret" name="ethernetDeviceSecret" value="qojgsydw9rh1rfq6ia4m">
+                </div>
+                <div class="form-group">
+                    <label for="ethernetAccessToken">Access Token</label>
+                    <input type="text" id="ethernetAccessToken" name="ethernetAccessToken" value="{{data[0][5] if data and data[0]|length > 5 else ''}}">
+                </div>
+                <div class="form-group">
+                    <label for="ethernetDeviceName">Device Name</label>
+                    <input type="text" id="ethernetDeviceName" value="{{data[0][4]}}" name="ethernetDeviceName">
+                </div>
+                <div class="btn-container">
+                    <button type="submit" class="btn">Update</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <script>
+        function toggleForm(formId) {
+            const forms = document.querySelectorAll('.form-section');
+            forms.forEach(form => {
+                form.classList.remove('active');
+            });
+            document.getElementById(formId).classList.add('active');
+
+            const buttons = document.querySelectorAll('.toggle-button');
+            buttons.forEach(button => {
+                button.classList.remove('active');
+                button.classList.add('inactive');
+            });
+            document.querySelector(`[data-form="${formId}"]`).classList.add('active');
+            document.querySelector(`[data-form="${formId}"]`).classList.remove('inactive');
+        }
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelector('.toggle-button').click();
+        });
+  
+  
+  
+  
+        
+        
+            function showAlert() {
+        alert("successfully Update!");
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const forms = document.querySelectorAll('form');
+        forms.forEach(form => {
+            form.addEventListener('submit', (event) => {
+                event.preventDefault(); // Prevent the form from submitting immediately
+                showAlert(); // Show the alert
+                form.submit(); // Submit the form after showing the alert
+            });
+        });
+    });
+
+        
+        
+        
+        
+        
+        
+        
+        
+    </script>
+
+{% endblock %}

@@ -1,0 +1,386 @@
+{% extends "layout.html" %}
+{% block title %}LAN Settings{% endblock %}
+{% block head %}
+    {{ super() }}
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/network.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+{% endblock %}
+{% block body %}
+  
+  <div class="main-content">
+      <div class="path_content" id="path_content"> 
+          <div id="breadcrumbContainer"><h5><img src="https://img.icons8.com/3d-fluency/94/ethernet-on.png" 
+                class="menu-icon" style="width: 30px; height: 30px; vertical-align: middle; margin-right: 8px;">
+                Network Settings > LAN setup</h5>
+        </div>
+      </div>
+      
+      <div class="lan-container">
+          <div class="lan-header">
+              <h1>LAN Setup</h1>
+          </div>
+          
+          <div class="mode-buttons">
+            <button id="static-ip-btn"
+            class="mode-btn {% if lan.get('network_mode') == 'static' %}active{% endif %}"
+            data-mode="static">
+                      <i class="fas fa-network-wired"></i>
+                  <span>Static IP</span>
+              </button>
+              <button id="dhcp-btn"
+              class="mode-btn {% if lan.get('network_mode') == 'dynamic' %}active{% endif %}"
+              data-mode="dynamic">
+                        <i class="fas fa-network-wired"></i>
+                  <span>Dynamic IP (DHCP)</span>
+                  
+              </button>
+          </div>
+
+          <div id="static-ip-form-container" class="form-container" style="display: none;">
+            <form class="lan-setup" action="/data_lan" method="post">
+                <input type="hidden" name="Enable/Disable Static/dynamic" value="static">
+                <input type="hidden" name="network_mode" value="static">
+                <div class="form-group">
+                    <label for="ip-address">IP Address</label>
+                    <input type="text" name="Set IP Address" id="ip-address" value="{{ lan.get('Set IP Address', '') }}" placeholder="Enter IP address">
+                </div>
+                
+                <div class="form-group">
+                    <label for="port-number">Port Number</label>
+                    <input type="text" name="Set Port Number" id="port-number" value="{{ lan.get('Set Port Number', '') }}" placeholder="Enter port number">
+                </div>
+                
+                <div class="form-group">
+                    <label for="subnet-mask">Subnet Mask</label>
+                    <input type="text" name="Subnet mask" id="subnet-mask" value="{{ lan.get('Subnet mask', '') }}" placeholder="Enter subnet mask">
+                </div>
+                
+                <div class="form-group">
+                    <label for="gateway">Gateway</label>
+
+                    <input type="text" name="Gateway" id="gateway" value="{{ lan.get('Gateway', '') }}" placeholder="Enter gateway">
+                </div>
+                
+                <div class="form-group">
+                    <label for="preferred-dns">Preferred DNS</label>
+                    <input type="text" name="preferred_dns_server" id="preferred-dns" value="{{ lan.get('preferred_dns_server', '') }}" placeholder="Enter preferred DNS">
+                </div>
+                
+                <div class="form-group">
+                    <label for="alternate-dns">Alternate DNS</label>
+                    <input type="text" name="alternate_dns_server" id="alternate-dns" value="{{ lan.get('alternate_dns_server', '') }}" placeholder="Enter alternate DNS">
+                </div>
+                
+                <div class="form-group">
+                    <label for="apn-settings">APN Settings</label>
+                    <input type="text" name="APN Settings" id="apn-settings" value="{{ lan.get('APN Settings', '') }}" placeholder="Enter APN settings">
+                </div>
+                
+                <button type="submit" class="save-btn" id="save-btn">
+                    <i class="fas fa-save"></i>
+                    Save Network Settings
+                </button>
+            </form>
+        </div>
+
+          <div id="dhcp-info-container" class="info-container" style="display: none;">
+            <form class="lan-setup" action="/dhcp" method="POST">
+                <button type="submit" class="save-btn" id="save-btn">
+                       <i class="fas fa-save"></i>
+                       Save Network Settings
+                   </button>
+               </form>
+          </div>
+      </div>
+  </div>
+
+  <script>
+      document.addEventListener('DOMContentLoaded', function() {
+          const staticIpBtn = document.getElementById('static-ip-btn');
+          const dhcpBtn = document.getElementById('dhcp-btn');
+          const staticIpFormContainer = document.getElementById('static-ip-form-container');
+          const dhcpInfoContainer = document.getElementById('dhcp-info-container');
+
+          // Function to hide all containers
+          function hideAllContainers() {
+              staticIpFormContainer.style.display = 'none';
+              dhcpInfoContainer.style.display = 'none';
+          }
+
+          // Function to remove active class from all buttons
+          function removeActiveClass() {
+              staticIpBtn.classList.remove('active');
+              dhcpBtn.classList.remove('active');
+          }
+
+          // Static IP button click handler
+          staticIpBtn.addEventListener('click', function() {
+              hideAllContainers();
+              removeActiveClass();
+              
+              staticIpFormContainer.style.display = 'block';
+              staticIpBtn.classList.add('active');
+              
+              // Add animation class
+              staticIpFormContainer.style.animation = 'none';
+              staticIpFormContainer.offsetHeight; // Trigger reflow
+              staticIpFormContainer.style.animation = 'fadeInUp 0.5s ease';
+          });
+
+          // DHCP button click handler
+          dhcpBtn.addEventListener('click', function() {
+              hideAllContainers();
+              removeActiveClass();
+              
+              dhcpInfoContainer.style.display = 'block';
+              dhcpBtn.classList.add('active');
+              
+              // Add animation class
+              dhcpInfoContainer.style.animation = 'none';
+              dhcpInfoContainer.offsetHeight; // Trigger reflow
+              dhcpInfoContainer.style.animation = 'fadeInUp 0.5s ease';
+          });
+
+          // Form validation and enhancement
+          const form = document.querySelector('#static-ip-form-container .lan-setup');
+          const inputs = form.querySelectorAll('input[type="text"]');
+
+          // Add input validation
+          inputs.forEach(input => {
+              input.addEventListener('blur', function() {
+                  validateInput(this);
+              });
+
+              input.addEventListener('input', function() {
+                  // Remove error styling when user starts typing
+                  this.style.borderColor = '#e1e5e9';
+              });
+          });
+
+          function validateInput(input) {
+              const value = input.value.trim();
+              const name = input.name;
+
+              // Basic validation rules
+              let isValid = true;
+              let errorMessage = '';
+
+              if (value === '') {
+                  isValid = false;
+                  errorMessage = 'This field is required';
+              } else {
+                  switch (name) {
+                      case 'Set IP Address':
+                      case 'Gateway':
+                      case 'preferred_dns_server':
+                      case 'alternate_dns_server':
+                          if (!isValidIP(value)) {
+                              isValid = false;
+                              errorMessage = 'Please enter a valid IP address';
+                          }
+                          break;
+                      case 'Set Port Number':
+                          if (!isValidPort(value)) {
+                              isValid = false;
+                              errorMessage = 'Please enter a valid port number (1-65535)';
+                          }
+                          break;
+                      case 'subnet_mask':
+                          if (!isValidSubnetMask(value)) {
+                              isValid = false;
+                              errorMessage = 'Please enter a valid subnet mask';
+                          }
+                          break;
+                  }
+              }
+
+              // Apply validation styling
+              if (!isValid) {
+                  input.style.borderColor = '#e74c3c';
+                  showTooltip(input, errorMessage);
+              } else {
+                  input.style.borderColor = '#27ae60';
+                  hideTooltip(input);
+              }
+
+              return isValid;
+          }
+
+          // Validation helper functions
+          function isValidIP(ip) {
+              const ipRegex = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+              return ipRegex.test(ip);
+          }
+
+          function isValidPort(port) {
+              const portNum = parseInt(port);
+              return !isNaN(portNum) && portNum >= 1 && portNum <= 65535;
+          }
+
+          function isValidSubnetMask(mask) {
+              const validMasks = [
+                  '255.255.255.255', '255.255.255.254', '255.255.255.252', '255.255.255.248',
+                  '255.255.255.240', '255.255.255.224', '255.255.255.192', '255.255.255.128',
+                  '255.255.255.0', '255.255.254.0', '255.255.252.0', '255.255.248.0',
+                  '255.255.240.0', '255.255.224.0', '255.192.0', '255.128.0',
+                  '255.0.0.0', '254.0.0.0', '252.0.0.0', '248.0.0.0',
+                  '240.0.0.0', '224.0.0.0', '192.0.0.0', '128.0.0.0', '0.0.0.0'
+              ];
+              return validMasks.includes(mask) || /^\/([1-9]|[12][0-9]|3[0-2])$/.test(mask);
+          }
+
+          // Tooltip functions
+          function showTooltip(element, message) {
+              hideTooltip(element); // Remove existing tooltip
+              
+              const tooltip = document.createElement('div');
+              tooltip.className = 'validation-tooltip';
+              tooltip.textContent = message;
+              tooltip.style.cssText = `
+                  position: absolute;
+                  background: #e74c3c;
+                  color: white;
+                  padding: 5px 10px;
+                  border-radius: 5px;
+                  font-size: 0.8rem;
+                  z-index: 1000;
+                  margin-top: 5px;
+                  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+              `;
+              
+              element.parentNode.style.position = 'relative';
+              element.parentNode.appendChild(tooltip);
+          }
+
+          function hideTooltip(element) {
+              const tooltip = element.parentNode.querySelector('.validation-tooltip');
+              if (tooltip) {
+                  tooltip.remove();
+              }
+          }
+
+          // Form submission handler
+          form.addEventListener('submit', function(e) {
+              e.preventDefault();
+              
+              let allValid = true;
+              inputs.forEach(input => {
+                  if (!validateInput(input)) {
+                      allValid = false;
+                  }
+              });
+
+              if (allValid) {
+                  // Show success message
+                  showSuccessMessage();
+                  form.submit();
+                  // Here you would normally submit the form data
+                  // For now, we'll just show a success message
+              } else {
+                  showErrorMessage('Please correct the errors before submitting.');
+              }
+          });
+
+          // Success and error message functions
+          function showSuccessMessage() {
+              showMessage('Network settings saved successfully!', 'success');
+          }
+
+          function showErrorMessage(message) {
+              showMessage(message, 'error');
+          }
+
+          function showMessage(message, type) {
+              // Remove existing messages
+              const existingMessage = document.querySelector('.message-popup');
+              if (existingMessage) {
+                  existingMessage.remove();
+              }
+
+              const messageDiv = document.createElement('div');
+              messageDiv.className = 'message-popup';
+              messageDiv.textContent = message;
+              
+              const bgColor = type === 'success' ? '#27ae60' : '#e74c3c';
+              messageDiv.style.cssText = `
+                  position: fixed;
+                  top: 20px;
+                  right: 20px;
+                  background: ${bgColor};
+                  color: white;
+                  padding: 15px 20px;
+                  border-radius: 10px;
+                  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+                  z-index: 10000;
+                  animation: slideInRight 0.3s ease;
+              `;
+
+              document.body.appendChild(messageDiv);
+
+              // Remove message after 3 seconds
+              setTimeout(() => {
+                  messageDiv.style.animation = 'slideOutRight 0.3s ease';
+                  setTimeout(() => {
+                      if (messageDiv.parentNode) {
+                          messageDiv.remove();
+                      }
+                  }, 300);
+              }, 3000);
+          }
+
+          // Add CSS animations for messages
+          const style = document.createElement('style');
+          style.textContent = `
+              @keyframes slideInRight {
+                  from {
+                      transform: translateX(100%);
+                      opacity: 0;
+                  }
+                  to {
+                      transform: translateX(0);
+                      opacity: 1;
+                  }
+              }
+              
+              @keyframes slideOutRight {
+                  from {
+                      transform: translateX(0);
+                      opacity: 1;
+                  }
+                  to {
+                      transform: translateX(100%);
+                      opacity: 0;
+                  }
+              }
+              .validation-tooltip {
+                position: absolute;
+                background: #e74c3c;
+                color: white;
+                padding: 5px 10px;
+                border-radius: 5px;
+                font-size: 0.8rem;
+                z-index: 1000;
+                margin-top: 5px;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            }
+          `;
+          document.head.appendChild(style);
+
+          // Initial display based on active button
+          if (staticIpBtn.classList.contains('active')) {
+              staticIpFormContainer.style.display = 'block';
+          } else if (dhcpBtn.classList.contains('active')) {
+              dhcpInfoContainer.style.display = 'block';
+          }
+      });
+  </script>
+  
+  {% if lansetup %}
+  <script>
+      alert("Setup completed successfully");
+  </script>
+  {% endif %}
+{% endblock %}
+
+

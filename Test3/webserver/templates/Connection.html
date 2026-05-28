@@ -1,0 +1,105 @@
+{% extends "layout.html" %}
+{% block title %}System Test{% endblock %}
+{% block head %}
+    {{ super() }}
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/connection.css') }}">
+{% endblock %}
+{% block body %}
+    <!-- side-menu Ends -->
+<!-- main content start -->
+
+
+<div class="main-content">
+    
+    <div class= "path_content" id="path_content"> 
+                <div id="breadcrumbContainer"><h5> > Connection </h5></div>
+                
+    </div>
+
+    <div class="container">
+        <div class="header">Device Access Keys</div>
+        <div class="credentials-type">
+            <button class="active" data-form="access-token-form">Authentication Token</button>
+            <button data-form="x509-form">Digital Identity Certificates</button>
+            <button data-form="mqtt-basic-form">MQTT Lite</button>
+        </div>
+
+        <form class="form-container active" id="access-token-form" action="/acces_token" method="post">
+            <div class="form-group">
+                <input type="text" placeholder="Access Token *" id="access-token-input" value="{{data[0][1]}}" name="access_token" required>
+                <i class="fa fa-refresh reset-icon" aria-hidden="true"></i>
+            </div>
+        </form>
+
+        <form class="form-container" id="x509-form" action="/x509" method="post">
+            <div class="form-group">
+                <textarea placeholder="X.509 Certificate" id="x509-input" name="x509" required></textarea>
+                <i class="fa fa-refresh reset-icon" aria-hidden="true"></i>
+            </div>
+        </form>
+
+        <form class="form-container" id="mqtt-basic-form" action="/mqtt_basic" method="post">
+            <div class="form-group">
+                <input type="text" placeholder="Client ID" id="client-id-input" name="client_id" value="{{data[0][2]}}" required>
+                <i class="fa fa-refresh reset-icon" aria-hidden="true"></i>
+            </div>
+            <div class="form-group">
+                <input type="text" placeholder="User Name" id="user-name-input" name="user_name" value="{{data[0][3]}}" required>
+                <i class="fa fa-refresh reset-icon" aria-hidden="true"></i>
+            </div>
+            <div class="form-group">
+                <input type="password" placeholder="Password" id="password" name="password" value="{{data[0][4]}}" required>
+                <i class="fa fa-refresh reset-icon" aria-hidden="true"></i>
+                <i class="fa fa-eye eye-icon" aria-hidden="true" id="togglePassword"></i>
+            </div>
+        </form>
+        
+        <div class="actions">
+            <button class="cancel" type="button">Cancel</button>
+            <button class="save" type="submit" form="access-token-form">Save</button>
+        </div>
+    </div>
+</div>
+  
+  <script>
+  document.querySelectorAll('.credentials-type button').forEach(button => {
+    button.addEventListener('click', function() {
+        document.querySelectorAll('.credentials-type button').forEach(btn => btn.classList.remove('active'));
+        this.classList.add('active');
+        
+        document.querySelectorAll('.form-container').forEach(form => form.classList.remove('active'));
+        document.getElementById(this.getAttribute('data-form')).classList.add('active');
+        
+        document.querySelector('.save').setAttribute('form', this.getAttribute('data-form'));
+    });
+});
+
+const togglePassword = document.getElementById('togglePassword');
+const password = document.getElementById('password');
+
+togglePassword.addEventListener('click', function () {
+    const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+    password.setAttribute('type', type);
+    this.classList.toggle('fa-eye-slash');
+});
+
+document.querySelectorAll('.reset-icon').forEach(icon => {
+    icon.addEventListener('click', function() {
+        const input = this.previousElementSibling;
+        input.value = '';
+    });
+});
+
+// Add touch support for mobile
+document.querySelectorAll('.credentials-type button, .actions button').forEach(button => {
+    button.addEventListener('touchstart', function() {
+        this.classList.add('touch-active');
+    });
+    button.addEventListener('touchend', function() {
+        this.classList.remove('touch-active');
+    });
+});
+  </script>
+{% endblock %}
+

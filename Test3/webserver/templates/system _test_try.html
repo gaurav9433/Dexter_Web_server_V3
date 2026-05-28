@@ -1,0 +1,25 @@
+{% extends "layout.html" %}
+{% block title %}System Test{% endblock %}
+{% block body %}
+
+
+    <!-- Button to toggle the value of a -->
+    <button onclick="toggleA()">Toggle a</button>
+ 
+    <script>
+        // Initialize variable a
+        let isLampTestACTIVATED = 0;
+
+        // Function to toggle the value of a
+        function toggleA() {
+            if (a === 0) {
+                a = 1;
+            } else {
+                a = 0;
+            }
+            console.log("The value of a is now: " + a);
+        }
+    </script>  
+   
+    {% endblock %}
+

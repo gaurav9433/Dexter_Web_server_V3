@@ -1,0 +1,25 @@
+[Unit]
+Description=Dexter HMS — Hikvision BAS RTC Time Sync
+After=network-online.target
+Wants=network-online.target
+PartOf=dexter.target
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/home/pi/Test3
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/usr/bin/python3 /home/pi/Test3/hik_bas_rtc_sync.py
+Restart=on-failure
+RestartSec=10
+RestartPreventExitStatus=0 1
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=dexter-rtc-hik-bas
+MemoryMax=64M
+CPUQuota=10%
+KillMode=mixed
+TimeoutStopSec=15
+
+[Install]
+WantedBy=dexter.target

@@ -1,0 +1,123 @@
+{% extends "layout.html" %}
+{% block title %}Device Provisioning{% endblock %}
+{% block head %}
+
+<style>
+/* Fullscreen loader overlay */
+#loaderOverlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255,255,255,0.8);
+    z-index: 2000;
+    text-align: center;
+}
+
+#loaderOverlay .spinner-border {
+    position: absolute;
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 4rem;
+    height: 4rem;
+}
+#loaderOverlay p {
+    position: absolute;
+    top: 55%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-weight: bold;
+    color: #333;
+}
+</style>
+
+<div class="main-content">
+    <div class="path_content" id="path_content"> 
+        <div id="breadcrumbContainer">
+            <h5>
+                <img src="https://img.icons8.com/fluency/96/window-other.png" 
+                class="menu-icon" style="width: 30px; height: 30px; vertical-align: middle; margin-right: 8px;">
+                Device Registration > Device Provisioning
+            </h5>
+        </div>
+    </div>
+    <div class="container">
+
+    <!-- Message placeholder -->
+    <div id="messageBox"></div>
+
+    <div class="section-card">
+        <div class="provisioning-section">
+            <h2><i class="fas fa-microchip"></i> Device Provisioning</h2>
+            <p class="provisioning-description">Click the provision button below for device registration.</p>
+            
+            <form id="provisionForm">
+                <div class="form-group">
+                    <button type="submit" class="provision-btn" id="provisionBtn">
+                        <i class="fas fa-sync"></i> <span class="btn-text">Provision Device</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</div>
+
+<!-- Fullscreen Loader -->
+<div id="loaderOverlay">
+    <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+    <p>Provisioning device...</p>
+</div>
+
+<script>
+    // Handle AJAX provision request
+    document.getElementById("provisionForm").addEventListener("submit", function(e) {
+        e.preventDefault(); // stop page refresh
+
+        let loader = document.getElementById("loaderOverlay");
+        let box = document.getElementById("messageBox");
+
+        // Clear old messages & show loader
+        box.innerHTML = "";
+        loader.style.display = "block";
+
+        fetch("/setprovisiondevice", { method: "POST" })
+        .then(response => response.json())
+        .then(data => {
+            loader.style.display = "none"; // hide loader
+
+            box.innerHTML = `<div class="alert alert-${data.status === "success" ? "success" : "danger"}" role="alert">${data.message}</div>`;
+
+            // Auto close after 4s
+            setTimeout(() => { box.innerHTML = ""; }, 4000);
+        })
+        .catch(error => {
+            loader.style.display = "none"; // hide loader
+            box.innerHTML = `<div class="alert alert-danger" role="alert">Device Provisioning failed, Please try again</div>`;
+        });
+    });
+
+    // Touch feedback for button
+    const provisionBtn = document.getElementById('provisionBtn');
+    if (provisionBtn) {
+        provisionBtn.addEventListener('touchstart', function(e) {
+            this.classList.add('touch-active');
+            if (navigator.vibrate) navigator.vibrate(50);
+        }, { passive: true });
+
+        provisionBtn.addEventListener('touchend', function() {
+            this.classList.remove('touch-active');
+        }, { passive: true });
+
+        provisionBtn.addEventListener('click', function() {
+            console.log('Provision button clicked');
+        });
+    }
+</script>
+
+{% endblock %}

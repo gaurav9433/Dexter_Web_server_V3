@@ -1,0 +1,71 @@
+# ── MQTT / ThingsBoard ────────────────────────────────────────────────────────
+paho-mqtt==2.1.0
+
+# ── HTTP / Networking ─────────────────────────────────────────────────────────
+requests==2.33.0
+urllib3==2.7.0
+certifi==2024.7.4
+charset-normalizer==3.2.0
+idna==3.15
+netifaces==0.11.0
+
+# ── Scheduling ────────────────────────────────────────────────────────────────
+schedule==1.2.0
+
+# ── Security / Cryptography ───────────────────────────────────────────────────
+# cffi and pycparser are transitive deps of cryptography — pip resolves
+# the correct pre-built wheel per platform automatically; pinning here
+# forces a source build on Windows (needs MSVC) so they are omitted.
+cryptography==46.0.7
+bcrypt==4.2.1
+PyNaCl==1.6.2
+
+# ── System / Hardware ─────────────────────────────────────────────────────────
+psutil==5.9.5
+pyyaml==6.0.1
+pyserial==3.5
+# rpi-lgpio is the RPi Foundation's Docker-compatible drop-in for RPi.GPIO.
+# Uses /dev/gpiochip0 (char device) instead of memory-mapped GPIO — no
+# /proc/device-tree needed. Same import: import RPi.GPIO as GPIO.
+# smbus2 and pad4pi are Linux/ARM-only — skipped automatically on Windows.
+rpi-lgpio; sys_platform == "linux"
+smbus2==0.4.3; sys_platform == "linux"
+pad4pi==1.1.4; sys_platform == "linux"
+
+# ── Flask Webserver ───────────────────────────────────────────────────────────
+Flask==3.1.3
+Flask-Cors==6.0.2
+flask-talisman==1.1.0
+Flask-WTF==1.0.1
+Werkzeug==3.1.6
+Jinja2==3.1.6
+MarkupSafe==2.1.1
+itsdangerous==2.2.0
+click==8.1.3
+blinker==1.9.0
+WTForms==3.0.1
+gunicorn==22.0.0
+
+# ── Prometheus ────────────────────────────────────────────────────────────────
+prometheus-client==0.20.0
+
+# ── Date utilities ────────────────────────────────────────────────────────────
+python-dateutil==2.8.2
+
+# ── CRC helpers ───────────────────────────────────────────────────────────────
+crcmod==1.7
+hexdump==3.3
+
+# ── Docker SDK (webserver uses it to start/stop integration containers) ───────
+docker==7.1.0
+
+# ── Misc ──────────────────────────────────────────────────────────────────────
+python-dotenv==1.2.2
+hikvisionapi==0.3.2
+chardet==5.2.0
+watchdog==4.0.0
+paramiko==3.4.0
+six==1.16.0
+packaging==23.1
+typing_extensions==4.5.0
+setuptools==78.1.1

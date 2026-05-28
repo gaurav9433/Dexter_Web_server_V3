@@ -1,0 +1,47 @@
+# =============================================================================
+# Dexter HMS — Central Monitoring Stack (EC2: 3.111.214.115)
+#
+# VictoriaMetrics  — receives remote_write from every Pi's Prometheus
+# Grafana          — single dashboard, instance dropdown for each Pi
+#
+# Ports (open in EC2 security group):
+#   3000  — Grafana UI     (engineer access)
+#   8428  — VictoriaMetrics (Pi remote_write ingestion)
+#
+# Login: admin / NovaEdge26
+# =============================================================================
+
+services:
+
+  victoriametrics:
+    image: victoriametrics/victoria-metrics:v1.115.0
+    container_name: victoriametrics
+    restart: unless-stopped
+    ports:
+      - "8428:8428"
+    volumes:
+      - vm_data:/victoria-metrics-data
+    command:
+      - '--retentionPeriod=90d'
+      - '--httpListenAddr=:8428'
+
+  grafana:
+    image: grafana/grafana:11.6.0
+    container_name: grafana
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=NovaEdge26
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_ANALYTICS_REPORTING_ENABLED=false
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+    depends_on:
+      - victoriametrics
+
+volumes:
+  vm_data:
+  grafana_data:

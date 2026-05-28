@@ -1,0 +1,133 @@
+{% extends "layout.html" %}
+{% block title %}OTA Update{% endblock %}
+{% block head %}
+    {{ super() }}
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/ota.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+{% endblock %}
+{% block body %}
+
+<div class="main-content">
+    <div class="path_content" id="path_content"> 
+        <div id="breadcrumbContainer"><h5><img src="https://img.icons8.com/3d-fluency/94/cloud-sync.png" 
+            class="menu-icon" style="width: 30px; height: 30px; vertical-align: middle; margin-right: 8px;">
+            OTA Update</h5></div>
+    </div>
+    
+    <div class="container">
+        <div class="section-card">
+            <div class="update-section">
+                <h2><i class="fas fa-cloud-upload-alt"></i> OTA Update</h2>
+                <p class="update-description">Update your device's firmware.</p>
+
+                <div class="update-buttons">
+                    <button class="update-btn" id="firmwareUpdateBtn" onclick="handleFirmwareUpdate()">
+                        <i class="fas fa-microchip"></i>
+                        <span class="btn-text">Update Firmware</span>
+                    </button>
+                </div>
+                <div id="updateStatus" class="update-status"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Mobile detection
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    
+    if (isMobile) {
+        document.body.classList.add('mobile-device');
+    }
+    
+    // Add touch support for update button
+    const updateBtn = document.getElementById('firmwareUpdateBtn');
+    if (updateBtn) {
+        updateBtn.addEventListener('touchstart', function(e) {
+            if (!this.disabled) {
+                this.classList.add('touch-active');
+                // Add vibration feedback if supported
+                if (navigator.vibrate) {
+                    navigator.vibrate(50);
+                }
+            }
+        }, { passive: true });
+        
+        updateBtn.addEventListener('touchend', function() {
+            this.classList.remove('touch-active');
+        }, { passive: true });
+    }
+
+    async function handleFirmwareUpdate() {
+        const updateBtn = document.getElementById('firmwareUpdateBtn');
+        const statusDiv = document.getElementById('updateStatus');
+        
+        try {
+            // Disable button during update
+            updateBtn.disabled = true;
+            updateBtn.classList.add('updating');
+            updateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span class="btn-text">Updating...</span>';
+            
+            // Show status
+            statusDiv.innerHTML = '<p class="status-message">Checking for updates...</p>';
+            
+            // Here you can add the API call to your backend
+            // Example:
+            // const response = await fetch('/api/firmware/update', {
+            //     method: 'POST',
+            //     headers: {
+            //         'Content-Type': 'application/json'
+            //     }
+            // });
+            
+            // For now, simulate an API call
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            
+            // Update status
+            statusDiv.innerHTML = '<p class="status-message success"><i class="fas fa-check-circle"></i> Update completed successfully!</p>';
+            
+        } catch (error) {
+            statusDiv.innerHTML = `<p class="status-message error"><i class="fas fa-exclamation-circle"></i> Update failed: ${error.message}</p>`;
+        } finally {
+            // Re-enable button
+            updateBtn.disabled = false;
+            updateBtn.classList.remove('updating');
+            updateBtn.innerHTML = '<i class="fas fa-microchip"></i> <span class="btn-text">Update Firmware</span>';
+        }
+    }
+
+    // Function to check current version (can be implemented with backend)
+    async function checkCurrentVersion() {
+        try {
+            // Here you can add the API call to get current version
+            // Example:
+            // const response = await fetch('/api/firmware/version');
+            // const data = await response.json();
+            // document.getElementById('currentVersion').textContent = data.version;
+        } catch (error) {
+            console.error('Error checking version:', error);
+        }
+    }
+
+    // Function to check latest version (can be implemented with backend)
+    async function checkLatestVersion() {
+        try {
+            // Here you can add the API call to get latest version
+            // Example:
+            // const response = await fetch('/api/firmware/latest');
+            // const data = await response.json();
+            // document.getElementById('latestVersion').textContent = data.version;
+        } catch (error) {
+            console.error('Error checking latest version:', error);
+        }
+    }
+
+    // Initialize version checks when page loads
+    document.addEventListener('DOMContentLoaded', () => {
+        checkCurrentVersion();
+        checkLatestVersion();
+    });
+</script>
+    
+{% endblock %}

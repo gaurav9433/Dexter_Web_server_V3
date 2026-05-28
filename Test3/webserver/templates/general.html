@@ -1,0 +1,365 @@
+{% extends "layout.html" %}
+{% block title %}General Maintenance Settings{% endblock %}
+
+<!-- Success Toast -->
+<div class="toast-container position-fixed top-20 end-0 p-3" style="z-index: 1100;">
+    <div id="successToast" class="toast hide" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="true" data-bs-delay="3000">
+        <div class="toast-header bg-success text-white">
+            <i class="fas fa-check-circle me-2"></i>
+            <strong class="me-auto">Success</strong>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body bg-light">
+            <i class="fas fa-check text-success me-2"></i>
+            <span class="toast-message">Changes saved successfully!</span>
+        </div>
+    </div>
+</div>
+
+{% block body %}
+<!-- side-menu Ends -->
+<!-- main content start -->
+<div class="main-content">
+
+
+    <div class="path_content" id="path_content">
+        <div id="breadcrumbContainer">
+            <h5><img src="https://img.icons8.com/3d-fluency/94/two-gears.png" class="menu-icon"
+                    style="width: 30px; height: 30px; vertical-align: middle; margin-right: 8px;">
+                System Settings > General</h5>
+        </div>
+    </div>
+
+
+
+    <div class="container">
+        <!-- Brand and Site Name Section -->
+        <div class="section-card">
+            <h2 class="section-title"><i class="fas fa-building"></i> Brand and Site Information</h2>
+             <form action="/brandname" method="post" class="settings-form">
+        <div class="form-group">
+            <label for="brandName">Brand Name:</label>
+            <input type="text" id="brandName" name="brandName" value="{{ brand_name }}" placeholder="Enter brand name" maxlength="16" />
+        </div>
+        <div class="form-group">
+            <label for="siteName">Branch Name:</label>
+            <input type="text" id="siteName" name="siteName" value="{{ branch_name }}" placeholder="Enter branch name" maxlength="16" />
+        </div>
+        <button type="submit" class="btn btn-primary">Save Information</button>
+    </form>
+        </div>
+
+        <!-- Date and Time Section -->
+        <div class="section-card">
+            <h2 class="section-title"><i class="fas fa-clock"></i> System Date & Time</h2>
+            
+            <form action="/date_time" method="post" class="settings-form" id="datetimeForm">
+                <div class="form-row" style="display: flex; gap: 20px; width: 100%; margin-bottom: 20px;">
+                    <!-- Date Input -->
+                    <div class="form-group" style="flex: 1;">
+                        <label for="setDate">Date</label>
+                        <input type="date" id="setDate" name="setDate" class="form-control" style="width: 100%;" required>
+                    </div>
+                    
+                    <!-- Time Inputs -->
+                    <div class="form-group" style="flex: 1;">
+                        <label>Time</label>
+                        <div class="time-inputs" style="display: flex; gap: 10px;">
+                            <input type="number" id="setHours" name="hours" min="0" max="23" placeholder="HH" class="form-control" style="text-align: center;" required>
+                            <span style="align-self: center;">:</span>
+                            <input type="number" id="setMinutes" name="minutes" min="0" max="59" placeholder="MM" class="form-control" style="text-align: center;" required>
+                            <span style="align-self: center;">:</span>
+                            <input type="number" id="setSeconds" name="seconds" min="0" max="59" placeholder="SS" class="form-control" style="text-align: center;" required>
+                        </div>
+                    </div>
+                </div>
+                
+                <button type="submit" name="action" value="save_datetime" class="btn btn-primary" style="min-width: 200px; margin-top: 10px;">
+                    <i class="fas fa-save"></i> Save Date & Time
+                </button>
+            </form>
+        </div>
+
+        <!-- Password Change Section -->
+        <div class="section-card">
+            <h2 class="section-title"><i class="fas fa-lock"></i> Change Password</h2>
+            <form action="/general_data" method="post" class="settings-form">
+                <div class="form-group">
+                    <label for="currentPassword">Current Password:</label>
+                    <input type="password" id="currentPassword" name="currentPassword" required>
+                </div>
+                <div class="form-group">
+                    <label for="newPassword">New Password:</label>
+                    <input type="password" id="newPassword" name="newPassword" required>
+                </div>
+                <div class="form-group">
+                    <label for="confirmPassword">Confirm New Password:</label>
+                    <input type="password" id="confirmPassword" name="confirmPassword" required>
+                </div>
+                <button type="submit" name="action" value="change_password" class="btn btn-primary"><i
+                        class="fas fa-key"></i> Change Password</button>
+            </form>
+        </div>
+
+
+        
+    </div>
+
+</div>
+
+
+
+<script>
+    // Function to initialize form with current date and time
+    function initializeDateTimeForm() {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        
+        // Only set values if they're empty
+        if (!document.getElementById('setDate').value) {
+            document.getElementById('setDate').value = `${year}-${month}-${day}`;
+            document.getElementById('setHours').value = String(now.getHours()).padStart(2, '0');
+            document.getElementById('setMinutes').value = String(now.getMinutes()).padStart(2, '0');
+            document.getElementById('setSeconds').value = String(now.getSeconds()).padStart(2, '0');
+        }
+    }
+    
+    // Initialize form when DOM is loaded
+    document.addEventListener('DOMContentLoaded', function() {
+        // Check if we have saved values in localStorage
+        const savedDate = localStorage.getItem('savedDate');
+        const savedTime = localStorage.getItem('savedTime');
+        
+        if (savedDate && savedTime) {
+            // Use saved values if available
+            document.getElementById('setDate').value = savedDate;
+            const [hours, minutes, seconds] = savedTime.split(':');
+            document.getElementById('setHours').value = hours;
+            document.getElementById('setMinutes').value = minutes;
+            document.getElementById('setSeconds').value = seconds;
+        } else {
+            // Otherwise, initialize with current time
+            initializeDateTimeForm();
+        }
+        
+        // Initialize current time display
+        updateCurrentDateTime();
+        
+        // Initialize Bootstrap tooltips
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    });
+    
+    function updateFormWithCurrentTime() {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        
+        document.getElementById('setDate').value = `${year}-${month}-${day}`;
+        document.getElementById('setHours').value = String(now.getHours()).padStart(2, '0');
+        document.getElementById('setMinutes').value = String(now.getMinutes()).padStart(2, '0');
+        document.getElementById('setSeconds').value = String(now.getSeconds()).padStart(2, '0');
+    }
+    
+    // Function to show success toast
+    function showSuccessToast(message = 'Changes saved successfully!') {
+        const toastEl = document.getElementById('successToast');
+        const toastMessage = toastEl.querySelector('.toast-message');
+        
+        // Update message if provided
+        if (message) {
+            toastMessage.textContent = message;
+        }
+        
+        // Create and show the toast
+        const toast = new bootstrap.Toast(toastEl, {
+            animation: true,
+            autohide: true,
+            delay: 3000
+        });
+        
+        // Show the toast
+        toast.show();
+        
+        // Play success sound if available
+        // try {
+        //     const audio = new Audio('data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU' + 
+        //         '==================================================================');
+        //     audio.volume = 0.3;
+        //     audio.play().catch(e => console.log('Audio play failed:', e));
+        // } catch (e) {
+        //     console.log('Audio error:', e);
+        // }
+        
+    }
+
+    // Form submission handler with enhanced validation
+    document.getElementById('datetimeForm').addEventListener('submit', function(e) {
+        const hours = parseInt(document.getElementById('setHours').value);
+        const minutes = parseInt(document.getElementById('setMinutes').value);
+        const seconds = parseInt(document.getElementById('setSeconds').value);
+        const dateInput = document.getElementById('setDate');
+        
+        // Validate date
+        if (!dateInput.value) {
+            alert('Please select a valid date');
+            dateInput.focus();
+            e.preventDefault();
+            return false;
+        }
+        
+        // Validate hours (0-23)
+        if (isNaN(hours) || hours < 0 || hours > 23) {
+            alert('Please enter a valid hour (0-23)');
+            document.getElementById('setHours').focus();
+            e.preventDefault();
+            return false;
+        }
+        
+        // Validate minutes (0-59)
+        if (isNaN(minutes) || minutes < 0 || minutes > 59) {
+            alert('Please enter valid minutes (0-59)');
+            document.getElementById('setMinutes').focus();
+            e.preventDefault();
+            return false;
+        }
+        
+        // Validate seconds (0-59)
+        if (isNaN(seconds) || seconds < 0 || seconds > 59) {
+            alert('Please enter valid seconds (0-59)');
+            document.getElementById('setSeconds').focus();
+            e.preventDefault();
+            return false;
+        }
+        
+        // Show success message
+        showSuccessToast();
+        
+        // If all validations pass, the form will submit
+        return true;
+    });
+    
+    // Add success toast to all forms
+    document.addEventListener('DOMContentLoaded', function() {
+        // For brand name form
+        const brandForm = document.querySelector('form[action="/brandname"]');
+        if (brandForm) {
+            brandForm.addEventListener('submit', function(e) {
+                // Store form data before submission
+                const formData = new FormData(brandForm);
+                const brandName = formData.get('brandName') || '';
+                const siteName = formData.get('siteName') || '';
+                
+                // Show success message with the saved values
+                setTimeout(() => {
+                    showSuccessToast(`Brand: ${brandName}, Branch: ${siteName} - Saved successfully!`);
+                    
+                    // Store in localStorage
+                    if (brandName) localStorage.setItem('lastBrandName', brandName);
+                    if (siteName) localStorage.setItem('lastSiteName', siteName);
+                }, 500);
+            });
+        }
+        
+        // For password change form
+        const passwordForm = document.querySelector('form[action="/general_data"]');
+        if (passwordForm) {
+            passwordForm.addEventListener('submit', function(e) {
+                setTimeout(() => {
+                    showSuccessToast('Password changed successfully!');
+                }, 500);
+            });
+        }
+        
+        // For date time form
+        const dateTimeForm = document.getElementById('datetimeForm');
+        if (dateTimeForm) {
+            dateTimeForm.addEventListener('submit', function(e) {
+                // Store the date and time in localStorage before submission
+                const date = document.getElementById('setDate').value;
+                const hours = document.getElementById('setHours').value.padStart(2, '0');
+                const minutes = document.getElementById('setMinutes').value.padStart(2, '0');
+                const seconds = document.getElementById('setSeconds').value.padStart(2, '0');
+                
+                localStorage.setItem('savedDate', date);
+                localStorage.setItem('savedTime', `${hours}:${minutes}:${seconds}`);
+                
+                // Show success message
+                setTimeout(() => {
+                    showSuccessToast('Date & Time saved successfully!');
+                }, 500);
+            });
+        }
+    });
+    
+    // Automatically add leading zeros to time inputs
+    document.querySelectorAll('.time-inputs input[type="number"]').forEach(input => {
+        input.addEventListener('blur', function() {
+            if (this.value) {
+                this.value = String(parseInt(this.value) || 0).padStart(2, '0');
+            }
+        });
+    });
+
+    // Initialize clock with current time
+    window.onload = function () {
+        const now = new Date();
+        hours = now.getHours();
+        minutes = now.getMinutes();
+        seconds = now.getSeconds();
+        updateClock();
+
+        // Add touch event handling for mobile devices
+        if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+            document.body.classList.add('mobile-device');
+
+            // Add vibration feedback for buttons
+            document.querySelectorAll('.btn').forEach(button => {
+                button.addEventListener('touchstart', function () {
+                    this.classList.add('touch-active');
+                });
+                button.addEventListener('touchend', function () {
+                    this.classList.remove('touch-active');
+                    if (navigator.vibrate) {
+                        navigator.vibrate(30);
+                    }
+                });
+            });
+
+            // Make form inputs more touch-friendly
+            document.querySelectorAll('input').forEach(input => {
+                input.addEventListener('touchstart', function () {
+                    this.classList.add('touch-focus');
+                });
+            });
+        }
+    };
+</script>
+
+</div>
+<!-- main content Ends -->
+<script>
+    document.querySelectorAll(".submenu-toggle").forEach((item) => {
+        item.addEventListener("click", (event) => {
+            event.preventDefault();
+            item.nextElementSibling.classList.toggle("show");
+        });
+    });
+
+    const time = new Date().toLocaleTimeString();
+    document.getElementById("demo").innerHTML = time;
+
+    const date = new Date();
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    const day = date.toLocaleDateString(undefined, options);
+    document.getElementById("demo2").innerHTML = day;
+
+
+
+</script>
+{% endblock %}

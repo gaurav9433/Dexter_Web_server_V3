@@ -1,0 +1,741 @@
+/* Root Variables */
+:root {
+    --background-color: #f5f5f5;
+    --text-color: #333;
+    --primary-color: #1d4370;
+    --white: #ffffff;
+    --accent-color: #fca311;
+    --success-color: #28a745;
+    --danger-color: #dc3545;
+    --gray-color: #6c757d;
+    --light-gray: #f0f0f0;
+    --border-color: #ddd;
+    --border-radius: 6px;
+    --box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* Global Styles */
+body {
+    font-family: Arial, sans-serif;
+    margin-top: 50px;
+    margin-left: 0;
+    padding: 0;
+    display: flex;
+    height: 100vh;
+    overflow: hidden; /* Prevent body from scrolling */
+    background-color: var(--background-color);
+}
+
+/* navbar & sidebar css are in layout.css */
+
+.main-content {
+    margin-left: 300px; /* Same as the width of the side menu */
+    padding: 20px;
+    overflow-y: auto; /* Enable scrolling for the main content */
+    flex: 1;
+    width: calc(100% - 300px);
+    transition: margin-left 0.3s ease, width 0.3s ease;
+}
+
+/* path display css */
+
+.path_content{
+    height: fit-content;
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+#breadcrumbContainer {
+    font-size: 18px;
+    color: var(--text-color);
+    background-color: var(--white);
+    padding: 10px;
+    padding-left: 30px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+#breadcrumbContainer h5 {
+    margin: 0;
+    font-size: 16px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* ==============================================
+   GNSS Settings Page Styles
+   ============================================== */
+.container {
+    margin: 40px auto;
+    position: relative; 
+    text-align: center;
+    background-color: var(--white);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 320px;
+    max-width: 90%;
+    transition: all 0.3s ease;
+}
+
+.control {
+    display: flex;
+    align-items: center;
+    margin-top: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
+}
+
+.control h1 {
+    margin: 0;
+    font-size: 24px;
+    text-align: center;
+}
+
+.toggle-button {
+    appearance: none;
+    width: 60px;
+    height: 30px;
+    background-color: var(--gray-color);
+    border-radius: 15px;
+    position: relative;
+    outline: none;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-left: 10px;
+    color: var(--white);
+}
+
+.toggle-button:checked {
+    background-color: var(--primary-color);
+}
+
+.toggle-button:before {
+    content: '';
+    position: absolute;
+    width: 26px;
+    height: 26px;
+    background-color: var(--white);
+    border-radius: 50%;
+    top: 2px;
+    left: 2px;
+    transition: transform 0.3s;
+}
+
+.toggle-button:checked:before {
+    transform: translateX(30px);
+}
+
+.status {
+    margin-top: 20px;
+    font-size: 16px;
+    font-weight: 500;
+    padding: 10px;
+    border-radius: 5px;
+    width: 100%;
+    text-align: center;
+}
+
+/* ==============================================
+   GSM Settings Page Styles
+   ============================================== */
+/* Uses the same container and toggle styles as GNSS */
+
+/* ==============================================
+   Connectivity Settings Page Styles
+   ============================================== */
+.connectivity_settings_container {
+    width: 800px;
+    max-width: 90%;
+    margin: 20px auto;
+    padding: 30px;
+    background-color: var(--white);
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.connectivity_settings_container h1 {
+    text-align: center;
+    color: var(--primary-color);
+    margin-bottom: 20px;
+}
+
+.selection-display {
+    background-color: var(--light-gray);
+    padding: 15px;
+    border-radius: 5px;
+    margin-bottom: 30px;
+    border: 1px solid var(--border-color);
+}
+
+.selection-display h3 {
+    margin: 0 0 10px 0;
+    color: var(--primary-color);
+}
+
+#selectionPath {
+    font-size: 16px;
+    color: var(--text-color);
+}
+
+.selection-screen {
+    text-align: center;
+}
+
+.selection-screen h2 {
+    color: var(--primary-color);
+    margin-bottom: 30px;
+    font-size: 22px;
+}
+
+.option-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+}
+
+.option-btn {
+    background-color: var(--white);
+    border: 2px solid var(--primary-color);
+    color: var(--primary-color);
+    padding: 20px 40px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    min-width: 200px;
+    flex: 1;
+}
+
+.option-btn:hover, .option-btn.selected {
+    background-color: var(--primary-color);
+    color: var(--white);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.option-btn:active, .option-btn.selected:active {
+    transform: translateY(0);
+}
+
+.option-btn i {
+    font-size: 24px;
+}
+
+.nav-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+    margin: 0 auto;
+}
+
+.back-btn {
+    background-color: var(--gray-color);
+    color: var(--white);
+}
+
+.back-btn:hover {
+    background-color: #5a6268;
+}
+
+/* ==============================================
+   LAN Settings Page Styles
+   ============================================== */
+.lan-container {
+    width: 800px;
+    max-width: 90%;
+    margin: 20px auto;
+    padding: 30px;
+    background-color: var(--white);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    border-top: 3px solid var(--primary-color);
+    transition: all 0.3s ease;
+}
+
+.lan-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.lan-header h1 {
+    color: var(--primary-color);
+    font-size: 28px;
+    margin-bottom: 10px;
+}
+
+.lan-description {
+    color: var(--text-color);
+    font-size: 16px;
+    opacity: 0.8;
+}
+
+/* IP Mode Selection */
+.ip-mode-selection {
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.ip-mode-selection h3 {
+    color: var(--text-color);
+    margin-bottom: 15px;
+    font-size: 18px;
+}
+
+.mode-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 15px;
+    flex-wrap: wrap;
+}
+
+.mode-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 30px;
+    border: 2px solid var(--primary-color);
+    background-color: var(--white);
+    color: var(--primary-color);
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 200px;
+    height: 80px;
+    flex: 1;
+}
+
+.mode-btn i {
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+.mode-btn span {
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.mode-btn:hover, .mode-btn.active {
+    background-color: var(--primary-color);
+    color: var(--white);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Form Styles */
+.lan-setup {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px 20px;
+    margin-top: 30px;
+    max-width: 80%;
+    margin-left: auto;
+    margin-right: auto;
+    position: relative;
+}
+
+/* Add styling for save button container */
+.lan-setup .save-btn {
+    grid-column: 1 / -1;
+    width: 40%;
+    margin: 20px auto 0;
+    display: block;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+    height: 80px; /* Fixed height for all form groups */
+    margin-bottom: 10px;
+}
+
+/* Add specific styling for APN settings form group */
+.form-group:has(#apn-settings) {
+    grid-column: 1 / -1;
+    max-width: 50%;
+    margin: 0 auto;
+}
+
+.form-group label {
+    color: var(--text-color);
+    font-weight: 500;
+    font-size: 14px;
+    height: 20px; /* Fixed height for labels */
+    line-height: 20px;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    font-size: 14px;
+    transition: all 0.3s ease;
+    height: 45px; /* Fixed height for inputs */
+    box-sizing: border-box;
+    margin-top: 4px; /* Consistent spacing */
+}
+
+.form-group input:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(29, 67, 112, 0.1);
+    outline: none;
+}
+
+.form-group input.error {
+    border-color: var(--danger-color);
+}
+
+.form-group input.error:focus {
+    box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.1);
+}
+
+
+.test-btn, .save-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 24px;
+    border: none;
+    border-radius: var(--border-radius);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 200px;
+    height: 45px;
+}
+
+.test-btn {
+    background-color: var(--gray-color);
+    color: var(--white);
+}
+
+.test-btn:hover {
+    background-color: #5a6268;
+    transform: translateY(-1px);
+}
+
+.save-btn {
+    background-color: var(--primary-color);
+    color: var(--white);
+}
+
+.save-btn:hover {
+    background-color: var(--accent-color);
+    transform: translateY(-1px);
+}
+
+/* Network Status */
+.network-status {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 15px;
+    border-radius: var(--border-radius);
+    margin-top: 20px;
+    font-weight: 500;
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+
+.network-status.testing {
+    background-color: var(--gray-color);
+    color: var(--white);
+    opacity: 1;
+}
+
+.network-status.success {
+    background-color: var(--success-color);
+    color: var(--white);
+    opacity: 1;
+}
+
+.network-status.error {
+    background-color: var(--danger-color);
+    color: var(--white);
+    opacity: 1;
+}
+
+/* IP Version Selection */
+.ip-version-selection {
+    margin-bottom: 20px;
+    padding: 15px 0;
+}
+
+.ip-version-selection label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: bold;
+    color: var(--text-color);
+}
+
+.ip-version-buttons {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+}
+
+.ip-version-btn {
+    background-color: var(--white);
+    border: 2px solid var(--primary-color);
+    color: var(--primary-color);
+    padding: 20px 40px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    min-width: 200px;
+    flex: 1;
+}
+
+.ip-version-btn:hover {
+    background-color: var(--primary-color);
+    color: var(--white);
+    transform: translateY(-2px);
+}
+
+.ip-version-btn.active {
+    background-color: var(--primary-color);
+    color: var(--white);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* DHCP Button */
+.dhcp-section {
+    margin: 20px 0;
+    padding: 15px 0;
+    text-align: center;
+}
+
+.dhcp-button {
+    background-color: var(--accent-color);
+    color: var(--white);
+    border: none;
+    padding: 12px 30px;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.3s ease;
+}
+
+.dhcp-button:hover {
+    background-color: #e59400;
+    transform: translateY(-2px);
+}
+
+.dhcp-icon {
+    font-size: 18px;
+}
+
+/* Form Container */
+.form-container {
+    animation: fadeInUp 0.5s ease;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+#saveForm {
+    display: flex;
+    justify-content: center;   /* horizontal center */
+    margin-top: 30px;
+}
+
+.save-btn {
+    padding: 12px 28px;
+    font-size: 16px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+
+/* Responsive Design - Enhanced */
+@media (max-width: 992px) {
+    .lan-container,
+    .connectivity_settings_container {
+        width: 90%;
+        padding: 20px;
+    }
+    
+    .lan-setup {
+        max-width: 95%;
+    }
+    
+    .option-btn,
+    .mode-btn {
+        min-width: 180px;
+        padding: 15px 25px;
+    }
+    
+    .form-group:has(#apn-settings) {
+        max-width: 70%;
+    }
+}
+
+@media (max-width: 768px) {
+    .main-content {
+        margin-left: 0;
+        width: 100%;
+        padding: 15px;
+        padding-bottom: 80px;
+        
+    }
+    
+    #breadcrumbContainer {
+        padding-left: 15px;
+        font-size: 16px;
+    }
+    
+    .container {
+        margin: 20px auto;
+        padding: 15px;
+    }
+    
+    .lan-container,
+    .connectivity_settings_container {
+        width: 100%;
+        padding: 15px;
+    }
+    
+    .lan-setup {
+        grid-template-columns: 1fr;
+        max-width: 100%;
+        gap: 15px;
+    }
+    
+    .mode-buttons,
+    .option-buttons {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .mode-btn,
+    .option-btn {
+        width: 100%;
+        max-width: 100%;
+        min-width: auto;
+    }
+    
+    .form-group {
+        height: auto;
+        min-height: 80px;
+    }
+    
+    .form-group:has(#apn-settings) {
+        max-width: 100%;
+    }
+    
+    .save-btn {
+        width: 80%;
+    }
+    
+    .lan-setup .save-btn {
+        width: 100%;
+    }
+    
+    .control {
+        flex-direction: column;
+    }
+    
+    .control h1 {
+        margin-bottom: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .connectivity_settings_container,
+    .lan-container {
+        padding: 12px;
+    }
+    
+    .connectivity_settings_container h1,
+    .lan-header h1 {
+        font-size: 20px;
+    }
+    
+    .selection-screen h2 {
+        font-size: 18px;
+        margin-bottom: 20px;
+    }
+    
+    .option-btn, 
+    .mode-btn {
+        padding: 12px 15px;
+        font-size: 14px;
+    }
+    
+    .option-btn i,
+    .mode-btn i {
+        font-size: 20px;
+    }
+    
+    .form-group label {
+        font-size: 13px;
+    }
+    
+    .form-group input {
+        padding: 10px;
+        height: 40px;
+        font-size: 13px;
+    }
+    
+    .save-btn {
+        padding: 10px 20px;
+        height: 40px;
+        font-size: 13px;
+    }
+    
+    .selection-display {
+        padding: 10px;
+    }
+    
+    .selection-display h3 {
+        font-size: 15px;
+    }
+    
+    #selectionPath {
+        font-size: 14px;
+    }
+}
+

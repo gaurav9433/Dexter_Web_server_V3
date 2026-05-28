@@ -1,0 +1,18 @@
+[Unit]
+Description=Dexter HMS Docker Compose Stack
+Documentation=https://github.com/gaurav9433/Dexter-HMS-V3-
+Requires=docker.service
+After=docker.service network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+WorkingDirectory=/home/pi/Test3
+ExecStartPre=/usr/bin/python3 /home/pi/Test3/docker/sync_device_name.py
+ExecStart=/usr/bin/docker compose --env-file /home/pi/Test3/.env up -d --remove-orphans
+ExecStop=/usr/bin/docker compose down
+TimeoutStartSec=120
+
+[Install]
+WantedBy=multi-user.target

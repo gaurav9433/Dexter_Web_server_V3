@@ -1,0 +1,83 @@
+{% extends "layout.html" %}
+{% block title %}Advanced Maintenance Settings{% endblock %}
+{% block head %}
+    {{ super() }}
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/advanced.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+{% endblock %}
+{% block body %}
+    <!-- main content start -->
+    <div class="main-content">
+        <div class="path_content" id="path_content"> 
+            <div id="breadcrumbContainer"><h5><img src="https://img.icons8.com/3d-fluency/94/administrative-tools.png" 
+                    class="menu-icon" style="width: 30px; height: 30px; vertical-align: middle; margin-right: 8px;">
+                    System Settings > Advanced Settings</h5>
+            
+            </div>
+        </div>
+        
+        <div class="container">
+            <!-- Sleep Mode Section -->
+            <div class="section-card">
+                <h2 class="section-title"><i class="fas fa-sliders-h"></i> System Control</h2>
+                <div class="button-container">
+                    <button class="sleep-button" id="sleepButton" aria-label="Sleep Mode">
+                        <i class="fas fa-moon"></i>
+                        <span>Setup Mode</span>
+                    </button>
+                    <button class="reset-button" id="resetButton" aria-label="Reset to Default">
+                        <i class="fas fa-undo-alt"></i>
+                        <span>Reset to Default</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- main content Ends -->
+    
+    <script>
+        // Mobile detection
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        
+        if (isMobile) {
+            document.body.classList.add('mobile-device');
+        }
+        
+        // Toggle submenu for mobile view
+        document.querySelectorAll('.submenu-toggle').forEach(item => {
+            item.addEventListener('click', event => {
+                event.preventDefault();
+                item.nextElementSibling.classList.toggle('show');
+            });
+        });
+
+        // Add touch support for buttons on mobile
+        const buttons = document.querySelectorAll('.sleep-button, .reset-button');
+        buttons.forEach(button => {
+            button.addEventListener('touchstart', function(e) {
+                this.classList.add('active');
+                // Add vibration feedback if supported
+                if (navigator.vibrate) {
+                    navigator.vibrate(50);
+                }
+            }, { passive: true });
+            
+            button.addEventListener('touchend', function() {
+                this.classList.remove('active');
+            }, { passive: true });
+            
+            // Add regular click events for all devices
+            button.addEventListener('click', function() {
+                // Toggle active class for visual feedback
+                this.classList.add('clicked');
+                setTimeout(() => {
+                    this.classList.remove('clicked');
+                }, 300);
+                
+                // Log the button action
+                console.log(this.id + ' clicked');
+            });
+        });
+    </script>
+{% endblock %}

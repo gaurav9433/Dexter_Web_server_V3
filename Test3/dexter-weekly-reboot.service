@@ -1,0 +1,6 @@
+[Unit]
+Description=Dexter HMS Scheduled Weekly Reboot
+
+[Service]
+Type=oneshot
+ExecStart=/usr/sbin/reboot

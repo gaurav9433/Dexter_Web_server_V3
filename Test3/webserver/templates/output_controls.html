@@ -1,0 +1,224 @@
+{% extends "layout.html" %}
+{% block title %}Output Controls{% endblock %}
+{% block head %}
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/output_controls.css') }}">
+{% endblock %}
+
+{% block body %}
+<div class="main-content">
+    <div class="path_content" id="path_content">
+        <div id="breadcrumbContainer">
+            <h5><img src="https://img.icons8.com/fluency/96/output.png"
+                class="menu-icon" style="width:30px;height:30px;vertical-align:middle;margin-right:8px;">
+                Device Configuration > Output Management</h5>
+        </div>
+    </div>
+
+    <div class="container">
+        <h1><i class="fas fa-sliders-h"></i> Output Management</h1>
+
+        <div class="toggle-container">
+
+            <!-- Global Active Integration -->
+            <div class="toggle-item">
+                <span class="toggle-label"><i class="fas fa-link"></i> Active Integration</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="activeIntegration">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+
+            <!-- Hikvision NVR -->
+            <div class="toggle-item">
+                <span class="toggle-label"><i class="fas fa-video"></i> Active Integration Hikvision NVR</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="hikevisionNVR">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+
+            <!-- Hikvision Access Controls (BACS) -->
+            <div class="toggle-item">
+                <span class="toggle-label"><i class="fas fa-door-open"></i> Active Integration Hikvision Access Controls</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="accessControls">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+
+            <!-- Dahua NVR -->
+            <div class="toggle-item">
+                <span class="toggle-label"><i class="fas fa-camera"></i> Active Integration Dahua NVR</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="dahuaNVR">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+
+            <!-- CP Plus NVR -->
+            <div class="toggle-item">
+                <span class="toggle-label"><i class="fas fa-video"></i> Active Integration CP PLUS NVR</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="cpplusNVR">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+
+            <!-- SPARS NVR -->
+            <div class="toggle-item">
+                <span class="toggle-label"><i class="fas fa-video"></i> Active Integration SPARS NVR</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="sparsNVR">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+
+            <!-- Hikvision BAS -->
+            <div class="toggle-item">
+                <span class="toggle-label"><i class="fas fa-bell"></i> Active Integration Hikvision BAS</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="hikBAS">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+
+            <!-- AMC BAS -->
+            <div class="toggle-item">
+                <span class="toggle-label"><i class="fas fa-shield-alt"></i> Active Integration AMC BAS</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="amcBAS">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+
+            <!-- Texecom BAS -->
+            <div class="toggle-item">
+                <span class="toggle-label"><i class="fas fa-exclamation-triangle"></i> Active Integration Texecom BAS</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="texecomBAS">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+// ─── helpers ─────────────────────────────────────────────────────────────────
+function putData(url, body) {
+    return fetch(url, {
+        method: 'PUT',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(body)
+    }).then(r => {
+        if (!r.ok) console.error('PUT error', url, r.status);
+        return r;
+    }).catch(e => console.error('PUT failed', url, e));
+}
+
+function initToggle(toggleId, getUrl, putUrl, bodyKey) {
+    // Load saved state from server
+    fetch(getUrl)
+    .then(r => r.json())
+    .then(data => {
+        var el = document.getElementById(toggleId);
+        if (!el || !data || data.length === 0) return;
+        // active_integration_external_device returns (id, value) → index [1]
+        // logical_params returns (id, name, value) → index [2]
+        var idx = (data[0].length === 2) ? 1 : 2;
+        el.checked = parseInt(data[0][idx]) === 1;
+    })
+    .catch(e => console.error('GET failed', getUrl, e));
+
+    // Save on toggle change
+    var el = document.getElementById(toggleId);
+    if (el) {
+        el.addEventListener('change', function() {
+            var body = {};
+            body[bodyKey] = this.checked;
+            putData(putUrl, body);
+        });
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+
+    // Global active integration
+    // DB: active_integration_external_device returns (id, value)
+    initToggle(
+        'activeIntegration',
+        '/get_activeIntegration',
+        '/data_active_integration',
+        'active_integration_external_device'
+    );
+
+    // Hikvision NVR
+    initToggle(
+        'hikevisionNVR',
+        '/get_active_integration_hikvidion',
+        '/data_active_integration_hikvidion',
+        'active_integration_hikvision'
+    );
+
+    // Hikvision Access Controls (BACS)
+    initToggle(
+        'accessControls',
+        '/get_active_integration_ac',
+        '/data_active_integration_ac',
+        'active_integration_ac'
+    );
+
+    // Dahua NVR
+    initToggle(
+        'dahuaNVR',
+        '/get_active_integration_dh',
+        '/data_active_integration_dh',
+        'active_integration_dh'
+    );
+
+    // CP Plus NVR
+    initToggle(
+        'cpplusNVR',
+        '/get_active_integration_cp',
+        '/data_active_integration_cp',
+        'active_integration_cp'
+    );
+
+    // SPARS NVR
+    initToggle(
+        'sparsNVR',
+        '/get_active_integration_sp',
+        '/data_active_integration_sp',
+        'active_integration_sp'
+    );
+
+    // Hikvision BAS
+    initToggle(
+        'hikBAS',
+        '/get_active_integration_hik_bas',
+        '/data_active_integration_hik_bas',
+        'active_integration_hik_bas'
+    );
+
+    // AMC BAS
+    initToggle(
+        'amcBAS',
+        '/get_active_integration_amc_bas',
+        '/data_active_integration_amc_bas',
+        'active_integration_amc_bas'
+    );
+
+    // Texecom BAS
+    initToggle(
+        'texecomBAS',
+        '/get_active_integration_texecom_bas',
+        '/data_active_integration_texecom_bas',
+        'active_integration_texecom_bas'
+    );
+
+}); // end DOMContentLoaded
+</script>
+{% endblock %}

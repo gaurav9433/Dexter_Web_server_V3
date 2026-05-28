@@ -1,0 +1,202 @@
+# =============================================================================
+# Dexter HMS — Build & Push ARM64 Docker Image to ECR
+#
+# Triggers:
+#   push to main       → build + push :latest + :sha-<sha>
+#   push of v* tag     → build + push :latest + :sha-<sha> + :<semver>
+#   pull_request       → build only (no push) for validation
+#   workflow_dispatch  → manual trigger with optional custom tag
+#
+# Required GitHub Secrets:
+#   AWS_ACCESS_KEY_ID       — IAM user with ECR push permissions
+#   AWS_SECRET_ACCESS_KEY
+#
+# ECR repository: 901178127457.dkr.ecr.ap-south-1.amazonaws.com/dexter-edge
+# =============================================================================
+
+name: Build & Push ARM64 → ECR
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - "v*.*.*"
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      custom_tag:
+        description: "Extra image tag (e.g. hotfix-1). Leave blank to skip."
+        required: false
+        default: ""
+
+env:
+  AWS_REGION:   ap-south-1
+  ECR_REGISTRY: 901178127457.dkr.ecr.ap-south-1.amazonaws.com
+  ECR_REPO:     dexter-edge
+
+jobs:
+  secret-scan:
+    name: Gitleaks Secret Scan
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - name: Gitleaks
+        env:
+          BEFORE: ${{ github.event.before }}
+          SHA:    ${{ github.sha }}
+          PR_BASE: ${{ github.event.pull_request.base.sha }}
+          EVENT:  ${{ github.event_name }}
+        run: |
+          curl -sSfL "https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz" \
+            | tar xz -C /tmp
+          if [ "$EVENT" = "pull_request" ]; then
+            LOG_OPTS="${PR_BASE}..${SHA}"
+          elif [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
+            LOG_OPTS="-1 HEAD"
+          else
+            LOG_OPTS="${BEFORE}..${SHA}"
+          fi
+          /tmp/gitleaks detect --source . --log-opts="${LOG_OPTS}" --exit-code 1
+
+  security-scan:
+    name: pip-audit Supply-Chain Scan
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: pip-audit (main)
+        uses: pypa/gh-action-pip-audit@v1.1.0
+        with:
+          inputs: requirements.txt
+          ignore-vulns: |
+            CVE-2026-44405
+            PYSEC-2024-271
+          no-deps: true
+      - name: pip-audit (webserver)
+        uses: pypa/gh-action-pip-audit@v1.1.0
+        with:
+          inputs: webserver/requirements.txt
+          ignore-vulns: |
+            CVE-2026-44405
+            PYSEC-2024-271
+          no-deps: true
+
+  build-push:
+    name: Build (linux/arm64) & Push to ECR
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    steps:
+      # ── 1. Checkout ──────────────────────────────────────────────────────────
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      # ── 2. QEMU — enables ARM64 emulation on ubuntu-latest (x86_64) ─────────
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v4
+        with:
+          platforms: arm64
+
+      # ── 3. Buildx — multi-platform builder ───────────────────────────────────
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      # ── 4. AWS credentials ────────────────────────────────────────────────────
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          aws-access-key-id:     ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region:            ${{ env.AWS_REGION }}
+
+      # ── 5. ECR login ──────────────────────────────────────────────────────────
+      - name: Login to Amazon ECR
+        id: ecr-login
+        uses: aws-actions/amazon-ecr-login@v2.1.5
+
+      # ── 6. Compute tags ───────────────────────────────────────────────────────
+      #
+      #  push to main / workflow_dispatch  → :latest + :sha-<7-char>
+      #  semver tag push (v1.2.3)          → adds :1.2.3, :1.2, :1
+      #  workflow_dispatch custom_tag      → adds :<custom_tag>
+      #
+      - name: Compute image tags
+        id: tags
+        run: |
+          REGISTRY="${{ env.ECR_REGISTRY }}"
+          REPO="${{ env.ECR_REPO }}"
+          SHORT="${{ github.sha }}"
+          SHORT="${SHORT:0:7}"
+
+          TAGS="${REGISTRY}/${REPO}:sha-${SHORT}"
+
+          if [[ "${{ github.ref }}" == "refs/heads/main" || "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            TAGS="${TAGS},${REGISTRY}/${REPO}:latest"
+          fi
+
+          if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
+            SEMVER="${GITHUB_REF_NAME#v}"
+            MAJOR="${SEMVER%%.*}"
+            MINOR="${SEMVER%.*}"
+            TAGS="${TAGS},${REGISTRY}/${REPO}:${SEMVER}"
+            TAGS="${TAGS},${REGISTRY}/${REPO}:${MINOR}"
+            TAGS="${TAGS},${REGISTRY}/${REPO}:${MAJOR}"
+          fi
+
+          if [[ -n "${{ github.event.inputs.custom_tag }}" ]]; then
+            TAGS="${TAGS},${REGISTRY}/${REPO}:${{ github.event.inputs.custom_tag }}"
+          fi
+
+          echo "tags=${TAGS}" >> "$GITHUB_OUTPUT"
+          echo "Computed tags: ${TAGS}"
+
+      # ── 7. Build & Push ───────────────────────────────────────────────────────
+      #
+      # PR builds: build-only (validates Dockerfile + deps, no push to ECR).
+      # main / tag / dispatch: build + push.
+      #
+      - name: Build and push
+        uses: docker/build-push-action@v7
+        with:
+          context:   .
+          file:      ./Dockerfile
+          platforms: linux/arm64
+          push:      ${{ github.event_name != 'pull_request' }}
+          tags:      ${{ steps.tags.outputs.tags }}
+          cache-from: type=registry,ref=${{ env.ECR_REGISTRY }}/${{ env.ECR_REPO }}:buildcache
+          cache-to:   type=registry,ref=${{ env.ECR_REGISTRY }}/${{ env.ECR_REPO }}:buildcache,mode=max
+          labels: |
+            org.opencontainers.image.source=${{ github.repositoryUrl }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.created=${{ github.event.head_commit.timestamp }}
+
+      # ── 8. Job summary ────────────────────────────────────────────────────────
+      - name: Print pushed tags
+        if: github.event_name != 'pull_request'
+        run: |
+          echo "### Docker Image Published" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "**Registry:** \`${{ env.ECR_REGISTRY }}/${{ env.ECR_REPO }}\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "**Tags:**" >> "$GITHUB_STEP_SUMMARY"
+          IFS=',' read -ra TAG_LIST <<< "${{ steps.tags.outputs.tags }}"
+          for tag in "${TAG_LIST[@]}"; do
+            echo "- \`${tag}\`" >> "$GITHUB_STEP_SUMMARY"
+          done
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "**Platform:** \`linux/arm64\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "**Commit:** \`${{ github.sha }}\`" >> "$GITHUB_STEP_SUMMARY"

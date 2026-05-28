@@ -1,0 +1,23 @@
+[Unit]
+Description=Dexter HMS — Serial Data Logger
+PartOf=dexter.target
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/home/pi/Test3
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/usr/bin/python3 /home/pi/Test3/serial_data_logger.py
+Restart=on-failure
+RestartSec=10
+WatchdogSec=1200
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=dexter-serial-logger
+MemoryMax=256M
+CPUQuota=80%
+KillMode=mixed
+TimeoutStopSec=30
+
+[Install]
+WantedBy=dexter.target

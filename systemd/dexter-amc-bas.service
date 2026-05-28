@@ -1,0 +1,26 @@
+[Unit]
+Description=Dexter HMS — AMC X412V Active Integration (SIA-DCS/ADM-CID)
+After=network-online.target
+Wants=network-online.target
+PartOf=dexter.target
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/home/pi/Test3
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/usr/bin/python3 /home/pi/Test3/amc_integration.py
+Restart=on-failure
+RestartSec=10
+RestartPreventExitStatus=0 1
+WatchdogSec=1800
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=dexter-amc-bas
+MemoryMax=128M
+CPUQuota=30%
+KillMode=mixed
+TimeoutStopSec=15
+
+[Install]
+WantedBy=dexter.target

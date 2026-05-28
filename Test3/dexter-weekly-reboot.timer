@@ -1,0 +1,11 @@
+[Unit]
+Description=Dexter HMS Scheduled Weekly Reboot
+
+[Timer]
+OnCalendar=Sunday *-*-* 12:00
+Persistent=false
+RandomizedDelaySec=60
+Unit=dexter-weekly-reboot.service
+
+[Install]
+WantedBy=timers.target

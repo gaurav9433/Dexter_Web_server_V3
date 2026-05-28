@@ -1,0 +1,76 @@
+{% extends "layout.html" %}
+{% block title %}Device Reports{% endblock %}
+{% block body %}
+<div class="main-content">
+    <div id="breadcrumbContainer">
+        <h5><img src="https://img.icons8.com/3d-fluency/94/business-report.png" 
+            class="menu-icon" style="width: 30px; height: 30px; vertical-align: middle; margin-right: 8px;">
+            Events & Log Management > Event Reports</h5>
+    </div>
+    
+    <div class="container">
+        <h1><i class="fas fa-chart-bar"></i> Device Reports</h1>
+        <div class="selector-container">
+            <label for="reportType">Select report type:</label>
+            <select id="reportType">
+                <option value="daily">Daily Report</option>
+                <option value="monthly">Monthly Report</option>
+                <option value="quarterly">Quarterly Report</option>
+                <option value="annual">Annual Report</option>
+            </select>
+        </div>
+        <div class="report-info">
+            <p>Download and analyze device performance and event logs.</p>
+        </div>
+        <button id="downloadBtn" class="action-button" disabled style="background-color: grey; color: white; cursor: not-allowed;">
+    <i class="fas fa-download"></i> Download Report
+    </button>
+
+    </div>
+</div>
+
+
+<script>
+    // Add touch event handling for mobile devices
+    document.addEventListener('DOMContentLoaded', function() {
+        // Detect if the device is mobile
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        
+        if (isMobile) {
+            document.body.classList.add('mobile-device');
+            
+            // Add touch feedback for download button
+            const button = document.getElementById('downloadBtn');
+            button.addEventListener('touchstart', function() {
+                this.classList.add('touch-active');
+            });
+            button.addEventListener('touchend', function() {
+                this.classList.remove('touch-active');
+            });
+            
+            // Add vibration feedback for touches
+            button.addEventListener('click', function() {
+                if (navigator.vibrate) {
+                    navigator.vibrate(50);
+                }
+            });
+            
+            // Make select more touch-friendly
+            const select = document.getElementById('reportType');
+            select.addEventListener('touchstart', function() {
+                this.classList.add('touch-active');
+            });
+            select.addEventListener('touchend', function() {
+                this.classList.remove('touch-active');
+            });
+        }
+    });
+
+        window.onload = function() {
+        document.getElementById('downloadBtn').disabled = true;
+    };
+</script>
+
+<script src="{{url_for('static',filename='js/reports.js')}}"></script>
+
+{% endblock %}

@@ -1,0 +1,1418 @@
+{% extends "layout.html" %}
+{% block title %}Integration Settings{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="integrationSettings.css">
+<style>
+/* ── Scan Network Section ─────────────────────────────────── */
+.scan-description  { color: #666; margin-bottom: 16px; font-size: 14px; }
+.scan-creds        { display: none; }
+.scan-note         { color: #888; font-size: 11px; }
+.scan-actions      { margin-top: 14px; display: flex; gap: 10px; }
+.scan-cancel-btn   { display: none; }
+.scan-progress-wrap  { display: none; margin-top: 14px; }
+.scan-progress-track { height: 8px; background: #e9ecef; border-radius: 4px; overflow: hidden; }
+.scan-progress-fill  { height: 100%; background: linear-gradient(90deg,#007bff,#00c6ff);
+                       border-radius: 4px; width: 0%; transition: width 0.6s ease; }
+.scan-status-msg   { color: #555; font-size: 13px; margin-top: 6px; }
+.scan-results      { display: none; margin-top: 16px; }
+.scan-found-title  { margin-bottom: 8px; }
+.scan-found-title i { color: #28a745; }
+.scan-table        { width: 100%; border-collapse: collapse; font-size: 13px; }
+.scan-table-header { background: #343a40; color: #fff; }
+.scan-table th, .scan-td { padding: 8px 10px; text-align: left; }
+.scan-info-msg     { color: #28a745; font-size: 13px; margin-top: 8px; }
+.scan-icon-orange  { color: #e67e22; }
+.scan-icon-green   { color: #28a745; }
+.scan-no-results   { display: none; margin-top: 14px; }
+.scan-error-msg    { color: #dc3545; font-size: 13px; }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="main-content">
+    <div id="breadcrumbContainer">
+        <h5><img src="https://img.icons8.com/3d-fluency/94/puzzle.png" class="menu-icon"
+                style="width: 30px; height: 30px; vertical-align: middle; margin-right: 8px;">
+            Device Integration > Integration Settings</h5>
+    </div>
+
+    <!-- Active Integration Section -->
+    <div class="integration-container">
+        <h2 class="section-title"><i class="fas fa-toggle-on"></i> Active Integration</h2>
+
+        <div class="integration-cards">
+            <!-- HIKVISION NVR Setup -->
+            <div class="integration-card">
+                <div class="card-header">
+                    <h3 class="card-title">HIKVISION NVR<button type="button" onclick="quickScan('nvr|hikvision')" style="float:right;font-size:11px;padding:3px 8px;background:#007bff;color:#fff;border:none;border-radius:4px;cursor:pointer;" title="Auto-scan network for this device">🔍 Scan</button></h3>
+                </div>
+
+                <form method="POST" action="/save_integration_hiknvr" id="hikvisionNvrForm">
+                    <input type="hidden" name="device_type" value="hikvision-nvr">
+                    <input type="hidden" name="cameras_json" id="hikvisionNvrCamerasJson">
+
+                    <div class="form-group">
+                        <label for="hikvision_nvr_ip">NVR IP Address</label>
+                        <input type="text" id="hikvision_nvr_ip" name="ip_address" class="ip-input"
+                            value="{{ hikvision_nvr_data.ip_address if hikvision_nvr_data else '' }}"
+                            placeholder="e.g. 192.168.1.100" required>
+                        <div id="hikvision_nvr_ip_message" class="validation-message"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="hikvision_nvr_port">NVR Port Number</label>
+                        <input type="text" id="hikvision_nvr_port" name="port_number"
+                            value="{{ hikvision_nvr_data.port_number if hikvision_nvr_data else '8000' }}"
+                            placeholder="e.g. 8000" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="hikvision_nvr_username">NVR Username</label>
+                        <input type="text" id="hikvision_nvr_username" name="username"
+                            value="{{ hikvision_nvr_data.username if hikvision_nvr_data else '' }}"
+                            placeholder="Username" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="hikvision_nvr_password">NVR Password</label>
+                        <div class="password-input-container">
+                            <input type="password" id="hikvision_nvr_password" name="password"
+                                value="{{ hikvision_nvr_data.password if hikvision_nvr_data else '' }}"
+                                placeholder="Password">
+                            <button type="button" class="show-password-btn" onclick="togglePassword('hikvision_nvr_password', this)">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <input type="hidden" name="device_type_d" value="HikvisionNVR1">
+
+                    <div class="cameras-list">
+                        <h4>Connected Cameras</h4>
+                        <div id="hikvisionNvrCamerasContainer" class="cameras-container">
+                            <!-- Cameras will be listed here -->
+                        </div>
+                    </div>
+
+                    <div class="camera-actions-bottom">
+                        <button type="button" id="hikvisionNvrAddCameraBtn" class="btn btn-secondary">
+                            <i class="fas fa-plus"></i> Add Camera
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Save 
+                        </button>
+                    </div>
+                </form>
+            </div>
+            <!-- CP PLUS NVR Setup -->
+            <div class="integration-card">
+                <div class="card-header">
+                    <h3 class="card-title">CP PLUS NVR<button type="button" onclick="quickScan('nvr|cpplus')" style="float:right;font-size:11px;padding:3px 8px;background:#007bff;color:#fff;border:none;border-radius:4px;cursor:pointer;" title="Auto-scan network for this device">🔍 Scan</button></h3>
+                </div>
+
+                <form method="POST" action="/save_integration_hiknvr" id="cpplusNvrForm">
+                    <input type="hidden" name="device_type" value="cpplus-nvr">
+                    <input type="hidden" name="cameras_json" id="cpplusNvrCamerasJson">
+
+                    <div class="form-group">
+                        <label for="cpplus_nvr_ip">NVR IP Address</label>
+                        <input type="text" id="cpplus_nvr_ip" name="ip_address" class="ip-input"
+                            value="{{ cpplus_nvr_data.ip_address if cpplus_nvr_data else '' }}"
+                            placeholder="e.g. 192.168.1.100" required>
+                        <div id="cpplus_nvr_ip_message" class="validation-message"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="cpplus_nvr_port">NVR Port Number</label>
+                        <input type="text" id="cpplus_nvr_port" name="port_number"
+                            value="{{ cpplus_nvr_data.port_number if cpplus_nvr_data else '37777' }}"
+                            placeholder="e.g. 37777" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="cpplus_nvr_username">NVR Username</label>
+                        <input type="text" id="cpplus_nvr_username" name="username"
+                            value="{{ cpplus_nvr_data.username if cpplus_nvr_data else '' }}"
+                            placeholder="Username" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="cpplus_nvr_password">NVR Password</label>
+                        <div class="password-input-container">
+                            <input type="password" id="cpplus_nvr_password" name="password"
+                                value="{{ cpplus_nvr_data.password if cpplus_nvr_data else '' }}"
+                                placeholder="Password">
+                            <button type="button" class="show-password-btn" onclick="togglePassword('cpplus_nvr_password', this)">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <input type="hidden" name="device_type_d" value="CP_PlusNVR1">
+
+                    <div class="cameras-list">
+                        <h4>Connected Cameras</h4>
+                        <div id="cpplusNvrCamerasContainer" class="cameras-container">
+                            <!-- Cameras will be listed here -->
+                        </div>
+                    </div>
+
+                    <div class="camera-actions-bottom">
+                        <button type="button" id="cpplusNvrAddCameraBtn" class="btn btn-secondary">
+                            <i class="fas fa-plus"></i> Add Camera
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Save 
+                        </button>
+                    </div>
+                </form>
+            </div>
+<!-- Dahua NVR Setup -->
+            <div class="integration-card">
+                <div class="card-header">
+                    <h3 class="card-title">DAHUA NVR<button type="button" onclick="quickScan('nvr|dahua')" style="float:right;font-size:11px;padding:3px 8px;background:#007bff;color:#fff;border:none;border-radius:4px;cursor:pointer;" title="Auto-scan network for this device">🔍 Scan</button></h3>
+                </div>
+
+                <form method="POST" action="/save_integration_hiknvr" id="dahuaNvrForm">
+                    <input type="hidden" name="device_type" value="dahua-nvr">
+                    <input type="hidden" name="cameras_json" id="dahuaNvrCamerasJson">
+
+                    <div class="form-group">
+                        <label for="dahua_nvr_ip">IP Address</label>
+                        <input type="text" id="dahua_nvr_ip" name="ip_address" class="ip-input"
+                            value="{{ dahua_nvr_data.ip_address if dahua_nvr_data else '' }}"
+                            placeholder="e.g. 192.168.1.100" required>
+                        <div id="dahua_nvr_ip_message" class="validation-message"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="dahua_nvr_port">Port Number</label>
+                        <input type="text" id="dahua_nvr_port" name="port_number"
+                            value="{{ dahua_nvr_data.port_number if dahua_nvr_data else '37777' }}"
+                            placeholder="e.g. 37777" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="dahua_nvr_username">Username</label>
+                        <input type="text" id="dahua_nvr_username" name="username"
+                            value="{{ dahua_nvr_data.username if dahua_nvr_data else '' }}" placeholder="Username"
+                            required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="dahua_nvr_password">Password</label>
+                        <div class="password-input-container">
+                            <input type="password" id="dahua_nvr_password" name="password"
+                                value="{{ dahua_nvr_data.password if dahua_nvr_data else '' }}" placeholder="Password">
+                            <button type="button" class="show-password-btn" onclick="togglePassword('dahua_nvr_password', this)">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <input type="hidden" name="device_type_d" value="DahuaNVR1">
+
+                    <div class="cameras-list">
+                        <h4>Connected Cameras</h4>
+                        <div id="dahuaNvrCamerasContainer" class="cameras-container">
+                            <!-- Cameras will be listed here -->
+                        </div>
+                    </div>
+
+                    <div class="camera-actions-bottom">
+                        <button type="button" id="dahuaNvrAddCameraBtn" class="btn btn-secondary">
+                            <i class="fas fa-plus"></i> Add Camera
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Save 
+                        </button>
+                    </div>
+                </form>
+            </div>
+            <!-- SPARS NVR Setup -->
+            <div class="integration-card">
+                <div class="card-header">
+                    <h3 class="card-title">SPARS NVR</h3>
+                </div>
+
+                <form method="POST" action="/save_integration_hiknvr" id="sparsNvrForm">
+                    <input type="hidden" name="device_type" value="spars-nvr">
+                    <input type="hidden" name="cameras_json" id="sparsNvrCamerasJson">
+
+                    <div class="form-group">
+                        <label for="spars_nvr_ip">NVR IP Address</label>
+                        <input type="text" id="spars_nvr_ip" name="ip_address" class="ip-input"
+                            value="{{ spars_nvr_data.ip_address if spars_nvr_data else '' }}"
+                            placeholder="e.g. 192.168.1.100" required>
+                        <div id="spars_nvr_ip_message" class="validation-message"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="spars_nvr_port">NVR Port Number</label>
+                        <input type="text" id="spars_nvr_port" name="port_number"
+                            value="{{ spars_nvr_data.port_number if spars_nvr_data else '37777' }}"
+                            placeholder="e.g. 37777" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="spars_nvr_username">NVR Username</label>
+                        <input type="text" id="spars_nvr_username" name="username"
+                            value="{{ spars_nvr_data.username if spars_nvr_data else '' }}"
+                            placeholder="Username" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="spars_nvr_password">NVR Password</label>
+                        <div class="password-input-container">
+                            <input type="password" id="spars_nvr_password" name="password"
+                                value="{{ spars_nvr_data.password if spars_nvr_data else '' }}"
+                                placeholder="Password">
+                            <button type="button" class="show-password-btn" onclick="togglePassword('spars_nvr_password', this)">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <input type="hidden" name="device_type_d" value="SparshNVR1">
+
+                    <div class="cameras-list">
+                        <h4>Connected Cameras</h4>
+                        <div id="sparsNvrCamerasContainer" class="cameras-container">
+                            <!-- Cameras will be listed here -->
+                        </div>
+                    </div>
+
+                    <div class="camera-actions-bottom">
+                        <button type="button" id="sparsNvrAddCameraBtn" class="btn btn-secondary">
+                            <i class="fas fa-plus"></i> Add Camera
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Save 
+                        </button>
+                    </div>
+                </form>
+            </div>
+            <!-- HIKVISION BACS Setup -->
+            <div class="integration-card">
+                <div class="card-header">
+                    <h3 class="card-title">HIKVISION BACS<button type="button" onclick="quickScan('access|hikvision')" style="float:right;font-size:11px;padding:3px 8px;background:#007bff;color:#fff;border:none;border-radius:4px;cursor:pointer;" title="Auto-scan network for this device">🔍 Scan</button></h3>
+                </div>
+
+                <form method="POST" action="/save_integration_hiknvr" id="hikvisionBacsForm">
+                    <input type="hidden" name="device_type" value="hikvision-bacs">
+                    <input type="hidden" name="cameras_json" id="hikvisionBacsCamerasJson">
+
+                    <div class="form-group">
+                        <label for="hikvision_bacs_ip">IP Address</label>
+                        <input type="text" id="hikvision_bacs_ip" name="ip_address" class="ip-input"
+                            value="{{ hikvision_bacs_data.ip_address if hikvision_bacs_data else '' }}"
+                            placeholder="e.g. 192.168.1.100" required>
+                        <div id="hikvision_bacs_ip_message" class="validation-message"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="hikvision_bacs_port">Port Number</label>
+                        <input type="text" id="hikvision_bacs_port" name="port_number"
+                            value="{{ hikvision_bacs_data.port_number if hikvision_bacs_data else '8000' }}"
+                            placeholder="e.g. 8000" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="hikvision_bacs_username">Username</label>
+                        <input type="text" id="hikvision_bacs_username" name="username"
+                            value="{{ hikvision_bacs_data.username if hikvision_bacs_data else '' }}"
+                            placeholder="Username" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="hikvision_bacs_password">Password</label>
+                        <div class="password-input-container">
+                            <input type="password" id="hikvision_bacs_password" name="password"
+                                value="{{ hikvision_bacs_data.password if hikvision_bacs_data else '' }}"
+                                placeholder="Password">
+                            <button type="button" class="show-password-btn" onclick="togglePassword('hikvision_bacs_password', this)">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <input type="hidden" name="device_type_d" value="HikvisionBioMetric1">
+
+                   
+
+                    <div class="camera-actions-bottom">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Save 
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- HIKVISION BAS (Burglar Alarm Panel) -->
+            <div class="integration-card">
+                <div class="card-header">
+                    <h3 class="card-title">HIKVISION BAS<button type="button" onclick="quickScan('burglar|hikvision')" style="float:right;font-size:11px;padding:3px 8px;background:#007bff;color:#fff;border:none;border-radius:4px;cursor:pointer;" title="Auto-scan network for this device">🔍 Scan</button></h3>
+                </div>
+                <form method="POST" action="/save_integration_hiknvr" id="hikBasForm">
+                    <div class="form-group">
+                        <label for="hik_bas_ip">Panel IP Address</label>
+                        <input type="text" id="hik_bas_ip" name="ip_address" class="ip-input"
+                            value="{{ hik_bas_data.ip_address if hik_bas_data else '' }}"
+                            placeholder="e.g. 192.168.1.100" required>
+                        <div id="hik_bas_ip_message" class="validation-message"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="hik_bas_port">Port Number</label>
+                        <input type="text" id="hik_bas_port" name="port_number"
+                            value="{{ hik_bas_data.port_number if hik_bas_data else '80' }}"
+                            placeholder="e.g. 80" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="hik_bas_username">Username</label>
+                        <input type="text" id="hik_bas_username" name="username"
+                            value="{{ hik_bas_data.username if hik_bas_data else '' }}"
+                            placeholder="Username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="hik_bas_password">Password</label>
+                        <input type="password" id="hik_bas_password" name="password"
+                            value="{{ hik_bas_data.password if hik_bas_data else '' }}"
+                            placeholder="Password">
+                    </div>
+                    <input type="hidden" name="device_type_d" value="HikvisionBAS1">
+                    <div class="camera-actions-bottom">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Save
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- TEXECOM BAS (Intrusion Panel) -->
+            <div class="integration-card">
+                <div class="card-header">
+                    <h3 class="card-title">TEXECOM BAS<button type="button" onclick="quickScan('texecom|texecom')" style="float:right;font-size:11px;padding:3px 8px;background:#007bff;color:#fff;border:none;border-radius:4px;cursor:pointer;" title="Auto-scan network for this device">🔍 Scan</button></h3>
+                </div>
+                <form method="POST" action="/save_integration_hiknvr" id="texecomBasForm">
+                    <div class="form-group">
+                        <label for="texecom_bas_ip">Panel IP Address</label>
+                        <input type="text" id="texecom_bas_ip" name="ip_address" class="ip-input"
+                            value="{{ texecom_bas_data.ip_address if texecom_bas_data else '' }}"
+                            placeholder="e.g. 192.168.1.100" required>
+                        <div id="texecom_bas_ip_message" class="validation-message"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="texecom_bas_port">Port Number</label>
+                        <input type="text" id="texecom_bas_port" name="port_number"
+                            value="{{ texecom_bas_data.port_number if texecom_bas_data else '10001' }}"
+                            placeholder="10001" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="texecom_bas_username">Username</label>
+                        <input type="text" id="texecom_bas_username" name="username"
+                            value="TAXICOM" readonly
+                            style="background:#f5f5f5;cursor:not-allowed;">
+                        <small class="scan-note">Fixed — not editable</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="texecom_bas_password">UDL Password</label>
+                        <input type="password" id="texecom_bas_password" name="password"
+                            value="{{ texecom_bas_data.password if texecom_bas_data else '' }}"
+                            placeholder="e.g. 12345">
+                        <small class="scan-note">Numeric — set on panel keypad</small>
+                    </div>
+                    <input type="hidden" name="device_type_d" value="TexecomBAS1">
+                    <div class="camera-actions-bottom">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Save
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- SCAN NETWORK PANEL -->
+    <div class="integration-container">
+        <h2 class="section-title"><i class="fas fa-search"></i> Scan Network</h2>
+        <p class="scan-description">
+            Automatically find devices on the local network and fill in IP addresses above.
+            Select device type, enter credentials, then click <strong>Start Scan</strong>.
+        </p>
+        <div class="scan-panel">
+            <div class="form-group">
+                <label for="scanDeviceType">Device Type</label>
+                <select id="scanDeviceType" onchange="onScanDeviceChange()" class="scan-select">
+                    <option value="">-- Select device to scan --</option>
+                    <optgroup label="NVR / DVR">
+                        <option value="nvr|hikvision">Hikvision NVR</option>
+                        <option value="nvr|dahua">Dahua NVR</option>
+                        <option value="nvr|cpplus">CP Plus NVR</option>
+                        <option value="nvr|all">All NVR Brands</option>
+                    </optgroup>
+                    <optgroup label="Access Control">
+                        <option value="access|hikvision">Hikvision Access Control (BACS)</option>
+                    </optgroup>
+                    <optgroup label="Alarm Panel">
+                        <option value="burglar|hikvision">Hikvision Burglar Panel (BAS)</option>
+                        <option value="texecom|texecom">Texecom Intrusion Panel (BAS)</option>
+                    </optgroup>
+                </select>
+            </div>
+            <div id="scanHttpCreds" class="scan-creds">
+                <div class="form-group">
+                    <label for="scanUser">Username</label>
+                    <input type="text" id="scanUser" placeholder="e.g. admin">
+                </div>
+                <div class="form-group">
+                    <label for="scanPass">Password</label>
+                    <input type="password" id="scanPass" placeholder="Device password">
+                </div>
+            </div>
+            <div id="scanTexecomCreds" class="scan-creds">
+                <div class="form-group">
+                    <label for="scanTexPass">UDL Password</label>
+                    <input type="text" id="scanTexPass" value="12345" placeholder="e.g. 12345">
+                    <small class="scan-note">Username is always <strong>TAXICOM</strong> — no input needed</small>
+                </div>
+            </div>
+            <div class="scan-actions">
+                <button id="scanStartBtn" class="btn btn-primary" onclick="startScan()" disabled>
+                    <i class="fas fa-search"></i> Start Scan
+                </button>
+                <button id="scanCancelBtn" class="btn btn-secondary scan-cancel-btn" onclick="cancelScan()">
+                    <i class="fas fa-times"></i> Cancel
+                </button>
+            </div>
+            <div id="scanProgress" class="scan-progress-wrap">
+                <div class="scan-progress-track">
+                    <div id="scanProgressFill" class="scan-progress-fill"></div>
+                </div>
+                <p id="scanStatusMsg" class="scan-status-msg"></p>
+            </div>
+            <div id="scanResults" class="scan-results">
+                <h4 class="scan-found-title"><i class="fas fa-check-circle"></i> Devices Found</h4>
+                <table class="scan-table">
+                    <thead>
+                        <tr class="scan-table-header">
+                            <th>#</th>
+                            <th>Brand</th>
+                            <th>Type</th>
+                            <th>IP Address</th>
+                            <th>Cameras</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="scanResultsBody"></tbody>
+                </table>
+                <p class="scan-info-msg">
+                    <i class="fas fa-info-circle"></i>
+                    IP fields updated automatically. Click <strong>Save</strong> on each card to confirm.
+                </p>
+            </div>
+            <div id="scanNoResults" class="scan-no-results">
+                <p class="scan-error-msg">
+                    <i class="fas fa-exclamation-circle"></i>
+                    No devices found. Check credentials and ensure devices are powered on.
+                </p>
+            </div>
+        </div>
+    </div>
+
+   <!-- <div class="integration-container">
+        <h2 class="section-title"><i class="fas fa-clock"></i> Passive Integrations</h2>
+
+        <div class="integration-cards">
+           
+            <div class="passive-integration">
+                <div class="passive-icon">
+                    <i class="fas fa-plug"></i>
+                </div>
+                <h3>More Integrations Coming Soon</h3>
+                <p class="passive-message">Additional device integration options will be available in future updates.
+                </p>
+            </div>
+
+ 
+            <div class="passive-integration">
+                <div class="passive-icon">
+                    <i class="fas fa-cloud"></i>
+                </div>
+                <h3>Cloud Integration</h3>
+                <p class="passive-message">Cloud-based integration services are under development.</p>
+            </div>
+        </div>
+    </div> -->
+</div>
+
+<!-- Add Camera Modal for Hikvision NVR -->
+<div id="hikvisionNvrCameraModal" class="modal">
+    <div class="modal-content">
+        <span class="close hikvision-nvr-close">&times;</span>
+        <h3>Add Camera - Hikvision NVR</h3>
+        <form id="hikvisionNvrCameraForm">
+            <div class="form-group">
+                <label for="hikvisionNvrCameraIp">Camera IP Address</label>
+                <input type="text" id="hikvisionNvrCameraIp" class="ip-input" placeholder="e.g. 192.168.1.101" required>
+                <div id="hikvisionNvrCameraIp_message" class="validation-message"></div>
+            </div>
+            <div class="form-group">
+                <label for="hikvisionNvrCameraUsername">Username</label>
+                <input type="text" id="hikvisionNvrCameraUsername" placeholder="Camera username" required>
+            </div>
+            <div class="form-group">
+                <label for="hikvisionNvrCameraPassword">Password</label>
+                <div class="password-input-container">
+                    <input type="password" id="hikvisionNvrCameraPassword" placeholder="Camera password" required>
+                    <button type="button" class="show-password-btn" onclick="togglePassword('hikvisionNvrCameraPassword', this)">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary hikvision-nvr-cancel-btn">Cancel</button>
+                <button type="submit" class="btn btn-primary">Save Camera</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+
+<!-- Add Camera Modal for CP Plus NVR -->
+<div id="cpplusNvrCameraModal" class="modal">
+    <div class="modal-content">
+        <span class="close cpplus-nvr-close">&times;</span>
+        <h3>Add Camera - CP Plus NVR</h3>
+        <form id="cpplusNvrCameraForm">
+            <div class="form-group">
+                <label for="cpplusNvrCameraIp">Camera IP Address</label>
+                <input type="text" id="cpplusNvrCameraIp" class="ip-input" placeholder="e.g. 192.168.1.101" required>
+                <div id="cpplusNvrCameraIp_message" class="validation-message"></div>
+            </div>
+            <div class="form-group">
+                <label for="cpplusNvrCameraUsername">Username</label>
+                <input type="text" id="cpplusNvrCameraUsername" placeholder="Camera username" required>
+            </div>
+            <div class="form-group">
+                <label for="cpplusNvrCameraPassword">Password</label>
+                <div class="password-input-container">
+                    <input type="password" id="cpplusNvrCameraPassword" placeholder="Camera password" required>
+                    <button type="button" class="show-password-btn" onclick="togglePassword('cpplusNvrCameraPassword', this)">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary cpplus-nvr-cancel-btn">Cancel</button>
+                <button type="submit" class="btn btn-primary">Save Camera</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Add Camera Modal for Spars NVR -->
+<div id="sparsNvrCameraModal" class="modal">
+    <div class="modal-content">
+        <span class="close spars-nvr-close">&times;</span>
+        <h3>Add Camera - Spars NVR</h3>
+        <form id="sparsNvrCameraForm">
+            <div class="form-group">
+                <label for="sparsNvrCameraIp">Camera IP Address</label>
+                <input type="text" id="sparsNvrCameraIp" class="ip-input" placeholder="e.g. 192.168.1.101" required>
+                <div id="sparsNvrCameraIp_message" class="validation-message"></div>
+            </div>
+            <div class="form-group">
+                <label for="sparsNvrCameraUsername">Username</label>
+                <input type="text" id="sparsNvrCameraUsername" placeholder="Camera username" required>
+            </div>
+            <div class="form-group">
+                <label for="sparsNvrCameraPassword">Password</label>
+                <div class="password-input-container">
+                    <input type="password" id="sparsNvrCameraPassword" placeholder="Camera password" required>
+                    <button type="button" class="show-password-btn" onclick="togglePassword('sparsNvrCameraPassword', this)">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary spars-nvr-cancel-btn">Cancel</button>
+                <button type="submit" class="btn btn-primary">Save Camera</button>
+            </div>
+        </form>
+    </div>
+</div>
+<!-- Add Camera Modal for Dahua NVR -->
+<div id="dahuaNvrCameraModal" class="modal">
+    <div class="modal-content">
+        <span class="close dahua-nvr-close">&times;</span>
+        <h3>Add Camera - Dahua NVR</h3>
+        <form id="dahuaNvrCameraForm">
+            <div class="form-group">
+                <label for="dahuaNvrCameraIp">Camera IP Address</label>
+                <input type="text" id="dahuaNvrCameraIp" class="ip-input" placeholder="e.g. 192.168.1.101" required>
+                <div id="dahuaNvrCameraIp_message" class="validation-message"></div>
+            </div>
+            <div class="form-group">
+                <label for="dahuaNvrCameraUsername">Username</label>
+                <input type="text" id="dahuaNvrCameraUsername" placeholder="Camera username" required>
+            </div>
+            <div class="form-group">
+                <label for="dahuaNvrCameraPassword">Password</label>
+                <div class="password-input-container">
+                    <input type="password" id="dahuaNvrCameraPassword" placeholder="Camera password" required>
+                    <button type="button" class="show-password-btn" onclick="togglePassword('dahuaNvrCameraPassword', this)">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary dahua-nvr-cancel-btn">Cancel</button>
+                <button type="submit" class="btn btn-primary">Save Camera</button>
+            </div>
+        </form>
+    </div>
+</div>
+<script>
+    var hikcamera     = {{ c1 | safe }};
+    var hikbacscamera = {{ c2 | safe }};
+    var dahuacamera   = {{ c3 | safe }};
+    var cppluscamera  = {{ c4 | safe }};
+    var sparscamera   = {{ c5 | safe }};
+
+    function isValidIP(ip) {
+        const ipRegex = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/;
+        const match = ip.match(ipRegex);
+        
+        if (!match) return false;
+        
+        // Check if each octet is between 0-255
+        for (let i = 1; i <= 4; i++) {
+            const octet = parseInt(match[i]);
+            if (octet < 0 || octet > 255) return false;
+        }
+        
+        return true;
+    }
+    
+    // Function to validate IP input in real-time
+    function setupIPValidation(inputId, messageId) {
+        const input = document.getElementById(inputId);
+        const message = document.getElementById(messageId);
+        
+        if (!input || !message) return; // Safety check
+        
+        // Only allow numbers and dots
+        input.addEventListener('input', function(e) {
+            // Remove any characters that aren't numbers or dots
+            let value = e.target.value.replace(/[^0-9.]/g, '');
+            
+            // Prevent multiple consecutive dots
+            value = value.replace(/\.{2,}/g, '.');
+            
+            // Prevent starting with a dot
+            if (value.startsWith('.')) {
+                value = value.substring(1);
+            }
+            
+            // Limit to 4 octets (3 dots maximum)
+            const dots = value.split('.').length - 1;
+            if (dots > 3) {
+                const parts = value.split('.');
+                value = parts.slice(0, 4).join('.');
+            }
+            
+            // Limit each octet to 3 digits
+            const octets = value.split('.');
+            value = octets.map(octet => octet.length > 3 ? octet.substring(0, 3) : octet).join('.');
+            
+            e.target.value = value;
+            
+            // Validate the IP
+            validateIP(input, message);
+        });
+        
+        // Prevent pasting invalid content
+        input.addEventListener('paste', function(e) {
+            e.preventDefault();
+            const pastedText = (e.clipboardData || window.clipboardData).getData('text');
+            const cleanedText = pastedText.replace(/[^0-9.]/g, '');
+            
+            // Set the cleaned text and validate
+            input.value = cleanedText;
+            input.dispatchEvent(new Event('input'));
+        });
+        
+        // Validate on blur
+        input.addEventListener('blur', function() {
+            validateIP(input, message);
+        });
+        
+        // Initial validation if there's already a value
+        if (input.value.trim()) {
+            validateIP(input, message);
+        }
+    }
+    
+    // Function to validate and show feedback
+    function validateIP(input, messageElement) {
+        const value = input.value.trim();
+        
+        if (!value) {
+            input.className = input.className.replace(/ (valid|invalid)/g, '');
+            messageElement.textContent = '';
+            return;
+        }
+        
+        if (isValidIP(value)) {
+            input.className = input.className.replace(/ (valid|invalid)/g, '') + ' valid';
+            messageElement.className = 'validation-message valid-message';
+            messageElement.textContent = '✓ Valid IP address';
+        } else {
+            input.className = input.className.replace(/ (valid|invalid)/g, '') + ' invalid';
+            messageElement.className = 'validation-message invalid-message';
+            
+            // Provide specific error messages
+            if (value.split('.').length !== 4) {
+                messageElement.textContent = '✗ IP must have 4 octets (e.g., 192.168.1.100)';
+            } else if (value.split('.').some(octet => octet === '' || parseInt(octet) > 255)) {
+                messageElement.textContent = '✗ Each octet must be between 0-255';
+            } else {
+                messageElement.textContent = '✗ Invalid IP address format';
+            }
+        }
+    }
+
+    // Camera Management
+    document.addEventListener('DOMContentLoaded', function () {
+        // Seed initial camera lists (if server provided globals exist)
+        try {
+            if (typeof hikcamera !== 'undefined') {
+                localStorage.setItem("hikvisionNvrCameras", JSON.stringify(hikcamera));
+            }
+            if (typeof hikbacscamera !== 'undefined') {
+                localStorage.setItem("hikvisionBacsCameras", JSON.stringify(hikbacscamera));
+            }
+            if (typeof dahuacamera !== 'undefined') {
+                localStorage.setItem("dahuaNvrCameras", JSON.stringify(dahuacamera));
+            }
+            if (typeof cppluscamera !== 'undefined') {
+                localStorage.setItem("cpplusNvrCameras", JSON.stringify(cppluscamera));
+            }
+            if (typeof sparscamera !== 'undefined') {
+                localStorage.setItem("sparsNvrCameras", JSON.stringify(sparscamera));
+            }
+        } catch (e) {
+            console.warn('Error seeding cameras to localStorage', e);
+        }
+
+        // Initialize IP validation for all IP inputs
+        setupIPValidation('hikvision_nvr_ip', 'hikvision_nvr_ip_message');
+        setupIPValidation('hikvision_bacs_ip', 'hikvision_bacs_ip_message');
+        setupIPValidation('dahua_nvr_ip', 'dahua_nvr_ip_message');
+        setupIPValidation('cpplus_nvr_ip',    'cpplus_nvr_ip_message');
+        setupIPValidation('hik_bas_ip',       'hik_bas_ip_message');
+        setupIPValidation('texecom_bas_ip',   'texecom_bas_ip_message');
+        setupIPValidation('spars_nvr_ip', 'spars_nvr_ip_message');
+        setupIPValidation('hikvisionNvrCameraIp', 'hikvisionNvrCameraIp_message');
+        setupIPValidation('hikvisionBacsCameraIp', 'hikvisionBacsCameraIp_message');
+        setupIPValidation('dahuaNvrCameraIp', 'dahuaNvrCameraIp_message');
+        setupIPValidation('cpplusNvrCameraIp', 'cpplusNvrCameraIp_message');
+        setupIPValidation('sparsNvrCameraIp', 'sparsNvrCameraIp_message');
+        // Detect if the device is mobile
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+        // Initialize camera management for each system
+        initCameraManagement("hikvisionNvr", "hikvisionNvrCameras");
+        initCameraManagement("dahuaNvr", "dahuaNvrCameras");
+        initCameraManagement("cpplusNvr", "cpplusNvrCameras");
+        initCameraManagement("sparsNvr", "sparsNvrCameras");
+
+        // Function to initialize camera management for a specific system
+        function initCameraManagement(systemPrefix, storageKey) {
+            // Get modal elements
+            const modal = document.getElementById(`${systemPrefix}CameraModal`);
+            const addBtn = document.getElementById(`${systemPrefix}AddCameraBtn`);
+            const closeBtn = modal.querySelector(`.${systemPrefix.replace(/([A-Z])/g, '-$1').toLowerCase()}-close`);
+            const cancelBtn = modal.querySelector(`.${systemPrefix.replace(/([A-Z])/g, '-$1').toLowerCase()}-cancel-btn`);
+            const cameraForm = document.getElementById(`${systemPrefix}CameraForm`);
+            const camerasContainer = document.getElementById(`${systemPrefix}CamerasContainer`);
+            const mainForm = document.getElementById(`${systemPrefix}Form`);
+            const camerasJsonInput = document.getElementById(`${systemPrefix}CamerasJson`);
+
+            // Load cameras from localStorage or initialize empty array
+            let cameras = [];
+            try {
+                const savedCameras = localStorage.getItem(storageKey);
+                cameras = savedCameras ? JSON.parse(savedCameras) : [];
+                if (!Array.isArray(cameras)) {
+                    console.warn(`Stored ${storageKey} was not an array, resetting to empty array`);
+                    cameras = [];
+                }
+            } catch (e) {
+                console.error(`Error loading ${storageKey} from localStorage:`, e);
+                cameras = [];
+            }
+
+            // Display existing cameras
+            function displayCameras() {
+                // Always sync the hidden input first (even when cameras = [])
+                updateCamerasJsonInput();
+
+                if (cameras.length === 0) {
+                    camerasContainer.innerHTML = '<div class="no-cameras">No cameras added yet</div>';
+                    return;
+                }
+
+                camerasContainer.innerHTML = '';
+                cameras.forEach((camera, index) => {
+                    const cameraElement = document.createElement('div');
+                    cameraElement.className = 'camera-item';
+                    cameraElement.innerHTML = `
+                        <div class="camera-info">
+                            <span class="camera-serial">${index + 1}.</span>
+                            <span class="camera-ip">${camera.ip_address}</span>
+                            <span class="camera-username">${camera.username}</span>
+                        </div>
+                        <div class="camera-actions">
+                            <button type="button" class="btn-icon edit-camera" data-index="${index}" title="Edit">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button type="button" class="btn-icon delete-camera" data-index="${index}" title="Delete">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    `;
+                    camerasContainer.appendChild(cameraElement);
+                });
+
+                // Add event listeners for edit and delete buttons
+                camerasContainer.querySelectorAll('.edit-camera').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const index = e.currentTarget.getAttribute('data-index');
+                        editCamera(parseInt(index));
+                    });
+                });
+
+                camerasContainer.querySelectorAll('.delete-camera').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const index = e.currentTarget.getAttribute('data-index');
+                        deleteCamera(parseInt(index));
+                    });
+                });
+            }
+
+            // Update the hidden JSON input with the current cameras data
+            function updateCamerasJsonInput() {
+                if (camerasJsonInput) {
+                    camerasJsonInput.value = JSON.stringify(cameras);
+                }
+            }
+
+            // Show modal
+            function showModal(editIndex = null) {
+                document.body.style.overflow = 'hidden';
+                modal.style.display = 'block';
+                setTimeout(() => {
+                    modal.classList.add('show');
+                }, 10);
+
+                if (editIndex !== null) {
+                    // Edit mode
+                    const camera = cameras[editIndex];
+                    document.getElementById(`${systemPrefix}CameraIp`).value = camera.ip_address;
+                    document.getElementById(`${systemPrefix}CameraUsername`).value = camera.username;
+                    document.getElementById(`${systemPrefix}CameraPassword`).value = camera.password; // Don't show password for security
+                    cameraForm.setAttribute('data-edit-index', editIndex);
+                } else {
+                    // Add new mode
+                    cameraForm.reset();
+                    cameraForm.removeAttribute('data-edit-index');
+                }
+            }
+
+            // Hide modal
+            function hideModal() {
+                document.body.style.overflow = 'auto';
+                modal.classList.remove('show');
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                }, 300);
+                cameraForm.reset();
+                cameraForm.removeAttribute('data-edit-index');
+            }
+
+            // Save camera
+            function saveCamera(e) {
+                e.preventDefault();
+
+                const ip = document.getElementById(`${systemPrefix}CameraIp`).value.trim();
+                const username = document.getElementById(`${systemPrefix}CameraUsername`).value.trim();
+                const password = document.getElementById(`${systemPrefix}CameraPassword`).value;
+
+                if (!ip || !username) {
+                    alert('Please fill in all required fields');
+                    return;
+                }
+
+                const editIndex = cameraForm.getAttribute('data-edit-index');
+                const cameraData = {
+                    ip_address: ip,
+                    username,
+                    // Only update password if provided (for editing)
+                    password: password || (editIndex !== null ? cameras[editIndex]?.password || '' : '')
+                };
+
+                if (editIndex !== null) {
+                    // Update existing camera
+                    cameras[editIndex] = cameraData;
+                } else {
+                    // Check if maximum limit reached
+                    if (cameras.length >= 128) {
+                        alert('Maximum limit of 128 cameras reached');
+                        return;
+                    }
+                    // Add new camera
+                    cameras.push(cameraData);
+                }
+
+                // Ensure cameras is an array before saving
+                if (!Array.isArray(cameras)) {
+                    console.warn(`${storageKey} was not an array, resetting to empty array`);
+                    cameras = [];
+                }
+                // Save to localStorage
+                try {
+                    localStorage.setItem(storageKey, JSON.stringify(cameras));
+                } catch (e) {
+                    console.error(`Error saving ${storageKey} to localStorage:`, e);
+                }
+
+                // Update display and close modal
+                displayCameras();
+                hideModal();
+
+                // Auto-save camera changes to backend immediately
+                if (mainForm) {
+                    const fd = new FormData(mainForm);
+                    fetch(mainForm.action, {method: 'POST', body: fd})
+                        .catch(err => console.warn('Camera auto-save error:', err));
+                }
+            }
+
+            // Edit camera
+            function editCamera(index) {
+                showModal(index);
+            }
+
+            // Delete camera
+            function deleteCamera(index) {
+                if (confirm('Are you sure you want to delete this camera?')) {
+                    cameras.splice(index, 1);
+                    localStorage.setItem(storageKey, JSON.stringify(cameras));
+                    displayCameras();
+
+                    // Auto-save camera changes to backend immediately
+                    if (mainForm) {
+                        const fd = new FormData(mainForm);
+                        fetch(mainForm.action, {method: 'POST', body: fd})
+                            .catch(err => console.warn('Camera auto-save error:', err));
+                    }
+                }
+            }
+
+            // Event listeners
+            addBtn.addEventListener('click', () => showModal());
+            closeBtn.addEventListener('click', hideModal);
+            cancelBtn.addEventListener('click', hideModal);
+            cameraForm.addEventListener('submit', saveCamera);
+
+            // Add form submit event to ensure cameras JSON is included
+            if (mainForm) {
+                mainForm.addEventListener('submit', function (e) {
+                    // If the camera modal is open with filled-in data, commit it
+                    // before the main form submits (prevents losing a partially-entered camera)
+                    if (modal.style.display === 'block') {
+                        const ip = document.getElementById(`${systemPrefix}CameraIp`).value.trim();
+                        const username = document.getElementById(`${systemPrefix}CameraUsername`).value.trim();
+                        const password = document.getElementById(`${systemPrefix}CameraPassword`).value;
+                        if (ip && username) {
+                            const editIndex = cameraForm.getAttribute('data-edit-index');
+                            const idx = editIndex !== null ? parseInt(editIndex) : -1;
+                            const cameraData = {
+                                ip_address: ip,
+                                username,
+                                password: password || (idx >= 0 && cameras[idx] ? cameras[idx].password || '' : '')
+                            };
+                            if (idx >= 0) {
+                                cameras[idx] = cameraData;
+                            } else {
+                                cameras.push(cameraData);
+                            }
+                            localStorage.setItem(storageKey, JSON.stringify(cameras));
+                        }
+                    }
+                    updateCamerasJsonInput();
+                });
+            }
+
+            // Close modal when clicking outside the content
+            window.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    hideModal();
+                }
+            });
+
+            // Initialize
+            displayCameras();
+
+            // Add touch event handling for mobile devices
+            if (isMobile) {
+                // Add touch effect for camera items on mobile
+                function addTouchEffects() {
+                    camerasContainer.querySelectorAll('.camera-item').forEach(item => {
+                        item.addEventListener('touchstart', function () {
+                            this.style.backgroundColor = '#f5f5f5';
+                        });
+                        item.addEventListener('touchend', function () {
+                            this.style.backgroundColor = '';
+                        });
+                    });
+                }
+
+                // Add touch effects initially and after camera list updates
+                addTouchEffects();
+
+                // Override displayCameras to include touch effects after updates
+                const originalDisplayCameras = displayCameras;
+                displayCameras = function () {
+                    originalDisplayCameras();
+                    addTouchEffects();
+                };
+            }
+        }
+
+        // Add general mobile device enhancements
+        if (isMobile) {
+            document.body.classList.add('mobile-device');
+
+            // Add touch feedback for buttons
+            const buttons = document.querySelectorAll('.btn');
+            buttons.forEach(function (button) {
+                button.addEventListener('touchstart', function () {
+                    this.classList.add('touch-active');
+                });
+                button.addEventListener('touchend', function () {
+                    this.classList.remove('touch-active');
+                });
+            });
+
+            // Add vibration feedback for button presses
+            document.querySelectorAll('.btn').forEach(function (button) {
+                button.addEventListener('click', function () {
+                    if (navigator.vibrate) {
+                        navigator.vibrate(50);
+                    }
+                });
+            });
+
+            // Make form inputs more touch-friendly
+            const inputs = document.querySelectorAll('input');
+            inputs.forEach(function (input) {
+                input.addEventListener('touchstart', function () {
+                    this.classList.add('touch-active');
+                });
+                input.addEventListener('touchend', function () {
+                    this.classList.remove('touch-active');
+                });
+            });
+        }
+    });
+    
+    // Function to toggle password visibility
+    function togglePassword(inputId, button) {
+        const input = document.getElementById(inputId);
+        const icon = button.querySelector('i');
+        
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        }
+    }
+     
+</script>
+
+<script>
+// ── Scan Network JS ────────────────────────────────────────────────────────
+let _scanPollTimer = null;
+
+function setScanState(state, msg) {
+    // state: 'idle' | 'running' | 'done' | 'error' | 'cancelled'
+    const msgEl    = document.getElementById('scanStatusMsg');
+    const progEl   = document.getElementById('scanProgress');
+    const startBtn = document.getElementById('scanStartBtn');
+    const cancelBtn= document.getElementById('scanCancelBtn');
+
+    const colours = {
+        idle:      '#555',
+        running:   '#007bff',
+        done:      '#28a745',
+        error:     '#dc3545',
+        cancelled: '#e67e22',
+    };
+    const icons = {
+        idle:      '',
+        running:   '⏳ ',
+        done:      '✓ ',
+        error:     '⚠ ',
+        cancelled: '✗ ',
+    };
+
+    if (msgEl) {
+        msgEl.textContent  = (icons[state] || '') + (msg || '');
+        msgEl.style.color  = colours[state] || '#555';
+        msgEl.style.fontWeight = state === 'error' ? 'bold' : 'normal';
+    }
+    if (progEl) progEl.style.display = (state === 'idle') ? 'none' : 'block';
+    if (startBtn)  startBtn.style.display  = (state === 'running') ? 'none'         : 'inline-block';
+    if (cancelBtn) cancelBtn.style.display = (state === 'running') ? 'inline-block' : 'none';
+}
+
+function quickScan(deviceVal) {
+    // Pre-select device in dropdown and scroll to scan panel
+    var sel = document.getElementById('scanDeviceType');
+    if (sel) {
+        sel.value = deviceVal;
+        onScanDeviceChange();
+    }
+
+    // Auto-fill scan credentials from the matching device card
+    const credMap = {
+        'nvr|hikvision':    {userEl: 'hikvision_nvr_username',  passEl: 'hikvision_nvr_password'},
+        'nvr|dahua':        {userEl: 'dahua_nvr_username',       passEl: 'dahua_nvr_password'},
+        'nvr|cpplus':       {userEl: 'cpplus_nvr_username',      passEl: 'cpplus_nvr_password'},
+        'nvr|all':          {userEl: 'hikvision_nvr_username',   passEl: 'hikvision_nvr_password'},
+        'access|hikvision': {userEl: 'hikvision_bacs_username',  passEl: 'hikvision_bacs_password'},
+        'burglar|hikvision':{userEl: 'hik_bas_username',         passEl: 'hik_bas_password'},
+    };
+    const map = credMap[deviceVal];
+    if (map) {
+        const srcUser = document.getElementById(map.userEl);
+        const srcPass = document.getElementById(map.passEl);
+        const dstUser = document.getElementById('scanUser');
+        const dstPass = document.getElementById('scanPass');
+        if (dstUser && srcUser && srcUser.value) dstUser.value = srcUser.value;
+        if (dstPass && srcPass && srcPass.value) dstPass.value = srcPass.value;
+    }
+
+    var scanPanel = document.querySelector('.scan-panel') ||
+                    document.getElementById('scanStartBtn');
+    if (scanPanel) {
+        scanPanel.scrollIntoView({behavior: 'smooth', block: 'center'});
+    }
+}
+
+function onScanDeviceChange() {
+    const val = document.getElementById('scanDeviceType').value;
+    document.getElementById('scanHttpCreds').style.display     = 'none';
+    document.getElementById('scanTexecomCreds').style.display  = 'none';
+    document.getElementById('scanStartBtn').disabled = (val === '');
+    if (!val) return;
+    const device = val.split('|')[0];
+    if (device === 'texecom') {
+        document.getElementById('scanTexecomCreds').style.display = 'block';
+    } else {
+        document.getElementById('scanHttpCreds').style.display = 'block';
+    }
+}
+
+function startScan() {
+    const val = document.getElementById('scanDeviceType').value;
+    if (!val) return;
+    const [device, brand] = val.split('|');
+    const user     = (document.getElementById('scanUser')    || {value:''}).value.trim();
+    const password = (document.getElementById('scanPass')    || {value:''}).value;
+    const texPass  = (document.getElementById('scanTexPass') || {value:'12345'}).value.trim() || '12345';
+
+    if (device !== 'texecom' && (!user || !password)) {
+        alert('Please enter username and password before scanning.');
+        return;
+    }
+    document.getElementById('scanResults').style.display   = 'none';
+    document.getElementById('scanNoResults').style.display = 'none';
+    document.getElementById('scanProgressFill').style.width = '5%';
+    setScanState('running', 'Starting scan — pinging all devices on network...');
+
+    fetch('/scan_start', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({device, brand, user, password, tex_pass: texPass})
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.status === 'started') {
+            _scanPollTimer = setInterval(pollScanStatus, 3000);
+        } else {
+            setScanState('error', data.message || 'Failed to start scan. Check if auto_ip_scanner.py exists at /home/pi/Test3/');
+        }
+    })
+    .catch(err => showScanError('Network error: ' + err));
+}
+
+function pollScanStatus() {
+    fetch('/scan_status')
+    .then(r => r.json())
+    .then(data => {
+        setScanState('running', data.message || 'Scanning...');
+        const fill = document.getElementById('scanProgressFill');
+        const cur  = parseFloat(fill.style.width) || 5;
+        if (cur < 90) fill.style.width = Math.min(cur + 8, 90) + '%';
+        if (data.status === 'done' || data.status === 'error') {
+            clearInterval(_scanPollTimer); _scanPollTimer = null;
+            fill.style.width = '100%';
+            finishScan(data);
+        }
+    })
+    .catch(err => console.warn('Poll error:', err));
+}
+
+function finishScan(data) {
+    document.getElementById('scanStartBtn').style.display  = 'inline-block';
+    document.getElementById('scanCancelBtn').style.display = 'none';
+    const found = data.found || [];
+    if (data.error === 'cancelled') {
+        setScanState('cancelled', 'Scan cancelled by user.');
+        return;
+    }
+    if (found.length === 0) {
+        document.getElementById('scanNoResults').style.display = 'block';
+        setScanState('error', 'No devices found. Check credentials and ensure devices are powered on and connected.');
+        return;
+    }
+    const tbody = document.getElementById('scanResultsBody');
+    tbody.innerHTML = '';
+    found.forEach((d, i) => {
+        const camText    = d.cameras && d.cameras.length > 0 ? d.cameras.length + ' camera(s)' : '—';
+        const statusText = d.password_ok === false
+            ? '<span class="scan-icon-orange">⚠ Wrong UDL password — IP saved</span>'
+            : '<span class="scan-icon-green">✓ Saved to DB</span>';
+        const tr = document.createElement('tr');
+        tr.style.borderBottom = '1px solid #dee2e6';
+        tr.innerHTML = `<td class="scan-td">${i+1}</td>
+            <td class="scan-td">${d.brand}</td>
+            <td class="scan-td">${d.type}</td>
+            <td class="scan-td"><strong>${d.ip}</strong></td>
+            <td class="scan-td">${camText}</td>
+            <td class="scan-td">${statusText}</td>`;
+        tbody.appendChild(tr);
+    });
+    document.getElementById('scanResults').style.display = 'block';
+    setScanState('done', `Scan complete — found ${found.length} device(s). IP fields updated above.`);
+
+    // Update localStorage camera lists directly from scan result
+    // so Connected Cameras section shows without needing page reload.
+    // Scan result cameras = ["192.168.0.x", ...] (flat IP strings)
+    // localStorage format = [{ip_address, username, password}, ...] (objects)
+    const storageKeyMap = {
+        'HikvisionNVR1':       {key: 'hikvisionNvrCameras',  userEl: 'hikvision_nvr_username',  passEl: 'hikvision_nvr_password'},
+        'DahuaNVR1':           {key: 'dahuaNvrCameras',      userEl: 'dahua_nvr_username',       passEl: 'dahua_nvr_password'},
+        'CP_PlusNVR1':         {key: 'cpplusNvrCameras',     userEl: 'cpplus_nvr_username',      passEl: 'cpplus_nvr_password'},
+        'HikvisionBioMetric1': {key: 'hikvisionBacsCameras', userEl: 'hikvision_bacs_username',  passEl: 'hikvision_bacs_password'},
+    };
+
+    found.forEach(d => {
+        const brandLower = d.brand.toLowerCase();
+        let devType = null;
+        if (d.type === 'NVR') {
+            if (brandLower === 'hikvision')  devType = 'HikvisionNVR1';
+            else if (brandLower === 'dahua') devType = 'DahuaNVR1';
+            else                             devType = 'CP_PlusNVR1';
+        } else if (d.type === 'Access Control') devType = 'HikvisionBioMetric1';
+
+        if (!devType || !storageKeyMap[devType]) return;
+        if (!d.cameras || d.cameras.length === 0) return;
+
+        const map      = storageKeyMap[devType];
+        if (!map) return;
+
+        // Use scan credentials — same as used to authenticate to NVR
+        // so they are correct for all cameras behind it
+        const scanUserEl = document.getElementById('scanUser');
+        const scanPassEl = document.getElementById('scanPass');
+        const username   = scanUserEl ? scanUserEl.value.trim() : (d.username || 'admin');
+        const password   = scanPassEl ? scanPassEl.value        : (d.password || '');
+
+        // Also auto-fill the NVR card username/password fields
+        const nvrUserEl = document.getElementById(map.userEl);
+        const nvrPassEl = document.getElementById(map.passEl);
+        if (nvrUserEl && username) nvrUserEl.value = username;
+        if (nvrPassEl && password) nvrPassEl.value = password;
+
+        // Build camera objects from flat IP list
+        const camObjects = d.cameras.map(ip => ({
+            ip_address: ip,
+            username:   username,
+            password:   password
+        }));
+
+        try {
+            localStorage.setItem(map.key, JSON.stringify(camObjects));
+            console.log(`Updated ${map.key} with ${camObjects.length} cameras`);
+        } catch(e) {
+            console.warn('localStorage update failed:', e);
+        }
+    });
+
+    // Reload page to re-initialize camera management UI with new localStorage data
+    setTimeout(function() { window.location.reload(); }, 1500);
+
+    // Auto-fill matching IP fields in the cards
+    const typeToField = {
+        'HikvisionNVR1':       'hikvision_nvr_ip',
+        'DahuaNVR1':           'dahua_nvr_ip',
+        'CP_PlusNVR1':         'cpplus_nvr_ip',
+        'HikvisionBioMetric1': 'hikvision_bacs_ip',
+        'HikvisionBAS1':       'hik_bas_ip',
+        'TexecomBAS1':         'texecom_bas_ip',
+    };
+    found.forEach(d => {
+        const brandLower = d.brand.toLowerCase();
+        let devType = null;
+        if (d.type === 'NVR') {
+            if (brandLower === 'hikvision')    devType = 'HikvisionNVR1';
+            else if (brandLower === 'dahua')   devType = 'DahuaNVR1';
+            else                               devType = 'CP_PlusNVR1';
+        } else if (d.type === 'Access Control')      devType = 'HikvisionBioMetric1';
+        else if (d.type === 'Burglar Panel (BAS)')   devType = 'HikvisionBAS1';
+        else if (d.type === 'BAS Panel')             devType = 'TexecomBAS1';
+        const fieldId = typeToField[devType] || '';
+        if (fieldId) {
+            const el = document.getElementById(fieldId);
+            if (el) { el.value = d.ip; el.dispatchEvent(new Event('input')); }
+        }
+    });
+}
+
+function cancelScan() {
+    fetch('/scan_cancel', {method:'POST'})
+    .then(() => {
+        if (_scanPollTimer) { clearInterval(_scanPollTimer); _scanPollTimer = null; }
+        document.getElementById('scanProgressFill').style.width = '0%';
+        setScanState('cancelled', 'Scan cancelled by user.');
+    });
+}
+
+function showScanError(msg) {
+    setScanState('error', msg);
+}
+</script>
+{% endblock %}
+
+
+
+

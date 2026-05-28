@@ -1,0 +1,54 @@
+[Unit]
+Description=Dexter HMS — Serial RS-232/RS-485 Controller
+PartOf=dexter.target
+# Prevent rapid restart loop from escalating to a full reboot
+# under normal failure conditions. Allow up to 10 restarts in 10 minutes.
+StartLimitIntervalSec=600
+StartLimitBurst=10
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/home/pi/Test3
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/usr/bin/python3 /home/pi/Test3/SerialCommunication.py
+Restart=on-failure
+RestartSec=10
+
+# WATCHDOG BEHAVIOUR (read carefully):
+#
+# WatchdogSec=3600 — systemd starts a 3600-second (60 min) countdown when
+# the service starts. SerialCommunication.py feeds this countdown by calling
+# _sd_notify_watchdog() (WATCHDOG=1 via NOTIFY_SOCKET) at the end of every
+# successful main loop iteration.
+#
+# Set to 3600s (not 1800s) because the relay reset recovery sequence in
+# TLChronosProMAIN needs up to 20 minutes to confirm a stuck modem
+# (2 polls × 10 min) plus 35s for the power-cycle, before the modem
+# recovers and _sd_notify_watchdog() resumes. 3600s gives the relay
+# recovery mechanism time to work before systemd forces a reboot.
+#
+# If the modem gets stuck AND relay recovery fails:
+#   - _sd_notify_watchdog() is never reached
+#   - The countdown expires after 3600 seconds
+#   - systemd reboots the Pi (last-resort hardware recovery)
+#
+# If the modem is healthy:
+#   - _sd_notify_watchdog() is called every ~10 seconds
+#   - The countdown resets each time — no reboot occurs
+#
+# NotifyAccess=main is REQUIRED — without it NOTIFY_SOCKET is not passed
+# to the process and _sd_notify_watchdog() silently does nothing.
+WatchdogSec=3600
+NotifyAccess=main
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=dexter-serial-comm
+MemoryMax=256M
+CPUQuota=80%
+KillMode=mixed
+TimeoutStopSec=30
+
+[Install]
+WantedBy=dexter.target

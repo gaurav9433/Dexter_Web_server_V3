@@ -1,0 +1,399 @@
+{% extends "layout.html" %}
+{% block title %}Maintenance Settings{% endblock %}
+
+{% block head %}
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/maintenance.css') }}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+{% endblock %}
+
+{% block body %}
+    <!-- main content start -->
+    <div class="main-content">
+        <div id="breadcrumbContainer">
+            <h5><img src="https://img.icons8.com/3d-fluency/94/tools.png" 
+                class="menu-icon" style="width: 30px; height: 30px; vertical-align: middle; margin-right: 8px;">
+                System Settings > Maintenance</h5>
+        </div>
+        
+        <div class="container">
+            <div class="section-card">
+                <h2 class="section-title"><i class="fas fa-cogs"></i> System Maintenance</h2>
+                
+                <p>System maintenance control.</p>
+                
+                <div class="button-container">
+                    <button class="restart-button" onclick="restart()">
+                        <i class="fas fa-sync-alt"></i>
+                        <span>Restart System</span>
+                    </button>
+                    <button class="shutdown-button" onclick="terminate()">
+                        <i class="fas fa-power-off"></i>
+                        <span>Shutdown System</span>
+                    </button>                 
+                    </div>
+
+                    <div class="backup-section">
+                        <div class="backup-card" id="reboot-schedule-card">
+                            <h3><i class="fas fa-clock" style="color:#e67e22;margin-right:8px;"></i>Scheduled Hardware Reboot</h3>
+                            <p>The Pi automatically reboots once a week at the configured time. All services restart automatically after reboot.</p>
+
+                            <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px;">
+                                <div style="flex:1;min-width:140px;">
+                                <label style="font-size:0.85rem;color:#495057;display:block;margin-bottom:6px;">Day of Week</label>
+                                <select id="reboot-day" style="width:100%;padding:10px;border:1px solid #ced4da;border-radius:8px;font-size:0.95rem;background:#fff;">
+                                    <option>Sunday</option>
+                                    <option>Monday</option>
+                                    <option>Tuesday</option>
+                                    <option>Wednesday</option>
+                                    <option>Thursday</option>
+                                    <option>Friday</option>
+                                    <option>Saturday</option>
+                                </select>
+                                </div>
+                                <div style="flex:1;min-width:120px;">
+                                <label style="font-size:0.85rem;color:#495057;display:block;margin-bottom:6px;">Time (24-hour)</label>
+                                <input type="time" id="reboot-time" value="12:00"
+                                    style="width:100%;padding:10px;border:1px solid #ced4da;border-radius:8px;font-size:0.95rem;box-sizing:border-box;">
+                                </div>
+                            </div>
+
+                            <div id="reboot-current" style="font-size:0.85rem;color:#6c757d;margin-bottom:14px;">
+                                Loading current schedule...
+                            </div>
+
+                            <button class="action-btn primary" id="reboot-save-btn" onclick="saveRebootSchedule()">
+                                <i class="fas fa-save"></i> Save Reboot Schedule
+                            </button>
+
+                            <div id="reboot-status" style="margin-top:12px;padding:10px 14px;border-radius:6px;font-size:0.9rem;display:none;"></div>
+                        </div>
+                    </div>
+<br><br>
+                    <!-- backup and restore  -->
+
+
+    <!-- ── Backup & Restore ───────────────────────────────────── -->
+    <div class="section-card backup-section">
+        <h2 class="section-title"><i class="fas fa-database"></i> SD Card Backup &amp; Restore</h2>
+        <p style="font-size:0.85rem;color:#6c757d;margin-bottom:16px;">
+          Use this when replacing the SD card on site. Backup downloads all device credentials
+          and configuration. Restore uploads the backup to the new SD card.
+        </p>
+  
+        <!-- Download backup -->
+        <div class="backup-card">
+          <h3><i class="fas fa-download" style="color:#1a73e8;margin-right:6px;"></i> Step 1 — Download Backup (OLD SD Card)</h3>
+          <p>Downloads all device DB files and encryption keys as a single .tar.gz file.
+             Save this file on your phone before swapping the SD card.</p>
+          <button class="action-btn primary" onclick="downloadBackup()">
+            <i class="fas fa-download"></i> Download Backup Now
+          </button>
+        </div>
+  
+        <!-- Upload restore -->
+        <div class="backup-card">
+          <h3><i class="fas fa-upload" style="color:#28a745;margin-right:6px;"></i> Step 2 — Restore Backup (NEW SD Card)</h3>
+          <p>After flashing and booting the new SD card, connect to its WiFi, open this page,
+             select the backup file you downloaded, and tap Restore.</p>
+          <div id="restore-form">
+            <label for="backup-file" class="file-input-label">
+              <i class="fas fa-folder-open"></i> Choose File
+            </label>
+            <input type="file" id="backup-file" accept=".gz,.tar.gz"
+                   onchange="fileSelected(this)">
+            <span id="file-name" class="file-name-display"></span>
+            <button class="btn-restore" id="restore-btn" onclick="uploadRestore()" disabled>
+              <i class="fas fa-upload"></i> Restore from Backup
+            </button>
+          </div>
+        </div>
+  
+        <div id="status-msg"></div>
+      </div>
+  
+    </div>
+  
+                </div>
+            </div>
+        </div>
+    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- main content Ends -->
+
+    <script>
+        /* ── Backup download ─────────────────────────────────────── */
+  function downloadBackup() {
+    showStatus('info', 'Preparing backup… this may take a few seconds.');
+    // Trigger file download via navigation
+    window.location.href = '/backup_download';
+    setTimeout(() => showStatus('success', 'Backup file download started. Save it on your phone.'), 1500);
+  }
+
+  /* ── Restore upload ──────────────────────────────────────── */
+  function fileSelected(input) {
+    const btn = document.getElementById('restore-btn');
+    const fileName = document.getElementById('file-name');
+    btn.disabled = !input.files.length;
+    if (input.files.length) {
+      fileName.textContent = input.files[0].name;
+      showStatus('info', 'File selected: ' + input.files[0].name + '. Tap Restore when ready.');
+    } else {
+      fileName.textContent = '';
+    }
+  }
+
+  function uploadRestore() {
+    const fileInput = document.getElementById('backup-file');
+    if (!fileInput.files.length) {
+      showStatus('error', 'Please select a backup file first.'); return;
+    }
+
+    if (!confirm('This will overwrite all device credentials and configuration on this Pi.\nAre you sure?')) return;
+
+    const btn = document.getElementById('restore-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Restoring…';
+    showStatus('info', 'Uploading backup… please wait.');
+
+    const formData = new FormData();
+    formData.append('backup_file', fileInput.files[0]);
+
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', '/backup_restore', true);
+    xhr.onload = function() {
+      try {
+        const data = JSON.parse(xhr.responseText);
+        if (data.status === 'success') {
+          showStatus('success', '✓ ' + data.message);
+        } else {
+          showStatus('error', '✗ Restore failed: ' + data.message);
+        }
+      } catch(e) {
+        showStatus('error', '✗ Unexpected server response (status ' + xhr.status + ')');
+      }
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-upload"></i> Restore from Backup';
+    };
+    xhr.onerror = function() {
+      showStatus('error', 'Network error — upload failed. Check connection and try again.');
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-upload"></i> Restore from Backup';
+    };
+    xhr.upload.onprogress = function(e) {
+      if (e.lengthComputable) {
+        const pct = Math.round(e.loaded / e.total * 100);
+        showStatus('info', 'Uploading… ' + pct + '%');
+      }
+    };
+    xhr.send(formData);
+  }
+
+  /* ── Status helper ───────────────────────────────────────── */
+  function showStatus(type, msg) {
+    const el = document.getElementById('status-msg');
+    el.className = type;
+    el.style.display = 'block';
+    el.textContent = msg;
+    el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  /* ── Existing restart / terminate ───────────────────────── */
+  function restart() {
+    var password = prompt('Enter your login password to confirm restart:');
+    if (!password) return;
+    if (confirm('Restart the system?')) {
+      fetch('/restart', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ password })
+      }).then(r=>r.json()).then(data=>{
+        if (data.status==='success') { alert('Restarting…'); window.location.href='/login'; }
+        else alert(data.message);
+      }).catch(e=>alert('Error: '+e));
+    }
+  }
+
+  function terminate() {
+    var password = prompt('Enter your login password to confirm shutdown:');
+    if (!password) return;
+    if (confirm('Shutdown the system?')) {
+      fetch('/terminate', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ password })
+      }).then(r=>r.json()).then(data=>{
+        if (data.status==='success') { alert('Shutting down…'); window.location.href='/login'; }
+        else alert('Error: '+data.message);
+      }).catch(e=>alert('Error: '+e));
+    }
+  }
+
+
+
+        // Add touch event handling for mobile devices
+        document.addEventListener('DOMContentLoaded', function() {
+            // Detect if the device is mobile
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            
+            if (isMobile) {
+                document.body.classList.add('mobile-device');
+                
+                // Add touch feedback for buttons
+                const buttons = document.querySelectorAll('.restart-button, .shutdown-button');
+                buttons.forEach(function(button) {
+                    button.addEventListener('touchstart', function() {
+                        this.classList.add('touch-active');
+                    });
+                    button.addEventListener('touchend', function() {
+                        this.classList.remove('touch-active');
+                    });
+                });
+            }
+        });
+
+        function restart() {
+            // Ask for login password before proceeding
+            var password = prompt('Please enter your login password to confirm restart:');
+            
+            if (password === null) {
+                // User cancelled the prompt
+                return;
+            }
+            
+            if (password.trim() === '') {
+                alert('Password is required to restart the system.');
+                return;
+            }
+            
+            if (confirm('Are you sure you want to restart the system?')) {
+                // Add vibration feedback for mobile
+                if (navigator.vibrate) {
+                    navigator.vibrate(50);
+                }
+                
+                fetch('/restart', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ password: password })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        alert('System restart initiated. You will be redirected to the login page.');
+                        window.location.href = '/login';
+                    } else {
+                        alert(data.message);
+                    }
+                })
+                .catch(error => {
+                    alert('Error: ' + error);
+                });
+            }
+        }
+
+        function terminate() {
+            // Ask for login password before proceeding
+            var password = prompt('Please enter your login password to confirm shutdown:');
+            
+            if (password === null) {
+                // User cancelled the prompt
+                return;
+            }
+            
+            if (password.trim() === '') {
+                alert('Password is required to shutdown the system.');
+                return;
+            }
+            
+            if (confirm('Are you sure you want to shutdown the system?')) {
+                // Add vibration feedback for mobile
+                if (navigator.vibrate) {
+                    navigator.vibrate(50);
+                }
+                
+                fetch('/terminate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ password: password })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        alert('System shutdown initiated. You will be redirected to the login page.');
+                        window.location.href = '/login';
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    alert('Error: ' + error);
+                });
+            }
+        }
+
+    // Load current schedule on page open
+    (function loadRebootSchedule() {
+      fetch('/get_reboot_schedule')
+        .then(r => r.json())
+        .then(data => {
+          if (data.day && data.time) {
+            document.getElementById('reboot-day').value  = data.day;
+            document.getElementById('reboot-time').value = data.time;
+            document.getElementById('reboot-current').textContent =
+              'Current: Every ' + data.day + ' at ' + data.time;
+          } else {
+            document.getElementById('reboot-current').textContent = 'No schedule saved yet.';
+          }
+        })
+        .catch(() => {
+          document.getElementById('reboot-current').textContent = 'No schedule saved yet.';
+        });
+    })();
+
+    function saveRebootSchedule() {
+      const day  = document.getElementById('reboot-day').value;
+      const time = document.getElementById('reboot-time').value;
+      const btn  = document.getElementById('reboot-save-btn');
+      const msg  = document.getElementById('reboot-status');
+
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span> Saving...';
+      msg.style.display = 'none';
+
+      fetch('/set_reboot_schedule', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({day: day, time: time})
+      })
+      .then(r => r.json())
+      .then(data => {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-save"></i> Save Reboot Schedule';
+        if (data.success) {
+          msg.className = 'success';
+          msg.textContent = data.message;
+          document.getElementById('reboot-current').textContent =
+            'Current: Every ' + day + ' at ' + time;
+        } else {
+          msg.className = 'error';
+          msg.textContent = data.error || 'Failed to save schedule.';
+        }
+        msg.style.display = 'block';
+        setTimeout(() => { msg.style.display = 'none'; }, 4000);
+      })
+      .catch(() => {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-save"></i> Save Reboot Schedule';
+        msg.className = 'error';
+        msg.textContent = 'Network error — could not save.';
+        msg.style.display = 'block';
+      });
+    }
+    </script>
+{% endblock %}

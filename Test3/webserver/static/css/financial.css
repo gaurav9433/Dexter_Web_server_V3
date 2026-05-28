@@ -1,0 +1,357 @@
+/* Financial App Styles - Following Dexter Design System */
+:root {
+    --fin-bg-primary: #1a1a2e;
+    --fin-bg-secondary: #16213e;
+    --fin-gradient-start: #667eea;
+    --fin-gradient-end: #764ba2;
+    --fin-accent-cyan: #00d4ff;
+    --fin-accent-purple: #7b2cbf;
+    --fin-success: #00ff88;
+    --fin-danger: #ff4d4d;
+    --fin-text-primary: #ffffff;
+    --fin-text-secondary: rgba(255, 255, 255, 0.7);
+    --fin-card-bg: rgba(255, 255, 255, 0.05);
+    --fin-border: rgba(255, 255, 255, 0.1);
+}
+
+.financial-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Header Styles */
+.fin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 0;
+    border-bottom: 1px solid var(--fin-border);
+    margin-bottom: 30px;
+}
+
+.fin-logo {
+    font-size: 28px;
+    font-weight: bold;
+    background: linear-gradient(90deg, var(--fin-accent-cyan), var(--fin-accent-purple));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.fin-user-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.fin-user-avatar {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--fin-accent-cyan), var(--fin-accent-purple));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: var(--fin-text-primary);
+}
+
+/* Grid System */
+.fin-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 25px;
+    margin-bottom: 30px;
+}
+
+/* Card Base Styles */
+.fin-card {
+    background: var(--fin-card-bg);
+    border-radius: 20px;
+    padding: 25px;
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--fin-border);
+}
+
+/* Balance Card */
+.fin-balance-card {
+    background: linear-gradient(135deg, var(--fin-gradient-start) 0%, var(--fin-gradient-end) 100%);
+    grid-column: span 2;
+}
+
+.fin-balance-label {
+    font-size: 14px;
+    color: var(--fin-text-primary);
+    opacity: 0.8;
+    margin-bottom: 10px;
+}
+
+.fin-balance-amount {
+    font-size: 48px;
+    font-weight: bold;
+    color: var(--fin-text-primary);
+    margin-bottom: 20px;
+}
+
+.fin-card-number {
+    font-size: 18px;
+    letter-spacing: 3px;
+    color: var(--fin-text-primary);
+}
+
+/* Quick Actions */
+.fin-quick-actions {
+    display: flex;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.fin-action-btn {
+    flex: 1;
+    padding: 15px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    color: var(--fin-text-primary);
+}
+
+.fin-action-btn.primary {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.fin-action-btn.primary:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-3px);
+}
+
+/* Stat Cards */
+.fin-stat-card {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.fin-stat-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+}
+
+.fin-stat-icon.income {
+    background: rgba(0, 255, 136, 0.2);
+    color: var(--fin-success);
+}
+
+.fin-stat-icon.expense {
+    background: rgba(255, 77, 77, 0.2);
+    color: var(--fin-danger);
+}
+
+.fin-stat-icon.savings {
+    background: rgba(0, 212, 255, 0.2);
+    color: var(--fin-accent-cyan);
+}
+
+.fin-stat-value {
+    font-size: 28px;
+    font-weight: bold;
+    color: var(--fin-text-primary);
+}
+
+.fin-stat-label {
+    font-size: 14px;
+    color: var(--fin-text-secondary);
+}
+
+/* Section Title */
+.fin-section-title {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: var(--fin-text-primary);
+}
+
+/* Transaction List */
+.fin-transaction-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.fin-transaction-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px;
+    background: var(--fin-card-bg);
+    border-radius: 12px;
+}
+
+.fin-transaction-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.fin-transaction-icon {
+    width: 45px;
+    height: 45px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+}
+
+.fin-transaction-details h4 {
+    font-size: 16px;
+    margin-bottom: 4px;
+    color: var(--fin-text-primary);
+}
+
+.fin-transaction-details p {
+    font-size: 13px;
+    color: var(--fin-text-secondary);
+}
+
+.fin-transaction-amount {
+    text-align: right;
+    font-weight: 600;
+}
+
+.fin-transaction-amount.positive {
+    color: var(--fin-success);
+}
+
+.fin-transaction-amount.negative {
+    color: var(--fin-danger);
+}
+
+/* Chart Styles */
+.fin-chart-placeholder {
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--fin-card-bg);
+    border-radius: 12px;
+    margin-bottom: 20px;
+}
+
+.fin-chart-bars {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    height: 150px;
+}
+
+.fin-chart-bar {
+    width: 30px;
+    background: linear-gradient(180deg, var(--fin-accent-cyan), var(--fin-accent-purple));
+    border-radius: 6px 6px 0 0;
+    animation: finGrow 1s ease-out forwards;
+}
+
+@keyframes finGrow {
+    from { height: 0; }
+    to { height: var(--bar-height); }
+}
+
+.fin-chart-labels {
+    display: flex;
+    justify-content: space-between;
+    opacity: 0.7;
+    font-size: 12px;
+    color: var(--fin-text-secondary);
+}
+
+/* Bill Item Styles */
+.fin-bill-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px;
+    background: var(--fin-card-bg);
+    border-radius: 12px;
+    margin-bottom: 10px;
+}
+
+.fin-bill-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.fin-bill-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+}
+
+.fin-bill-details h4 {
+    font-size: 15px;
+    color: var(--fin-text-primary);
+    margin-bottom: 4px;
+}
+
+.fin-bill-details p {
+    font-size: 13px;
+    color: var(--fin-text-secondary);
+}
+
+.fin-pay-btn {
+    padding: 8px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.fin-pay-btn.pay {
+    background: var(--fin-success);
+    color: #1a1a2e;
+}
+
+.fin-pay-btn.pay:hover {
+    transform: scale(1.05);
+}
+
+.fin-pay-btn.paid {
+    background: rgba(255, 255, 255, 0.2);
+    color: var(--fin-success);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .fin-balance-card {
+        grid-column: span 1;
+    }
+    
+    .fin-balance-amount {
+        font-size: 36px;
+    }
+    
+    .fin-quick-actions {
+        flex-wrap: wrap;
+    }
+    
+    .fin-action-btn {
+        min-width: calc(50% - 8px);
+    }
+}

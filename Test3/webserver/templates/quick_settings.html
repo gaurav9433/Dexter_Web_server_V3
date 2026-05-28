@@ -1,0 +1,3287 @@
+{% extends "layout.html" %}
+{% block title %}Quick Setting{% endblock %}
+
+{% block head %}
+    {{ super() }}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/quick_settings.css') }}">
+    <link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+{% endblock %}
+<link rel="stylesheet" href="css/style.css">
+{% block body %}
+<div class="main-content">
+    <div class="path_content" id="path_content">
+        <div id="breadcrumbContainer">
+            <h5><img src="https://img.icons8.com/fluency/96/output.png" 
+                class="menu-icon" style="width: 30px; height: 30px; vertical-align: middle; margin-right: 8px;">
+                Quick Setting</h5>
+        </div>
+    </div>
+
+    <div class="container">
+        <h1><i class="fas fa-sliders-h"></i> Output Management</h1>
+        
+        <div class="toggle-container">
+            <div class="toggle-item">
+                <span class="toggle-label">
+                    <i class="fas fa-link"></i> Active Integration
+                </span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="activeIntegration">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+            <div class="toggle-item">
+                <span class="toggle-label">
+                    <i class="fas fa-video"></i> Active Integration Hikevision NVR
+                </span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="hikevisionNVR">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+            <div class="toggle-item">
+                <span class="toggle-label">
+                    <i class="fas fa-door-open"></i> Active Integration Hikvision Access Controls
+                </span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="accessControls">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+            <div class="toggle-item">
+                <span class="toggle-label">
+                    <i class="fas fa-camera"></i> Active Integration Dahua NVR
+                </span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="dahuaNVR">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+            <div class="toggle-item">
+                <span class="toggle-label">
+                    <i class="fas fa-video"></i> Active Integration CP PLUS NVR
+                </span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="cpplusNVR">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+            <div class="toggle-item">
+                <span class="toggle-label">
+                    <i class="fas fa-video"></i> Active Integration SPARS NVR
+                </span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="sparsNVR">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+            <div class="toggle-item">
+                <span class="toggle-label">
+                    <i class="fas fa-bell"></i> Active Integration Hikvision BAS
+                </span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="hikBAS">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+            <div class="toggle-item">
+                <span class="toggle-label">
+                    <i class="fas fa-shield-alt"></i> Active Integration AMC BAS
+                </span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="amcBAS">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+            <div class="toggle-item">
+                <span class="toggle-label">
+                    <i class="fas fa-exclamation-triangle"></i> Active Integration Texecom BAS
+                </span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="texecomBAS">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+        </div>
+
+      <!-- <div class="button-container">
+            <button class="enter-button" onclick="handleRelayConfig()" id="relayConfigBtn">
+                <i class="fas fa-plug"></i> <span>Relay Config</span>
+            </button>
+            <button class="enter-button" onclick="handleActionTrigger()" id="actionTriggerBtn">
+                <i class="fas fa-bolt"></i> <span>Action on Trigger</span>
+            </button>
+            <button class="enter-button" onclick="handleClearBuffer()" id="clearBufferBtn">
+                <i class="fas fa-trash"></i> <span>Clear Buffer</span>
+            </button>
+        </div>
+    -->
+
+    </div>
+    
+    <div class="main-content_2">
+
+
+    <!-- Active Integration Section -->
+    <div class="integration-container">
+        <h2 class="section-title"><i class="fas fa-toggle-on"></i> Active Integration</h2>
+
+        <div class="integration-cards">
+            <!-- HIKVISION NVR Setup -->
+            <div class="integration-card">
+                <div class="card-header">
+                    <h3 class="card-title">HIKVISION NVR</h3>
+                </div>
+
+                <form method="POST" action="/save_integration_hiknvr" id="hikvisionNvrForm">
+                    <input type="hidden" name="device_type" value="hikvision-nvr">
+                    <input type="hidden" name="cameras_json" id="hikvisionNvrCamerasJson">
+
+                    <div class="form-group">
+                        <label for="hikvision_nvr_ip">NVR IP Address</label>
+                        <input type="text" id="hikvision_nvr_ip" name="ip_address" class="ip-input"
+                            value="{{ hikvision_nvr_data.ip_address if hikvision_nvr_data else '' }}"
+                            placeholder="e.g. 192.168.1.100" required>
+                        <div id="hikvision_nvr_ip_message" class="validation-message"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="hikvision_nvr_port">NVR Port Number</label>
+                        <input type="text" id="hikvision_nvr_port" name="port_number"
+                            value="{{ hikvision_nvr_data.port_number if hikvision_nvr_data else '8000' }}"
+                            placeholder="e.g. 8000" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="hikvision_nvr_username">NVR Username</label>
+                        <input type="text" id="hikvision_nvr_username" name="username"
+                            value="{{ hikvision_nvr_data.username if hikvision_nvr_data else '' }}"
+                            placeholder="Username" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="hikvision_nvr_password">NVR Password</label>
+                        <div class="password-input-container">
+                            <input type="password" id="hikvision_nvr_password" name="password"
+                                value="{{ hikvision_nvr_data.password if hikvision_nvr_data else '' }}"
+                                placeholder="Password">
+                            <button type="button" class="show-password-btn" onclick="togglePassword('hikvision_nvr_password', this)">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <input type="hidden" name="device_type_d" value="HikvisionNVR1">
+
+                    <div class="cameras-list">
+                        <h4>Connected Cameras</h4>
+                        <div id="hikvisionNvrCamerasContainer" class="cameras-container">
+                            <!-- Cameras will be listed here -->
+                        </div>
+                    </div>
+
+                    <div class="camera-actions-bottom">
+                        <button type="button" id="hikvisionNvrAddCameraBtn" class="btn btn-secondary">
+                            <i class="fas fa-plus"></i> Add Camera
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Save 
+                        </button>
+                    </div>
+                </form>
+            </div>
+            <!-- CP PLUS NVR Setup -->
+            <div class="integration-card">
+                <div class="card-header">
+                    <h3 class="card-title">CP PLUS NVR</h3>
+                </div>
+
+                <form method="POST" action="/save_integration_hiknvr" id="cpplusNvrForm">
+                    <input type="hidden" name="device_type" value="cpplus-nvr">
+                    <input type="hidden" name="cameras_json" id="cpplusNvrCamerasJson">
+
+                    <div class="form-group">
+                        <label for="cpplus_nvr_ip">NVR IP Address</label>
+                        <input type="text" id="cpplus_nvr_ip" name="ip_address" class="ip-input"
+                            value="{{ cpplus_nvr_data.ip_address if cpplus_nvr_data else '' }}"
+                            placeholder="e.g. 192.168.1.100" required>
+                        <div id="cpplus_nvr_ip_message" class="validation-message"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="cpplus_nvr_port">NVR Port Number</label>
+                        <input type="text" id="cpplus_nvr_port" name="port_number"
+                            value="{{ cpplus_nvr_data.port_number if cpplus_nvr_data else '37777' }}"
+                            placeholder="e.g. 37777" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="cpplus_nvr_username">NVR Username</label>
+                        <input type="text" id="cpplus_nvr_username" name="username"
+                            value="{{ cpplus_nvr_data.username if cpplus_nvr_data else '' }}"
+                            placeholder="Username" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="cpplus_nvr_password">NVR Password</label>
+                        <div class="password-input-container">
+                            <input type="password" id="cpplus_nvr_password" name="password"
+                                value="{{ cpplus_nvr_data.password if cpplus_nvr_data else '' }}"
+                                placeholder="Password">
+                            <button type="button" class="show-password-btn" onclick="togglePassword('cpplus_nvr_password', this)">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <input type="hidden" name="device_type_d" value="CP_PlusNVR1">
+
+                    <div class="cameras-list">
+                        <h4>Connected Cameras</h4>
+                        <div id="cpplusNvrCamerasContainer" class="cameras-container">
+                            <!-- Cameras will be listed here -->
+                        </div>
+                    </div>
+
+                    <div class="camera-actions-bottom">
+                        <button type="button" id="cpplusNvrAddCameraBtn" class="btn btn-secondary">
+                            <i class="fas fa-plus"></i> Add Camera
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Save 
+                        </button>
+                    </div>
+                </form>
+            </div>
+<!-- Dahua NVR Setup -->
+            <div class="integration-card">
+                <div class="card-header">
+                    <h3 class="card-title">DAHUA NVR</h3>
+                </div>
+
+                <form method="POST" action="/save_integration_hiknvr" id="dahuaNvrForm">
+                    <input type="hidden" name="device_type" value="dahua-nvr">
+                    <input type="hidden" name="cameras_json" id="dahuaNvrCamerasJson">
+
+                    <div class="form-group">
+                        <label for="dahua_nvr_ip">IP Address</label>
+                        <input type="text" id="dahua_nvr_ip" name="ip_address" class="ip-input"
+                            value="{{ dahua_nvr_data.ip_address if dahua_nvr_data else '' }}"
+                            placeholder="e.g. 192.168.1.100" required>
+                        <div id="dahua_nvr_ip_message" class="validation-message"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="dahua_nvr_port">Port Number</label>
+                        <input type="text" id="dahua_nvr_port" name="port_number"
+                            value="{{ dahua_nvr_data.port_number if dahua_nvr_data else '37777' }}"
+                            placeholder="e.g. 37777" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="dahua_nvr_username">Username</label>
+                        <input type="text" id="dahua_nvr_username" name="username"
+                            value="{{ dahua_nvr_data.username if dahua_nvr_data else '' }}" placeholder="Username"
+                            required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="dahua_nvr_password">NVR Password</label>
+                        <div class="password-input-container">
+                            <input type="password" id="dahua_nvr_password" name="password"
+                                value="{{ dahua_nvr_data.password if dahua_nvr_data else '' }}" placeholder="Password">
+                            <button type="button" class="show-password-btn" onclick="togglePassword('dahua_nvr_password', this)">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <input type="hidden" name="device_type_d" value="DahuaNVR1">
+
+                    <div class="cameras-list">
+                        <h4>Connected Cameras</h4>
+                        <div id="dahuaNvrCamerasContainer" class="cameras-container">
+                            <!-- Cameras will be listed here -->
+                        </div>
+                    </div>
+
+                    <div class="camera-actions-bottom">
+                        <button type="button" id="dahuaNvrAddCameraBtn" class="btn btn-secondary">
+                            <i class="fas fa-plus"></i> Add Camera
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Save 
+                        </button>
+                    </div>
+                </form>
+            </div>
+            <!-- SPARS NVR Setup -->
+            <div class="integration-card">
+                <div class="card-header">
+                    <h3 class="card-title">SPARS NVR</h3>
+                </div>
+
+                <form method="POST" action="/save_integration_hiknvr" id="sparsNvrForm">
+                    <input type="hidden" name="device_type" value="spars-nvr">
+                    <input type="hidden" name="cameras_json" id="sparsNvrCamerasJson">
+
+                    <div class="form-group">
+                        <label for="spars_nvr_ip">NVR IP Address</label>
+                        <input type="text" id="spars_nvr_ip" name="ip_address" class="ip-input"
+                            value="{{ spars_nvr_data.ip_address if spars_nvr_data else '' }}"
+                            placeholder="e.g. 192.168.1.100" required>
+                        <div id="spars_nvr_ip_message" class="validation-message"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="spars_nvr_port">NVR Port Number</label>
+                        <input type="text" id="spars_nvr_port" name="port_number"
+                            value="{{ spars_nvr_data.port_number if spars_nvr_data else '37777' }}"
+                            placeholder="e.g. 37777" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="spars_nvr_username">NVR Username</label>
+                        <input type="text" id="spars_nvr_username" name="username"
+                            value="{{ spars_nvr_data.username if spars_nvr_data else '' }}"
+                            placeholder="Username" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="spars_nvr_password">NVR Password</label>
+                        <div class="password-input-container">
+                            <input type="password" id="spars_nvr_password" name="password"
+                                value="{{ spars_nvr_data.password if spars_nvr_data else '' }}"
+                                placeholder="Password">
+                            <button type="button" class="show-password-btn" onclick="togglePassword('spars_nvr_password', this)">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <input type="hidden" name="device_type_d" value="SparshNVR1">
+
+                    <div class="cameras-list">
+                        <h4>Connected Cameras</h4>
+                        <div id="sparsNvrCamerasContainer" class="cameras-container">
+                            <!-- Cameras will be listed here -->
+                        </div>
+                    </div>
+
+                    <div class="camera-actions-bottom">
+                        <button type="button" id="sparsNvrAddCameraBtn" class="btn btn-secondary">
+                            <i class="fas fa-plus"></i> Add Camera
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Save 
+                        </button>
+                    </div>
+                </form>
+            </div>
+            <!-- HIKVISION BACS Setup -->
+            <div class="integration-card">
+                <div class="card-header">
+                    <h3 class="card-title">HIKVISION BACS</h3>
+                </div>
+
+                <form method="POST" action="/save_integration_hiknvr" id="hikvisionBacsForm">
+                    <input type="hidden" name="device_type" value="hikvision-bacs">
+                    <input type="hidden" name="cameras_json" id="hikvisionBacsCamerasJson">
+
+                    <div class="form-group">
+                        <label for="hikvision_bacs_ip">IP Address</label>
+                        <input type="text" id="hikvision_bacs_ip" name="ip_address" class="ip-input"
+                            value="{{ hikvision_bacs_data.ip_address if hikvision_bacs_data else '' }}"
+                            placeholder="e.g. 192.168.1.100" required>
+                        <div id="hikvision_bacs_ip_message" class="validation-message"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="hikvision_bacs_port">Port Number</label>
+                        <input type="text" id="hikvision_bacs_port" name="port_number"
+                            value="{{ hikvision_bacs_data.port_number if hikvision_bacs_data else '8000' }}"
+                            placeholder="e.g. 8000" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="hikvision_bacs_username">Username</label>
+                        <input type="text" id="hikvision_bacs_username" name="username"
+                            value="{{ hikvision_bacs_data.username if hikvision_bacs_data else '' }}"
+                            placeholder="Username" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="hikvision_bacs_password">NVR Password</label>
+                        <div class="password-input-container">
+                            <input type="password" id="hikvision_bacs_password" name="password"
+                                value="{{ hikvision_bacs_data.password if hikvision_bacs_data else '' }}"
+                                placeholder="Password">
+                            <button type="button" class="show-password-btn" onclick="togglePassword('hikvision_bacs_password', this)">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <input type="hidden" name="device_type_d" value="HikvisionBioMetric1">
+
+                   
+
+                    <div class="camera-actions-bottom">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Save 
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- HIKVISION BAS Setup -->
+            <div class="integration-card">
+                <div class="card-header">
+                    <h3 class="card-title">HIKVISION BAS</h3>
+                </div>
+
+                <form method="POST" action="/save_integration_hiknvr" id="hikBasForm">
+                    <input type="hidden" name="device_type" value="hik-bas">
+
+                    <div class="form-group">
+                        <label for="hik_bas_ip">BAS IP Address</label>
+                        <input type="text" id="hik_bas_ip" name="ip_address" class="ip-input"
+                            value="{{ hik_bas_data.ip_address if hik_bas_data else '' }}"
+                            placeholder="e.g. 192.168.0.213" required>
+                        <div id="hik_bas_ip_message" class="validation-message"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="hik_bas_port">BAS Port Number</label>
+                        <input type="text" id="hik_bas_port" name="port_number"
+                            value="{{ hik_bas_data.port_number if hik_bas_data else '80' }}"
+                            placeholder="e.g. 80" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="hik_bas_username">BAS Username</label>
+                        <input type="text" id="hik_bas_username" name="username"
+                            value="{{ hik_bas_data.username if hik_bas_data else '' }}"
+                            placeholder="Username" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="hik_bas_password">BAS Password</label>
+                        <div class="password-input-container">
+                            <input type="password" id="hik_bas_password" name="password"
+                                value="{{ hik_bas_data.password if hik_bas_data else '' }}"
+                                placeholder="Password">
+                            <button type="button" class="show-password-btn" onclick="togglePassword('hik_bas_password', this)">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <input type="hidden" name="device_type_d" value="HikvisionBAS1">
+
+                    <div class="camera-actions-bottom">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Save
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- TEXECOM BAS Setup -->
+            <div class="integration-card">
+                <div class="card-header">
+                    <h3 class="card-title">TEXECOM BAS</h3>
+                </div>
+
+                <form method="POST" action="/save_integration_hiknvr" id="texecomBasForm">
+                    <input type="hidden" name="device_type" value="texecom-bas">
+
+                    <div class="form-group">
+                        <label for="texecom_bas_ip">BAS IP Address</label>
+                        <input type="text" id="texecom_bas_ip" name="ip_address" class="ip-input"
+                            value="{{ texecom_bas_data.ip_address if texecom_bas_data else '' }}"
+                            placeholder="e.g. 192.168.0.242" required>
+                        <div id="texecom_bas_ip_message" class="validation-message"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="texecom_bas_port">BAS Port Number</label>
+                        <input type="text" id="texecom_bas_port" name="port_number"
+                            value="{{ texecom_bas_data.port_number if texecom_bas_data else '10001' }}"
+                            placeholder="e.g. 10001" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="texecom_bas_username">BAS Username</label>
+                        <input type="text" id="texecom_bas_username" name="username"
+                            value="TAXICOM" readonly>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="texecom_bas_password">UDL Password</label>
+                        <div class="password-input-container">
+                            <input type="password" id="texecom_bas_password" name="password"
+                                value="{{ texecom_bas_data.password if texecom_bas_data else '12345' }}"
+                                placeholder="UDL Password">
+                            <button type="button" class="show-password-btn" onclick="togglePassword('texecom_bas_password', this)">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <input type="hidden" name="device_type_d" value="TexecomBAS1">
+
+                    <div class="camera-actions-bottom">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Save
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+
+
+
+
+        </div>
+    </div>
+
+   <!-- <div class="integration-container">
+        <h2 class="section-title"><i class="fas fa-clock"></i> Passive Integrations</h2>
+
+        <div class="integration-cards">
+           
+            <div class="passive-integration">
+                <div class="passive-icon">
+                    <i class="fas fa-plug"></i>
+                </div>
+                <h3>More Integrations Coming Soon</h3>
+                <p class="passive-message">Additional device integration options will be available in future updates.
+                </p>
+            </div>
+
+ 
+            <div class="passive-integration">
+                <div class="passive-icon">
+                    <i class="fas fa-cloud"></i>
+                </div>
+                <h3>Cloud Integration</h3>
+                <p class="passive-message">Cloud-based integration services are under development.</p>
+            </div>
+        </div>
+    </div> -->
+</div>
+
+<!-- Add Camera Modal for Hikvision NVR -->
+<div id="hikvisionNvrCameraModal" class="modal">
+    <div class="modal-content">
+        <span class="close hikvision-nvr-close">&times;</span>
+        <h3>Add Camera - Hikvision NVR</h3>
+        <form id="hikvisionNvrCameraForm">
+            <div class="form-group">
+                <label for="hikvisionNvrCameraIp">Camera IP Address</label>
+                <input type="text" id="hikvisionNvrCameraIp" class="ip-input" placeholder="e.g. 192.168.1.101" required>
+                <div id="hikvisionNvrCameraIp_message" class="validation-message"></div>
+            </div>
+            <div class="form-group">
+                <label for="hikvisionNvrCameraUsername">Username</label>
+                <input type="text" id="hikvisionNvrCameraUsername" placeholder="Camera username" required>
+            </div>
+            <div class="form-group">
+                <label for="hikvisionNvrCameraPassword">Password</label>
+                <div class="password-input-container">
+                    <input type="password" id="hikvisionNvrCameraPassword" placeholder="Camera password" required>
+                    <button type="button" class="show-password-btn" onclick="togglePassword('hikvisionNvrCameraPassword', this)">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary hikvision-nvr-cancel-btn">Cancel</button>
+                <button type="submit" class="btn btn-primary">Save Camera</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+
+<!-- Add Camera Modal for CP Plus NVR -->
+<div id="cpplusNvrCameraModal" class="modal">
+    <div class="modal-content">
+        <span class="close cpplus-nvr-close">&times;</span>
+        <h3>Add Camera - CP Plus NVR</h3>
+        <form id="cpplusNvrCameraForm">
+            <div class="form-group">
+                <label for="cpplusNvrCameraIp">Camera IP Address</label>
+                <input type="text" id="cpplusNvrCameraIp" class="ip-input" placeholder="e.g. 192.168.1.101" required>
+                <div id="cpplusNvrCameraIp_message" class="validation-message"></div>
+            </div>
+            <div class="form-group">
+                <label for="cpplusNvrCameraUsername">Username</label>
+                <input type="text" id="cpplusNvrCameraUsername" placeholder="Camera username" required>
+            </div>
+            <div class="form-group">
+                <label for="cpplusNvrCameraPassword">Password</label>
+                <div class="password-input-container">
+                    <input type="password" id="cpplusNvrCameraPassword" placeholder="Camera password" required>
+                    <button type="button" class="show-password-btn" onclick="togglePassword('cpplusNvrCameraPassword', this)">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary cpplus-nvr-cancel-btn">Cancel</button>
+                <button type="submit" class="btn btn-primary">Save Camera</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Add Camera Modal for Spars NVR -->
+<div id="sparsNvrCameraModal" class="modal">
+    <div class="modal-content">
+        <span class="close spars-nvr-close">&times;</span>
+        <h3>Add Camera - Spars NVR</h3>
+        <form id="sparsNvrCameraForm">
+            <div class="form-group">
+                <label for="sparsNvrCameraIp">Camera IP Address</label>
+                <input type="text" id="sparsNvrCameraIp" class="ip-input" placeholder="e.g. 192.168.1.101" required>
+                <div id="sparsNvrCameraIp_message" class="validation-message"></div>
+            </div>
+            <div class="form-group">
+                <label for="sparsNvrCameraUsername">Username</label>
+                <input type="text" id="sparsNvrCameraUsername" placeholder="Camera username" required>
+            </div>
+            <div class="form-group">
+                <label for="sparsNvrCameraPassword">Password</label>
+                <div class="password-input-container">
+                    <input type="password" id="sparsNvrCameraPassword" placeholder="Camera password" required>
+                    <button type="button" class="show-password-btn" onclick="togglePassword('sparsNvrCameraPassword', this)">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary spars-nvr-cancel-btn">Cancel</button>
+                <button type="submit" class="btn btn-primary">Save Camera</button>
+            </div>
+        </form>
+    </div>
+</div>
+<!-- Add Camera Modal for Dahua NVR -->
+<div id="dahuaNvrCameraModal" class="modal">
+    <div class="modal-content">
+        <span class="close dahua-nvr-close">&times;</span>
+        <h3>Add Camera - Dahua NVR</h3>
+        <form id="dahuaNvrCameraForm">
+            <div class="form-group">
+                <label for="dahuaNvrCameraIp">Camera IP Address</label>
+                <input type="text" id="dahuaNvrCameraIp" class="ip-input" placeholder="e.g. 192.168.1.101" required>
+                <div id="dahuaNvrCameraIp_message" class="validation-message"></div>
+            </div>
+            <div class="form-group">
+                <label for="dahuaNvrCameraUsername">Username</label>
+                <input type="text" id="dahuaNvrCameraUsername" placeholder="Camera username" required>
+            </div>
+            <div class="form-group">
+                <label for="dahuaNvrCameraPassword">Password</label>
+                <div class="password-input-container">
+                    <input type="password" id="dahuaNvrCameraPassword" placeholder="Camera password" required>
+                    <button type="button" class="show-password-btn" onclick="togglePassword('dahuaNvrCameraPassword', this)">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary dahua-nvr-cancel-btn">Cancel</button>
+                <button type="submit" class="btn btn-primary">Save Camera</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="main-content_3">
+
+    
+    <div class="container">
+        <div class="section-card">
+            <!-- <div class="toggle-buttons">
+                <button class="toggle-button active" data-form="eSimForm" onclick="toggleForm('eSimForm')">e-SIM Device Management</button>
+                <button class="toggle-button inactive" data-form="ethernetForm" onclick="toggleForm('ethernetForm')">Ethernet Device Management</button>
+            </div> -->
+            
+            <div id="eSimForm" class="form-section active">
+                <h2>e-SIM Device Credentials</h2>
+                <form action="/device_credentials" method="post">
+                     <!--
+                    <div class="form-group">
+                        <label for="access_token">Access Token</label>
+                        <input type="text" id="access_token" name="access_token" placeholder="Enter Access token" value="{{ mpdata.clintId if mpdata else '' }}"> </div>
+                    -->
+
+
+                    <div class="form-group">
+                        <label for="clientId">Client ID</label>
+                        <input type="text" id="clientId" name="clientId" placeholder="Enter Client ID" value="{{  mpdata.clintId if mpdata else '' }}">
+                    </div>
+
+
+                    <div class="form-group">
+                        <label for="user_name">User Name</label>
+                        <div class="password-field">
+                            <input type="text" id="user_name" name="user_name" placeholder="Enter User Name" value="{{  mpdata.userName if mpdata else '' }}">
+                            <!-- <span class="toggle-password" onclick="togglePasswordVisibility('deviceSecret')"><i class="fas fa-eye"></i></span> -->
+                        </div>
+                    </div>
+
+                   <div class="form-group">
+                        <label for="password">Password</label>
+                        <div class="password-input-container">
+                            <input type="password" id="password" name="password"
+                                value="{{ mpdata.Pass if mpdata else '' }}"
+                                placeholder="Password">
+                            <button type="button" class="show-password-btn" onclick="togglePassword('password', this)">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div> 
+
+                    
+                    <div class="form-group">
+                        <label for="solId">SOL ID</label>
+                        <input type="text" id="solId" name="solId" placeholder="Enter SOL ID" value="{{  mpdata.dvName if mpdata else '' }}">
+                    </div>
+                    
+                    
+                    
+                    <!-- <div class="form-group">
+                        <label for="username">Username</label>
+                        <input type="text" id="username" name="username" placeholder="Enter Username" value="{{ esim_credentials.username if esim_credentials else '' }}">
+                    </div> -->
+                    
+                    
+                    <div class="btn-container">
+                        <button type="submit" class="btn btn-primary">Save Credentials</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- <div id="ethernetForm" class="form-section">
+                <h2>Ethernet Device Credentials</h2>
+                <form action="/device_credentials" method="post">
+                    <div class="form-group">
+                        <label for="ethernetDeviceKey">Device Key</label>
+                        <input type="text" id="ethernetDeviceKey" name="ethernetDeviceKey" placeholder="Enter Device Key" value="{{ ethernet_credentials.device_key if ethernet_credentials else '' }}" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="ethernetDeviceSecret">Device Secret</label>
+                        <div class="password-field">
+                            <input type="password" id="ethernetDeviceSecret" name="ethernetDeviceSecret" placeholder="Enter Device Secret" value="{{ ethernet_credentials.device_secret if ethernet_credentials else '' }}">
+                            <span class="toggle-password" onclick="togglePasswordVisibility('ethernetDeviceSecret')"><i class="fas fa-eye"></i></span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="accessToken">Access Token</label>
+                        <div class="password-field">
+                            <input type="password" id="accessToken" name="accessToken" placeholder="Enter Access Token" value="{{ ethernet_credentials.access_token if ethernet_credentials else '' }}">
+                            <span class="toggle-password" onclick="togglePasswordVisibility('accessToken')"><i class="fas fa-eye"></i></span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="deviceName">Device Name</label>
+                        <input type="text" id="deviceName" name="deviceName" placeholder="Enter Device Name" value="{{ ethernet_credentials.device_name if ethernet_credentials else '' }}">
+                    </div>
+                    
+                    <div class="btn-container">
+                        <button type="submit" class="btn">Save Credentials</button>
+                    </div>
+                </form>
+            </div> -->
+        </div>
+    </div>
+</div>
+
+    
+</div>
+
+<script>
+
+    document.addEventListener("DOMContentLoaded", function(){
+
+        // Active Integration
+
+                function sendData_to_ai(ac_activated){
+                    var data ={
+                        "active_integration_external_device" : ac_activated,
+                    };
+
+                    fetch('/data_active_integration',{
+                        method: 'PUT',
+                        headers:{
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(data)
+                    })
+                    .then(response=>{
+                        if(response.ok){
+                            console.log("Data sent")
+                        }else{
+                            console.log("Error sending data")
+                        }
+                    })
+                    .catch(error=>{
+                        console.log("Error sending data")
+                    })
+                }
+
+                function toggleac(){
+                    var acToggle = document.getElementById("activeIntegration");
+                   
+                    if(acToggle.checked){
+                        sendData_to_ai(true)
+                    }else{
+                        sendData_to_ai(false)
+                    }
+                }
+
+                function initializegsm(){
+                    fetch('/get_activeIntegration')
+                    .then(response=>{
+                        if(!response.ok){
+                            console.log("Error getting gsm status");
+                        }
+                        return response.json()
+                    })
+                    .then(data=>{
+                        var acToggle = document.getElementById("activeIntegration");
+                       
+
+                        var active_ntegration = parseInt(data[0][1]);
+
+                        acToggle.checked = active_ntegration;
+                        
+                    })
+                    .catch(error=>{
+                        console.log("Error getting gsm status")
+                    })
+                }
+                initializegsm();
+
+                var activeIntegrationToggle = document.getElementById("activeIntegration");
+                if(activeIntegrationToggle){
+                    activeIntegrationToggle.addEventListener("change", toggleac);
+                }
+
+
+
+    // active integration hikvision nvr
+
+                function sendData_to_ai_hk(ac_activated_hk){
+                    var data ={
+                        "active_integration_hikvision" : ac_activated_hk
+                    };
+
+                    fetch('/data_active_integration_hikvidion',{
+                        method: 'PUT',
+                        headers:{
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(data)
+                    })
+                    .then(response=>{
+                        if(response.ok){
+                            console.log("Data sent")
+                        }else{
+                            console.log("Error sending data")
+                        }
+                    })
+                    .catch(error=>{
+                        console.log("Error sending data")
+                    })
+                }
+
+                function toggleac1(){
+                    var acToggle = document.getElementById("hikevisionNVR");
+                   
+                    if(acToggle.checked){
+                        sendData_to_ai_hk(true)
+                    }else{
+                        sendData_to_ai_hk(false)
+                    }
+                }
+
+                function initializegsm1(){
+                    fetch('/get_active_integration_hikvidion')
+                    .then(response=>{
+                        if(!response.ok){
+                            console.log("Error getting gsm status");
+                        }
+                        return response.json()
+                    })
+                    .then(data=>{
+                        var acToggle = document.getElementById("hikevisionNVR");
+                       
+
+                        var active_ntegration = parseInt(data[0][2]);
+                        // console.log(data)
+                        acToggle.checked = active_ntegration;
+                        
+                    })
+                    .catch(error=>{
+                        console.log("Error getting gsm status")
+                    })
+                }
+                initializegsm1();
+
+                var activeIntegrationhikToggle = document.getElementById("hikevisionNVR");
+                if(activeIntegrationhikToggle){
+                    activeIntegrationhikToggle.addEventListener("change", toggleac1);
+                }
+
+    
+
+    // active integration access controls
+
+               function sendData_to_ai_ac(ac_activated_ac){
+                    var data ={
+                        "active_integration_ac" : ac_activated_ac
+                    };
+
+                    fetch('/data_active_integration_ac',{
+                        method: 'PUT',
+                        headers:{
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(data)
+                    })
+                    .then(response=>{
+                        if(response.ok){
+                            console.log("Data sent")
+                        }else{
+                            console.log("Error sending data")
+                        }
+                    })
+                    .catch(error=>{
+                        console.log("Error sending data")
+                    })
+                }
+
+                function toggleac2(){
+                    var acToggle = document.getElementById("accessControls");
+                   
+                    if(acToggle.checked){
+                        sendData_to_ai_ac(true)
+                    }else{
+                        sendData_to_ai_ac(false)
+                    }
+                }
+
+                function initializegsm2(){
+                    fetch('/get_active_integration_ac')
+                    .then(response=>{
+                        if(!response.ok){
+                            console.log("Error getting gsm status");
+                        }
+                        return response.json()
+                    })
+                    .then(data=>{
+                        var acToggle = document.getElementById("accessControls");
+                       
+
+                        var active_ntegration = parseInt(data[0][2]);
+                        // console.log(data)
+                        acToggle.checked = active_ntegration;
+                        
+                    })
+                    .catch(error=>{
+                        console.log("Error getting gsm status")
+                    })
+                }
+                initializegsm2();
+
+                var activeIntegrationacToggle = document.getElementById("accessControls");
+                if(activeIntegrationacToggle){
+                    activeIntegrationacToggle.addEventListener("change", toggleac2);
+                } 
+
+
+    // active integration dahua nvr
+    
+                function sendData_to_ai_dh(ac_activated_dh){
+                    var data ={
+                        "active_integration_dh" : ac_activated_dh
+                    };
+
+                    fetch('/data_active_integration_dh',{
+                        method: 'PUT',
+                        headers:{
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(data)
+                    })
+                    .then(response=>{
+                        if(response.ok){
+                            console.log("Data sent")
+                        }else{
+                            console.log("Error sending data")
+                        }
+                    })
+                    .catch(error=>{
+                        console.log("Error sending data")
+                    })
+                }
+
+                function toggleac3(){
+                    var acToggle = document.getElementById("dahuaNVR");
+                   
+                    if(acToggle.checked){
+                        sendData_to_ai_dh(true)
+                    }else{
+                        sendData_to_ai_dh(false)
+                    }
+                }
+
+                function initializegsm3(){
+                    fetch('/get_active_integration_dh')
+                    .then(response=>{
+                        if(!response.ok){
+                            console.log("Error getting gsm status");
+                        }
+                        return response.json()
+                    })
+                    .then(data=>{
+                        var acToggle = document.getElementById("dahuaNVR");
+                       
+
+                        var active_ntegration = parseInt(data[0][2]);
+                        // console.log(data)
+                        acToggle.checked = active_ntegration;
+                        
+                    })
+                    .catch(error=>{
+                        console.log("Error getting gsm status")
+                    })
+                }
+                initializegsm3();
+
+                var activeIntegrationdhToggle = document.getElementById("dahuaNVR");
+                if(activeIntegrationdhToggle){
+                    activeIntegrationdhToggle.addEventListener("change", toggleac3);
+                } 
+
+
+    // active integration CP PLUS nvr
+    
+                function sendData_to_ai_cp(ac_activated_cp){
+                    var data ={
+                        "active_integration_cp" : ac_activated_cp
+                    };
+
+                    fetch('/data_active_integration_cp',{
+                        method: 'PUT',
+                        headers:{
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(data)
+                    })
+                    .then(response=>{
+                        if(response.ok){
+                            console.log("Data sent")
+                        }else{
+                            console.log("Error sending data")
+                        }
+                    })
+                    .catch(error=>{
+                        console.log("Error sending data")
+                    })
+                }
+
+                function toggleac4(){
+                    var acToggle = document.getElementById("cpplusNVR");
+                   
+                    if(acToggle.checked){
+                        sendData_to_ai_cp(true)
+                    }else{
+                        sendData_to_ai_cp(false)
+                    }
+                }
+
+                function initializegsm4(){
+                    fetch('/get_active_integration_cp')
+                    .then(response=>{
+                        if(!response.ok){
+                            console.log("Error getting gsm status");
+                        }
+                        return response.json()
+                    })
+                    .then(data=>{
+                        var acToggle = document.getElementById("cpplusNVR");
+                       
+
+                        var active_ntegration = parseInt(data[0][2]);
+                        // console.log(data)
+                        acToggle.checked = active_ntegration;
+                        
+                    })
+                    .catch(error=>{
+                        console.log("Error getting gsm status")
+                    })
+                }
+                initializegsm4();
+
+                var activeIntegrationcpToggle = document.getElementById("cpplusNVR");
+                if(activeIntegrationcpToggle){
+                    activeIntegrationcpToggle.addEventListener("change", toggleac4);
+                } 
+
+
+    // active integration SPARS nvr
+    
+                function sendData_to_ai_sp(ac_activated_sp){
+                    var data ={
+                        "active_integration_sp" : ac_activated_sp
+                    };
+
+                    fetch('/data_active_integration_sp',{
+                        method: 'PUT',
+                        headers:{
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(data)
+                    })
+                    .then(response=>{
+                        if(response.ok){
+                            console.log("Data sent")
+                        }else{
+                            console.log("Error sending data")
+                        }
+                    })
+                    .catch(error=>{
+                        console.log("Error sending data")
+                    })
+                }
+
+                function toggleac5(){
+                    var acToggle = document.getElementById("sparsNVR");
+                   
+                    if(acToggle.checked){
+                        sendData_to_ai_sp(true)
+                    }else{
+                        sendData_to_ai_sp(false)
+                    }
+                }
+
+                function initializegsm5(){
+                    fetch('/get_active_integration_sp')
+                    .then(response=>{
+                        if(!response.ok){
+                            console.log("Error getting gsm status");
+                        }
+                        return response.json()
+                    })
+                    .then(data=>{
+                        var acToggle = document.getElementById("sparsNVR");
+                       
+
+                        var active_ntegration = parseInt(data[0][2]);
+                        // console.log(data)
+                        acToggle.checked = active_ntegration;
+                        
+                    })
+                    .catch(error=>{
+                        console.log("Error getting gsm status")
+                    })
+                }
+                initializegsm5();
+
+                var activeIntegrationspToggle = document.getElementById("sparsNVR");
+                if(activeIntegrationspToggle){
+                    activeIntegrationspToggle.addEventListener("change", toggleac5);
+                }
+
+                // ── Hikvision BAS ─────────────────────────────────────────
+                function toggleac6(){
+                    var t = document.getElementById("hikBAS");
+                    fetch('/data_active_integration_hik_bas',{
+                        method:'PUT',
+                        headers:{'Content-Type':'application/json'},
+                        body:JSON.stringify({"active_integration_hik_bas": t.checked})
+                    }).catch(e=>console.log("HIK BAS error",e));
+                }
+                function initializegsm6(){
+                    fetch('/get_active_integration_hik_bas')
+                    .then(r=>r.json())
+                    .then(data=>{
+                        var t=document.getElementById("hikBAS");
+                        if(data&&data.length>0){
+                            var idx=(data[0].length===2)?1:2;
+                            t.checked=parseInt(data[0][idx])===1;
+                        }
+                    }).catch(e=>console.log("HIK BAS init error",e));
+                }
+                initializegsm6();
+                var hikBASToggle=document.getElementById("hikBAS");
+                if(hikBASToggle) hikBASToggle.addEventListener("change",toggleac6);
+
+                // ── AMC BAS ───────────────────────────────────────────────
+                function toggleac7(){
+                    var t=document.getElementById("amcBAS");
+                    fetch('/data_active_integration_amc_bas',{
+                        method:'PUT',
+                        headers:{'Content-Type':'application/json'},
+                        body:JSON.stringify({"active_integration_amc_bas": t.checked})
+                    }).catch(e=>console.log("AMC BAS error",e));
+                }
+                function initializegsm7(){
+                    fetch('/get_active_integration_amc_bas')
+                    .then(r=>r.json())
+                    .then(data=>{
+                        var t=document.getElementById("amcBAS");
+                        if(data&&data.length>0){
+                            var idx=(data[0].length===2)?1:2;
+                            t.checked=parseInt(data[0][idx])===1;
+                        }
+                    }).catch(e=>console.log("AMC BAS init error",e));
+                }
+                initializegsm7();
+                var amcBASToggle=document.getElementById("amcBAS");
+                if(amcBASToggle) amcBASToggle.addEventListener("change",toggleac7);
+
+                // ── Texecom BAS ───────────────────────────────────────────
+                function toggleac8(){
+                    var t=document.getElementById("texecomBAS");
+                    fetch('/data_active_integration_texecom_bas',{
+                        method:'PUT',
+                        headers:{'Content-Type':'application/json'},
+                        body:JSON.stringify({"active_integration_texecom_bas": t.checked})
+                    }).catch(e=>console.log("Texecom BAS error",e));
+                }
+                function initializegsm8(){
+                    fetch('/get_active_integration_texecom_bas')
+                    .then(r=>r.json())
+                    .then(data=>{
+                        var t=document.getElementById("texecomBAS");
+                        if(data&&data.length>0){
+                            var idx=(data[0].length===2)?1:2;
+                            t.checked=parseInt(data[0][idx])===1;
+                        }
+                    }).catch(e=>console.log("Texecom BAS init error",e));
+                }
+                initializegsm8();
+                var texecomBASToggle=document.getElementById("texecomBAS");
+                if(texecomBASToggle) texecomBASToggle.addEventListener("change",toggleac8); 
+
+
+                
+            })
+var hikcamera     = {{ c1 | safe }};
+    var hikbacscamera = {{ c2 | safe }};
+    var dahuacamera   = {{ c3 | safe }};
+    var cppluscamera  = {{ c4 | safe }};
+    var sparscamera   = {{ c5 | safe }};
+
+    function isValidIP(ip) {
+        const ipRegex = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/;
+        const match = ip.match(ipRegex);
+        
+        if (!match) return false;
+        
+        // Check if each octet is between 0-255
+        for (let i = 1; i <= 4; i++) {
+            const octet = parseInt(match[i]);
+            if (octet < 0 || octet > 255) return false;
+        }
+        
+        return true;
+    }
+    
+    // Function to validate IP input in real-time
+    function setupIPValidation(inputId, messageId) {
+        const input = document.getElementById(inputId);
+        const message = document.getElementById(messageId);
+        
+        if (!input || !message) return; // Safety check
+        
+        // Only allow numbers and dots
+        input.addEventListener('input', function(e) {
+            // Remove any characters that aren't numbers or dots
+            let value = e.target.value.replace(/[^0-9.]/g, '');
+            
+            // Prevent multiple consecutive dots
+            value = value.replace(/\.{2,}/g, '.');
+            
+            // Prevent starting with a dot
+            if (value.startsWith('.')) {
+                value = value.substring(1);
+            }
+            
+            // Limit to 4 octets (3 dots maximum)
+            const dots = value.split('.').length - 1;
+            if (dots > 3) {
+                const parts = value.split('.');
+                value = parts.slice(0, 4).join('.');
+            }
+            
+            // Limit each octet to 3 digits
+            const octets = value.split('.');
+            value = octets.map(octet => octet.length > 3 ? octet.substring(0, 3) : octet).join('.');
+            
+            e.target.value = value;
+            
+            // Validate the IP
+            validateIP(input, message);
+        });
+        
+        // Prevent pasting invalid content
+        input.addEventListener('paste', function(e) {
+            e.preventDefault();
+            const pastedText = (e.clipboardData || window.clipboardData).getData('text');
+            const cleanedText = pastedText.replace(/[^0-9.]/g, '');
+            
+            // Set the cleaned text and validate
+            input.value = cleanedText;
+            input.dispatchEvent(new Event('input'));
+        });
+        
+        // Validate on blur
+        input.addEventListener('blur', function() {
+            validateIP(input, message);
+        });
+        
+        // Initial validation if there's already a value
+        if (input.value.trim()) {
+            validateIP(input, message);
+        }
+    }
+    
+    // Function to validate and show feedback
+    function validateIP(input, messageElement) {
+        const value = input.value.trim();
+        
+        if (!value) {
+            input.className = input.className.replace(/ (valid|invalid)/g, '');
+            messageElement.textContent = '';
+            return;
+        }
+        
+        if (isValidIP(value)) {
+            input.className = input.className.replace(/ (valid|invalid)/g, '') + ' valid';
+            messageElement.className = 'validation-message valid-message';
+            messageElement.textContent = '✓ Valid IP address';
+        } else {
+            input.className = input.className.replace(/ (valid|invalid)/g, '') + ' invalid';
+            messageElement.className = 'validation-message invalid-message';
+            
+            // Provide specific error messages
+            if (value.split('.').length !== 4) {
+                messageElement.textContent = '✗ IP must have 4 octets (e.g., 192.168.1.100)';
+            } else if (value.split('.').some(octet => octet === '' || parseInt(octet) > 255)) {
+                messageElement.textContent = '✗ Each octet must be between 0-255';
+            } else {
+                messageElement.textContent = '✗ Invalid IP address format';
+            }
+        }
+    }
+
+    // Camera Management
+    document.addEventListener('DOMContentLoaded', function () {
+        // Seed initial camera lists (if server provided globals exist)
+        try {
+            if (typeof hikcamera !== 'undefined') {
+                localStorage.setItem("hikvisionNvrCameras", JSON.stringify(hikcamera));
+            }
+            if (typeof hikbacscamera !== 'undefined') {
+                localStorage.setItem("hikvisionBacsCameras", JSON.stringify(hikbacscamera));
+            }
+            if (typeof dahuacamera !== 'undefined') {
+                localStorage.setItem("dahuaNvrCameras", JSON.stringify(dahuacamera));
+            }
+            if (typeof cppluscamera !== 'undefined') {
+                localStorage.setItem("cpplusNvrCameras", JSON.stringify(cppluscamera));
+            }
+            if (typeof sparscamera !== 'undefined') {
+                localStorage.setItem("sparsNvrCameras", JSON.stringify(sparscamera));
+            }
+        } catch (e) {
+            console.warn('Error seeding cameras to localStorage', e);
+        }
+
+        // Initialize IP validation for all IP inputs
+        setupIPValidation('hikvision_nvr_ip', 'hikvision_nvr_ip_message');
+        setupIPValidation('hikvision_bacs_ip', 'hikvision_bacs_ip_message');
+        setupIPValidation('dahua_nvr_ip', 'dahua_nvr_ip_message');
+        setupIPValidation('cpplus_nvr_ip', 'cpplus_nvr_ip_message');
+        setupIPValidation('spars_nvr_ip', 'spars_nvr_ip_message');
+        setupIPValidation('hikvisionNvrCameraIp', 'hikvisionNvrCameraIp_message');
+        setupIPValidation('hikvisionBacsCameraIp', 'hikvisionBacsCameraIp_message');
+        setupIPValidation('dahuaNvrCameraIp', 'dahuaNvrCameraIp_message');
+        setupIPValidation('cpplusNvrCameraIp', 'cpplusNvrCameraIp_message');
+        setupIPValidation('sparsNvrCameraIp', 'sparsNvrCameraIp_message');
+        // Detect if the device is mobile
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+        // Initialize camera management for each system
+        initCameraManagement("hikvisionNvr", "hikvisionNvrCameras");
+        initCameraManagement("dahuaNvr", "dahuaNvrCameras");
+        initCameraManagement("cpplusNvr", "cpplusNvrCameras");
+        initCameraManagement("sparsNvr", "sparsNvrCameras");
+
+        // Function to initialize camera management for a specific system
+        function initCameraManagement(systemPrefix, storageKey) {
+            // Get modal elements
+            const modal = document.getElementById(`${systemPrefix}CameraModal`);
+            const addBtn = document.getElementById(`${systemPrefix}AddCameraBtn`);
+            const closeBtn = modal.querySelector(`.${systemPrefix.replace(/([A-Z])/g, '-$1').toLowerCase()}-close`);
+            const cancelBtn = modal.querySelector(`.${systemPrefix.replace(/([A-Z])/g, '-$1').toLowerCase()}-cancel-btn`);
+            const cameraForm = document.getElementById(`${systemPrefix}CameraForm`);
+            const camerasContainer = document.getElementById(`${systemPrefix}CamerasContainer`);
+            const mainForm = document.getElementById(`${systemPrefix}Form`);
+            const camerasJsonInput = document.getElementById(`${systemPrefix}CamerasJson`);
+
+            // Load cameras from localStorage or initialize empty array
+            let cameras = [];
+            try {
+                const savedCameras = localStorage.getItem(storageKey);
+                cameras = savedCameras ? JSON.parse(savedCameras) : [];
+                if (!Array.isArray(cameras)) {
+                    console.warn(`Stored ${storageKey} was not an array, resetting to empty array`);
+                    cameras = [];
+                }
+            } catch (e) {
+                console.error(`Error loading ${storageKey} from localStorage:`, e);
+                cameras = [];
+            }
+
+            // Display existing cameras
+            function displayCameras() {
+                // Always sync the hidden input first (even when cameras = [])
+                updateCamerasJsonInput();
+
+                if (cameras.length === 0) {
+                    camerasContainer.innerHTML = '<div class="no-cameras">No cameras added yet</div>';
+                    return;
+                }
+
+                camerasContainer.innerHTML = '';
+                cameras.forEach((camera, index) => {
+                    const cameraElement = document.createElement('div');
+                    cameraElement.className = 'camera-item';
+                    cameraElement.innerHTML = `
+                        <div class="camera-info">
+                            <span class="camera-serial">${index + 1}.</span>
+                            <span class="camera-ip">${camera.ip_address}</span>
+                            <span class="camera-username">${camera.username}</span>
+                        </div>
+                        <div class="camera-actions">
+                            <button type="button" class="btn-icon edit-camera" data-index="${index}" title="Edit">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button type="button" class="btn-icon delete-camera" data-index="${index}" title="Delete">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    `;
+                    camerasContainer.appendChild(cameraElement);
+                });
+
+                // Add event listeners for edit and delete buttons
+                camerasContainer.querySelectorAll('.edit-camera').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const index = e.currentTarget.getAttribute('data-index');
+                        editCamera(parseInt(index));
+                    });
+                });
+
+                camerasContainer.querySelectorAll('.delete-camera').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const index = e.currentTarget.getAttribute('data-index');
+                        deleteCamera(parseInt(index));
+                    });
+                });
+            }
+
+            // Update the hidden JSON input with the current cameras data
+            function updateCamerasJsonInput() {
+                if (camerasJsonInput) {
+                    camerasJsonInput.value = JSON.stringify(cameras);
+                }
+            }
+
+            // Show modal
+            function showModal(editIndex = null) {
+                document.body.style.overflow = 'hidden';
+                modal.style.display = 'block';
+                setTimeout(() => {
+                    modal.classList.add('show');
+                }, 10);
+
+                if (editIndex !== null) {
+                    // Edit mode
+                    const camera = cameras[editIndex];
+                    document.getElementById(`${systemPrefix}CameraIp`).value = camera.ip_address;
+                    document.getElementById(`${systemPrefix}CameraUsername`).value = camera.username;
+                    document.getElementById(`${systemPrefix}CameraPassword`).value = camera.password; // Don't show password for security
+                    cameraForm.setAttribute('data-edit-index', editIndex);
+                } else {
+                    // Add new mode
+                    cameraForm.reset();
+                    cameraForm.removeAttribute('data-edit-index');
+                }
+            }
+
+            // Hide modal
+            function hideModal() {
+                document.body.style.overflow = 'auto';
+                modal.classList.remove('show');
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                }, 300);
+                cameraForm.reset();
+                cameraForm.removeAttribute('data-edit-index');
+            }
+
+            // Save camera
+            function saveCamera(e) {
+                e.preventDefault();
+
+                const ip = document.getElementById(`${systemPrefix}CameraIp`).value.trim();
+                const username = document.getElementById(`${systemPrefix}CameraUsername`).value.trim();
+                const password = document.getElementById(`${systemPrefix}CameraPassword`).value;
+
+                if (!ip || !username) {
+                    alert('Please fill in all required fields');
+                    return;
+                }
+
+                const editIndex = cameraForm.getAttribute('data-edit-index');
+                const cameraData = {
+                    ip_address: ip,
+                    username,
+                    // Only update password if provided (for editing)
+                    password: password || (editIndex !== null ? cameras[editIndex]?.password || '' : '')
+                };
+
+                if (editIndex !== null) {
+                    // Update existing camera
+                    cameras[editIndex] = cameraData;
+                } else {
+                    // Check if maximum limit reached
+                    if (cameras.length >= 128) {
+                        alert('Maximum limit of 128 cameras reached');
+                        return;
+                    }
+                    // Add new camera
+                    cameras.push(cameraData);
+                }
+
+                // Ensure cameras is an array before saving
+                if (!Array.isArray(cameras)) {
+                    console.warn(`${storageKey} was not an array, resetting to empty array`);
+                    cameras = [];
+                }
+                // Save to localStorage
+                try {
+                    localStorage.setItem(storageKey, JSON.stringify(cameras));
+                } catch (e) {
+                    console.error(`Error saving ${storageKey} to localStorage:`, e);
+                }
+
+                // Update display and close modal
+                displayCameras();
+                hideModal();
+
+                // Auto-save camera changes to backend immediately
+                if (mainForm) {
+                    const fd = new FormData(mainForm);
+                    fetch(mainForm.action, {method: 'POST', body: fd})
+                        .catch(err => console.warn('Camera auto-save error:', err));
+                }
+            }
+
+            // Edit camera
+            function editCamera(index) {
+                showModal(index);
+            }
+
+            // Delete camera
+            function deleteCamera(index) {
+                if (confirm('Are you sure you want to delete this camera?')) {
+                    cameras.splice(index, 1);
+                    localStorage.setItem(storageKey, JSON.stringify(cameras));
+                    displayCameras();
+
+                    // Auto-save camera changes to backend immediately
+                    if (mainForm) {
+                        const fd = new FormData(mainForm);
+                        fetch(mainForm.action, {method: 'POST', body: fd})
+                            .catch(err => console.warn('Camera auto-save error:', err));
+                    }
+                }
+            }
+
+            // Event listeners
+            addBtn.addEventListener('click', () => showModal());
+            closeBtn.addEventListener('click', hideModal);
+            cancelBtn.addEventListener('click', hideModal);
+            cameraForm.addEventListener('submit', saveCamera);
+
+            // Add form submit event to ensure cameras JSON is included
+            if (mainForm) {
+                mainForm.addEventListener('submit', function (e) {
+                    // If the camera modal is open with filled-in data, commit it
+                    // before the main form submits (prevents losing a partially-entered camera)
+                    if (modal.style.display === 'block') {
+                        const ip = document.getElementById(`${systemPrefix}CameraIp`).value.trim();
+                        const username = document.getElementById(`${systemPrefix}CameraUsername`).value.trim();
+                        const password = document.getElementById(`${systemPrefix}CameraPassword`).value;
+                        if (ip && username) {
+                            const editIndex = cameraForm.getAttribute('data-edit-index');
+                            const idx = editIndex !== null ? parseInt(editIndex) : -1;
+                            const cameraData = {
+                                ip_address: ip,
+                                username,
+                                password: password || (idx >= 0 && cameras[idx] ? cameras[idx].password || '' : '')
+                            };
+                            if (idx >= 0) {
+                                cameras[idx] = cameraData;
+                            } else {
+                                cameras.push(cameraData);
+                            }
+                            localStorage.setItem(storageKey, JSON.stringify(cameras));
+                        }
+                    }
+                    updateCamerasJsonInput();
+                });
+            }
+
+            // Close modal when clicking outside the content
+            window.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    hideModal();
+                }
+            });
+
+            // Initialize
+            displayCameras();
+
+            // Add touch event handling for mobile devices
+            if (isMobile) {
+                // Add touch effect for camera items on mobile
+                function addTouchEffects() {
+                    camerasContainer.querySelectorAll('.camera-item').forEach(item => {
+                        item.addEventListener('touchstart', function () {
+                            this.style.backgroundColor = '#f5f5f5';
+                        });
+                        item.addEventListener('touchend', function () {
+                            this.style.backgroundColor = '';
+                        });
+                    });
+                }
+
+                // Add touch effects initially and after camera list updates
+                addTouchEffects();
+
+                // Override displayCameras to include touch effects after updates
+                const originalDisplayCameras = displayCameras;
+                displayCameras = function () {
+                    originalDisplayCameras();
+                    addTouchEffects();
+                };
+            }
+        }
+
+        // Add general mobile device enhancements
+        if (isMobile) {
+            document.body.classList.add('mobile-device');
+
+            // Add touch feedback for buttons
+            const buttons = document.querySelectorAll('.btn');
+            buttons.forEach(function (button) {
+                button.addEventListener('touchstart', function () {
+                    this.classList.add('touch-active');
+                });
+                button.addEventListener('touchend', function () {
+                    this.classList.remove('touch-active');
+                });
+            });
+
+            // Add vibration feedback for button presses
+            document.querySelectorAll('.btn').forEach(function (button) {
+                button.addEventListener('click', function () {
+                    if (navigator.vibrate) {
+                        navigator.vibrate(50);
+                    }
+                });
+            });
+
+            // Make form inputs more touch-friendly
+            const inputs = document.querySelectorAll('input');
+            inputs.forEach(function (input) {
+                input.addEventListener('touchstart', function () {
+                    this.classList.add('touch-active');
+                });
+                input.addEventListener('touchend', function () {
+                    this.classList.remove('touch-active');
+                });
+            });
+        }
+    });
+    
+    // Function to toggle password visibility
+    function togglePassword(inputId, button) {
+        const input = document.getElementById(inputId);
+        const icon = button.querySelector('i');
+        
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        }
+    }
+    function toggleForm(formId) {
+        const forms = document.querySelectorAll('.form-section');
+        forms.forEach(form => {
+            form.classList.remove('active');
+        });
+        document.getElementById(formId).classList.add('active');
+
+        const buttons = document.querySelectorAll('.toggle-button');
+        buttons.forEach(button => {
+            button.classList.remove('active');
+            button.classList.add('inactive');
+        });
+        document.querySelector(`[data-form="${formId}"]`).classList.add('active');
+        document.querySelector(`[data-form="${formId}"]`).classList.remove('inactive');
+    }
+    
+    // function togglePasswordVisibility(inputId) {
+    //     const passwordInput = document.getElementById(inputId);
+    //     const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+    //     passwordInput.setAttribute('type', type);
+        
+    //     const icon = event.currentTarget.querySelector('i');
+    //     if (type === 'text') {
+    //         icon.classList.remove('fa-eye');
+    //         icon.classList.add('fa-eye-slash');
+    //     } else {
+    //         icon.classList.remove('fa-eye-slash');
+    //         icon.classList.add('fa-eye');
+    //     }
+    // }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelector('.toggle-button').click();
+        
+        const buttons = document.querySelectorAll('.toggle-button, .btn');
+        buttons.forEach(button => {
+            button.addEventListener('touchstart', function() {
+                this.style.transform = 'scale(0.97)';
+            });
+            
+            button.addEventListener('touchend', function() {
+                this.style.transform = '';
+            });
+        });
+    });
+</script>
+
+ <style>
+:root {
+    --background-color: #f5f5f5;
+    --text-color: #333;
+    --primary-color: #1d4370;
+    --white: #ffffff;
+    --accent-color: #fca311;
+    --success-color: #28a745;
+    --danger-color: #dc3545;
+    --gray-color: #6c757d;
+    --border-radius: 8px;
+    --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+body {
+    font-family: Arial, sans-serif;
+    margin-top: 50px;
+    margin-left: 0;
+    padding: 0;
+    display: flex;
+    height: 100vh;
+    overflow: hidden; /* Prevent body from scrolling */
+    background-color: var(--background-color);
+}
+
+/* navbar css are in layout.css */
+
+/* Add a black background color to the top navigation */
+
+
+.main-content {
+    margin-left: 300px; /* Same as the width of the side menu */
+    padding: 20px;
+    overflow-y: auto; /* Enable scrolling for the main content */
+    flex: 1;
+    width: calc(100% - 300px);
+    transition: margin-left 0.3s ease, width 0.3s ease;
+}
+
+
+/* body starts */
+
+/* path display css */
+
+.path_content{
+    height: fit-content;
+    width: 100%;
+}
+
+
+#breadcrumbContainer {
+    font-size: 18px;
+    color: var(--text-color);
+    background-color: var(--white);
+    padding: 10px;
+    padding-left: 30px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 15px;
+}
+
+#breadcrumbContainer h5 {
+    margin: 0;
+    font-size: 16px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* path display css */  
+
+/* Main content */  
+.container {
+    margin: 20px auto;
+    text-align: left;
+    background: var(--white);
+    padding: 30px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    max-width: 800px;
+    width: 90%;
+}
+
+
+.maintenance-icon {
+    font-size: 80px;
+    color: var(--primary-color);
+    margin-bottom: 20px;
+}
+
+h1 {
+    font-size: 32px;
+    margin-bottom: 20px;
+    color: var(--primary-color);
+}
+
+p {
+    font-size: 16px;
+    color: var(--text-color);
+    margin: 10px 0;
+}
+.ip-input.valid {
+    border-color: #28a745 !important;
+    background-color: #f8fff8;
+}
+
+.ip-input.invalid {
+    border-color: #dc3545 !important;
+    background-color: #fff8f8;
+}
+
+.validation-message {
+    margin-top: 5px;
+    font-size: 12px;
+    min-height: 18px;
+    font-weight: normal;
+}
+
+.valid-message { 
+    color: #28a745; 
+}
+
+.invalid-message { 
+    color: #dc3545; 
+}
+
+/* Mobile touch effects for validation */
+.mobile-device .ip-input.touch-active {
+    transform: scale(0.98);
+    transition: transform 0.1s;
+}
+/* Integration settings specific styles */
+.integration-container {
+    margin: 20px auto;
+    background-color: var(--white);
+    padding: 25px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    border-top: 4px solid var(--gray-color);
+    max-width: 85%;
+}
+
+.section-title {
+    font-size: 24px;
+    color: var(--primary-color);
+    margin-bottom: 25px;
+    border-bottom: 2px solid var(--accent-color);
+    padding-bottom: 12px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.section-title i {
+    color: var(--accent-color);
+}
+
+.integration-cards {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+    align-items: flex-start;
+}
+
+.integration-card {
+    background: var(--white);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    padding: 24px;
+    width: 100%;
+    transition: all 0.3s ease;
+    border-top: 4px solid var(--primary-color);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    box-sizing: border-box;
+}
+
+.integration-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+.card-title {
+    font-size: 20px;
+    color: var(--primary-color);
+    margin-bottom: 15px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+}
+
+.card-title:before {
+    content: '';
+    display: inline-block;
+    width: 8px;
+    height: 20px;
+    background-color: var(--accent-color);
+    margin-right: 10px;
+    border-radius: 4px;
+    flex-shrink: 0;
+}
+
+.status-indicator {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 30px;
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 20px;
+    transition: all 0.3s ease;
+}
+
+.status-inactive {
+    background-color: var(--gray-color);
+    color: var(--white);
+}
+
+.status-active {
+    background-color: var(--success-color);
+    color: var(--white);
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--text-color);
+    font-weight: 500;
+    font-size: 15px;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    border-radius: var(--border-radius);
+    font-size: 14px;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+}
+
+.form-group input:focus, 
+.form-group input.touch-active {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(1, 52, 107, 0.1);
+}
+
+.btn {
+    padding: 12px 22px;
+    border: none;
+    border-radius: var(--border-radius);
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 300px;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    color: var(--white);
+    box-shadow: 0 3px 6px rgba(1, 52, 107, 0.2);
+}
+
+.btn-primary:hover {
+    background-color: #022346;
+    transform: translateY(-2px);
+}
+
+.btn-primary:active,
+.btn-primary.touch-active {
+    transform: translateY(0);
+    background-color: var(--accent-color);
+}
+
+.btn i {
+    margin-right: 8px;
+    flex-shrink: 0;
+}
+
+.passive-integration {
+    background-color: var(--white);
+    padding: 25px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    text-align: center;
+    margin-bottom: 20px;
+    border-top: 4px solid var(--gray-color);
+    width: 90%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: fit-content;
+    min-height: 200px;
+}
+
+.passive-icon {
+    font-size: 48px;
+    color: var(--gray-color);
+    margin-bottom: 15px;
+}
+
+.passive-message {
+    color: var(--gray-color);
+    font-size: 15px;
+    margin-top: 10px;
+}
+
+.message-box {
+    padding: 15px;
+    border-radius: var(--border-radius);
+    margin-bottom: 20px;
+    animation: fadeIn 0.5s ease-in-out;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.success-message {
+    background-color: rgba(40, 167, 69, 0.1);
+    color: var(--success-color);
+    border-left: 4px solid var(--success-color);
+}
+
+.error-message {
+    background-color: rgba(220, 53, 69, 0.1);
+    color: var(--danger-color);
+    border-left: 4px solid var(--danger-color);
+}
+
+/* Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+    pointer-events: auto;
+}
+
+.modal.show {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 1;
+}
+
+.modal-content {
+    background-color: #fff;
+    margin: 10% auto;
+    padding: 25px;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    position: relative;
+    transform: translateY(-20px);
+    transition: transform 0.3s ease-out;
+}
+
+.modal.show .modal-content {
+    transform: translateY(0);
+}
+
+.close {
+    position: absolute;
+    right: 20px;
+    top: 15px;
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+    color: #666;
+}
+
+.close:hover {
+    color: #000;
+}
+
+/* Card Header */
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+/* Cameras List */
+.cameras-list {
+    margin: 20px 0;
+    border-top: 1px solid #eee;
+    padding-top: 15px;
+}
+
+.cameras-list h4 {
+    margin-bottom: 15px;
+    color: #1d4370;
+    font-size: 16px;
+}
+
+.cameras-container {
+    margin-top: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 5px;
+    background-color: #f9f9f9;
+    max-height: 100px;
+    overflow-y: auto;
+    font-size: 0.9em;
+    line-height: 1.3;
+}
+
+.camera-item {
+    padding: 4px 8px;
+    margin: 2px 0;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.camera-item:last-child {
+    border-bottom: none;
+}
+
+/* Webkit browsers (Chrome, Safari) */
+.cameras-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.cameras-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.cameras-container::-webkit-scrollbar-thumb {
+    background-color: #c1c1c1;
+    border-radius: 4px;
+}
+
+.cameras-container::-webkit-scrollbar-thumb:hover {
+    background-color: #a8a8a8;
+}
+
+/* Firefox */
+.cameras-container {
+    scrollbar-width: thin;
+    scrollbar-color: #c1c1c1 #f1f1f1;
+}
+
+.camera-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 15px;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background-color 0.2s;
+}
+
+.camera-item:hover {
+    background-color: #f9f9f9;
+}
+
+.camera-item:last-child {
+    border-bottom: none;
+}
+
+.camera-info {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.camera-serial {
+    color: #666;
+    font-size: 14px;
+    min-width: 24px;
+    text-align: right;
+}
+
+.camera-ip {
+    font-weight: 600;
+    color: #1d4370;
+}
+
+.camera-username {
+    color: #666;
+    font-size: 14px;
+    margin-left: 10px;
+}
+
+.camera-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-icon {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #6c757d;
+    padding: 5px 8px;
+    border-radius: 4px;
+    transition: all 0.2s;
+    font-size: 14px;
+}
+
+.btn-icon:hover {
+    background-color: #f0f0f0;
+    color: #1d4370;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.camera-actions-bottom {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 24px;
+    gap: 12px;
+    padding-top: 16px;
+    border-top: 1px solid #eee;
+}
+
+.camera-actions-bottom .btn {
+    min-width: 100px;
+    margin: 0;
+    padding: 10px 16px;
+    font-size: 14px;
+}
+
+/* Ensure forms take full height */
+.integration-card form {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+/* For forms with camera list */
+.integration-card .cameras-list {
+    margin-top: 20px;
+    flex-grow: 1;
+}
+
+/* For Hikvision BACS which doesn't have camera list */
+#hikvisionBacsForm .camera-actions-bottom {
+    margin-top: auto;
+}
+
+.no-cameras {
+    color: #6c757d;
+    text-align: center;
+    padding: 20px;
+    font-style: italic;
+}
+
+/* Button styles */
+.btn-secondary {
+    background-color: #6c757d;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+}
+
+/* Responsive Styles - Enhanced for better mobile experience */
+@media (max-width: 1200px) {
+    .integration-cards {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+    
+    .integration-card {
+        width: 100%;
+    }
+    .passive-integration {
+        width: 90%;
+    }
+    .main-content {
+        padding: 5px;
+    }
+    
+    .integration-container {
+        padding: 5px;
+    }
+    
+    .passive-integration {
+        padding: 20px;
+    }
+    
+    .main-content {
+        padding: 15px;
+    }
+    
+    .integration-container {
+        padding: 20px;
+    }
+    
+    .passive-integration {
+        padding: 20px;
+    }
+}
+
+@media (max-width: 768px) {
+    body {
+        overflow: auto;
+        height: auto;
+    }
+    
+    .integration-cards {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+    
+    .integration-card {
+        padding: 16px;
+        margin-bottom: 12px;
+    }
+    
+    .passive-integration {
+        padding: 16px;
+        margin-bottom: 12px;
+    }
+    
+    .camera-actions-bottom {
+        flex-wrap: wrap;
+        gap: 10px;
+        padding-top: 16px;
+        margin-top: 16px;
+    }
+    
+    .btn {
+        padding: 12px 16px;
+        font-size: 15px;
+        height: auto;
+        min-height: 44px; /* Minimum touch target size */
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 6px;
+        transition: all 0.2s ease;
+    }
+    
+    .btn i {
+        margin-right: 8px;
+        font-size: 16px;
+    }
+    
+    .btn-primary {
+        background-color: var(--primary-color);
+    }
+    
+    .btn-secondary {
+        background-color: #6c757d;
+    }
+    
+    .btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .btn:active {
+        transform: translateY(0);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    .main-content {
+        margin-left: 0;
+        width: 100%;
+        overflow-x: hidden;
+    }
+    
+    .integration-cards {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    #breadcrumbContainer {
+        padding-left: 15px;
+        font-size: 16px;
+    }
+    
+    .section-title {
+        font-size: 22px;
+    }
+    
+    .card-title {
+        font-size: 18px;
+    }
+    
+    .integration-card {
+        padding: 20px;
+        margin-bottom: 15px;
+        width: 100%;
+    }
+    .passive-integration {
+        padding: 20px;
+        margin-bottom: 15px;
+        width: 90%;
+    }
+    .btn {
+        width: 100%;
+        max-width: 100%;
+        padding: 12px 14px;
+    }
+    
+    .passive-icon {
+        font-size: 42px;
+    }
+    
+    h1 {
+        font-size: 28px;
+    }
+    
+    .form-group input {
+        padding: 10px 12px;
+    }
+    
+    .camera-actions-bottom {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .camera-actions-bottom button {
+        width: 100%;
+    }
+    
+    .modal-content {
+        width: 85%;
+        margin: 5% auto;
+        padding: 20px;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .form-actions button {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .integration-container {
+        padding: 15px;
+        margin: 10px auto;
+    }
+    
+    .section-title {
+        font-size: 20px;
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+    }
+    
+    .card-title {
+        font-size: 17px;
+    }
+    
+    .status-indicator {
+        padding: 5px 10px;
+        font-size: 12px;
+    }
+    
+    .form-group label {
+        font-size: 14px;
+        margin-bottom: 6px;
+    }
+    
+    .form-group input {
+        padding: 10px;
+        font-size: 13px;
+    }
+    
+    .btn {
+        padding: 10px 18px;
+        font-size: 14px;
+    }
+    
+    .integration-card, 
+    .passive-integration {
+        padding: 15px;
+    }
+    
+    .passive-icon {
+        font-size: 36px;
+        margin-bottom: 10px;
+    }
+    
+    #breadcrumbContainer h5 {
+        font-size: 14px;
+    }
+    
+    .passive-integration h3 {
+        font-size: 18px;
+    }
+    
+    .passive-message {
+        font-size: 14px;
+    }
+    
+    .message-box {
+        padding: 12px;
+        font-size: 14px;
+    }
+    
+    .camera-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    .camera-info {
+        width: 100%;
+    }
+    
+    .camera-actions {
+        width: 100%;
+        justify-content: flex-end;
+    }
+    
+    .camera-username {
+        margin-left: 0;
+        display: block;
+        width: 100%;
+    }
+}
+
+/* Mobile device specific styles */
+@media (hover: none) {
+    .btn:hover {
+        transform: none;
+        background-color: var(--primary-color);
+    }
+    
+    .btn:active,
+    .btn.touch-active {
+        transform: scale(0.98);
+        background-color: var(--accent-color);
+    }
+    
+    .integration-card:hover {
+        transform: none;
+        box-shadow: var(--box-shadow);
+    }
+    
+    /* Fix for touch devices */
+    input, select, textarea {
+        font-size: 16px !important; /* Prevents iOS zoom on focus */
+    }
+    
+    .btn {
+        padding: 12px 15px;
+        min-height: 44px; /* Minimum touch target size */
+    }
+    
+    .btn-icon {
+        min-width: 44px;
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+}
+
+/* Fix for small screens in landscape mode */
+@media (max-height: 500px) and (orientation: landscape) {
+    .modal-content {
+        max-height: 85vh;
+        overflow-y: auto;
+        margin: 5% auto;
+    }
+    
+    body {
+        overflow: auto;
+    }
+    
+    .main-content {
+        height: auto;
+        min-height: 100vh;
+    }
+}
+
+/* Password input container styles */
+.password-input-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.password-input-container input {
+    padding-right: 50px; /* Make room for the button */
+}
+
+.show-password-btn {
+    position: absolute;
+    right: 10px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--gray-color);
+    padding: 5px;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+}
+
+.show-password-btn:hover {
+    color: var(--primary-color);
+    background-color: rgba(29, 67, 112, 0.1);
+}
+
+.show-password-btn:active,
+.show-password-btn.touch-active {
+    transform: scale(0.95);
+    background-color: rgba(29, 67, 112, 0.2);
+}
+
+.show-password-btn i {
+    font-size: 14px;
+}
+
+/* Mobile specific styles for password toggle */
+@media (hover: none) {
+    .show-password-btn {
+        min-width: 44px;
+        min-height: 44px;
+        right: 5px;
+    }
+    
+    .password-input-container input {
+        padding-right: 55px;
+    }
+    
+    .show-password-btn:hover {
+        color: var(--gray-color);
+        background-color: transparent;
+    }
+    
+    .show-password-btn:active,
+    .show-password-btn.touch-active {
+        color: var(--primary-color);
+        background-color: rgba(29, 67, 112, 0.1);
+    }
+}
+
+/* Ensure password input containers work well in forms */
+.form-group .password-input-container {
+    width: 100%;
+    position: relative;
+}
+
+.form-group .password-input-container input {
+    width: 100%;
+    box-sizing: border-box;
+    padding-right: 45px; /* Space for show/hide button */
+}
+
+/* Mobile-specific button styles */
+@media (max-width: 480px) {
+    .btn {
+        width: 100%;
+        margin-bottom: 8px;
+    }
+    
+    .camera-actions-bottom .btn {
+        margin: 0 0 8px 0;
+    }
+    
+    .btn:last-child {
+        margin-bottom: 0;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .form-actions .btn {
+        width: 100%;
+        margin: 0;
+    }
+}
+
+h1 {
+    text-align: center;
+    color: var(--primary-color);
+    margin-bottom: 30px;
+    font-size: 24px;
+}
+
+.button-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin: 30px 0;
+    align-items: center;
+    justify-content: center;
+}
+
+.enter-button {
+    padding: 15px 20px;
+    background-color: var(--primary-color);
+    color: var(--white);
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    width: 200px;
+    min-width: 150px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.enter-button:hover {
+    background-color: var(--accent-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+}
+
+.enter-button:active, .enter-button.touch-active {
+    transform: translateY(0);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    background-color: var(--accent-color);
+}
+
+.toggle-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    align-items: center;
+    margin: 30px 0;
+    width: 100%;
+}
+
+.toggle-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    background-color: var(--background-color);
+    border-radius: 8px;
+    width: 80%;
+    max-width: 600px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+}
+
+.toggle-item:hover {
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transform: translateY(-1px);
+}
+
+.toggle-label {
+    font-size: 16px;
+    color: var(--text-color);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 500;
+}
+
+.toggle-label i {
+    color: var(--primary-color);
+    font-size: 18px;
+    width: 20px;
+    text-align: center;
+}
+
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 56px;
+    height: 30px;
+    flex-shrink: 0;
+}
+
+.toggle-switch.touch-active {
+    opacity: 0.8;
+}
+
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--gray-color);
+    transition: .3s;
+    border-radius: 30px;
+    box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.2);
+}
+
+.toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 24px;
+    width: 24px;
+    left: 3px;
+    bottom: 3px;
+    background-color: var(--white);
+    transition: .3s;
+    border-radius: 50%;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+input:checked + .toggle-slider {
+    background-color: var(--success-color);
+}
+
+input:checked + .toggle-slider:before {
+    transform: translateX(26px);
+}
+
+input:focus + .toggle-slider {
+    box-shadow: 0 0 1px var(--success-color);
+}
+
+.path_content{
+    height: fit-content;
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+#breadcrumbContainer {
+    font-size: 18px;
+    color: var(--text-color);
+    background-color: var(--white);
+    padding: 10px;
+    padding-left: 30px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+#breadcrumbContainer h5 {
+    margin: 0;
+    font-size: 16px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.container {
+    background-color: var(--white);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    border-top: 3px solid var(--primary-color);
+    padding: 40px;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    max-width: 1200px;
+    margin: 20px auto;
+    width: 90%;
+    transition: width 0.3s ease, padding 0.3s ease;
+}
+
+.section-card {
+    width: 100%;
+    max-width: 800px;
+    transition: width 0.3s ease;
+}
+
+h2 {
+    margin-top: 0;
+    color: var(--text-color);
+    margin-bottom: 25px;
+    text-align: center;
+    font-size: 22px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--text-color);
+    font-weight: 500;
+    font-size: 14px;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 12px;
+    box-sizing: border-box;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.form-group input:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(29, 67, 112, 0.1);
+    outline: none;
+}
+
+.btn-container {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 30px;
+    width: 100%;
+}
+
+/* .btn {
+    padding: 12px 24px;
+    background-color: var(--success-color);
+    color: var(--white);
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    min-width: 150px;
+} */
+
+.btn:hover {
+    background-color: #17365a;
+    transform: translateY(-1px);
+}
+
+.btn:active {
+    transform: translateY(0);
+}
+
+.toggle-buttons {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 30px;
+    gap: 15px;
+    width: 100%;
+    flex-wrap: wrap;
+}
+
+.toggle-button {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    min-width: 200px;
+    flex: 1;
+}
+
+.toggle-button.active {
+    background-color: var(--primary-color);
+    color: var(--white);
+    box-shadow: 0 2px 4px rgba(29, 67, 112, 0.2);
+}
+
+.toggle-button.inactive {
+    background-color: var(--light-gray);
+    color: var(--text-color);
+}
+
+.toggle-button:hover {
+    transform: translateY(-1px);
+}
+
+.toggle-button:active {
+    transform: translateY(0);
+}
+
+.form-section {
+    display: none;
+    animation: fadeIn 0.3s ease;
+    width: 100%;
+}
+
+.form-section.active {
+    display: block;
+    background-color: var(--background-color);
+    padding: 30px;
+    border-radius: var(--border-radius);
+    width: 100%;
+    box-sizing: border-box;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.alert {
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: var(--border-radius);
+    font-weight: 500;
+    animation: slideIn 0.3s ease;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.alert-success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.alert-error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive Design - Enhanced */
+@media (max-width: 992px) {
+    .container {
+        width: 90%;
+        padding: 30px;
+    }
+    
+    .toggle-button {
+        min-width: 180px;
+    }
+}
+
+@media (max-width: 768px) {
+    .main-content {
+        margin-left: 0;
+        width: 100%;
+        padding: 15px;
+    }
+    
+    .container {
+        width: 90%;
+        padding: 20px;
+    }
+    
+    #breadcrumbContainer {
+        padding-left: 15px;
+        font-size: 16px;
+    }
+    
+    .section-card {
+        width: 100%;
+        padding: 0;
+    }
+    
+    .toggle-buttons {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .toggle-button {
+        width: 100%;
+        min-width: unset;
+        padding: 10px 20px;
+    }
+    
+    .form-section.active {
+        padding: 20px 15px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+    
+    .form-group label {
+        font-size: 14px;
+    }
+    
+    .form-group input {
+        padding: 10px;
+    }
+    
+    .btn-container {
+        justify-content: center;
+    }
+    
+    .btn {
+        width: 100%;
+        max-width: 250px;
+    }
+    
+    h2 {
+        font-size: 20px;
+        margin-bottom: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 15px 10px;
+    }
+    
+    .form-section.active {
+        padding: 15px 10px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+    
+    .form-group {
+        margin-bottom: 15px;
+    }
+    
+    .form-group label {
+        font-size: 13px;
+        margin-bottom: 5px;
+    }
+    
+    .form-group input {
+        padding: 8px;
+        font-size: 13px;
+    }
+    
+    .btn {
+        padding: 10px 15px;
+        font-size: 14px;
+    }
+    
+    .alert {
+        padding: 10px;
+        font-size: 13px;
+    }
+    
+    h2 {
+        font-size: 18px;
+        margin-bottom: 15px;
+    }
+    
+    #breadcrumbContainer h5 {
+        font-size: 14px;
+    }
+}
+</style> 
+{% endblock %}

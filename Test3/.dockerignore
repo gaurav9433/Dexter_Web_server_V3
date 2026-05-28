@@ -1,0 +1,36 @@
+# Version control
+.git
+.gitignore
+
+# Python environments
+.venv
+webserver/.venv
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+
+# IDE / editor
+.idea
+.claude
+*.swp
+*.swo
+
+# Runtime data — mounted from host at /home/pi/Test3 via volume
+*.db
+*.db-shm
+*.db-wal
+
+# Logs
+*.log
+/var/log
+
+# Reports
+daily_reports/
+
+# Secrets — never bake into image
+*.pem
+*.key
+*.crt
+AdminPass.txt
+servicePass.txt

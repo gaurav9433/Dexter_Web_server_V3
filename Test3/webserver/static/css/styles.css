@@ -1,0 +1,311 @@
+:root {
+  --background-color: #f5f5f5;
+  --text-color: #333;
+  --primary-color: #1d4370;
+  --white: #ffffff;
+  --accent-color: #fca311;
+  --success-color: #28a745;
+  --danger-color: #dc3545;
+  --gray-color: #6c757d;
+  --light-gray: #f8f9fd;
+  --border-color: #12b1d1;
+  --link-color: #42807a;
+  --shadow-color: rgba(133, 189, 215, 0.8784313725);
+}
+
+/* body {
+background-color:#00695C;
+} */
+.center {
+background: linear-gradient(
+  0deg,
+  var(--primary-color) 0%,
+  var(--accent-color) 100%
+);
+position: absolute;
+top: 50%;
+left: 50%;
+transform: translate(-50%, -50%);
+padding: 10px;
+border-radius: 10px;
+width: 100%;
+max-width: 550px;
+box-sizing: border-box;
+}
+/* .mh{
+font-size :26px;
+text-align: center;
+font-weight: 900;
+color:rgb(0,105,92);
+} */
+
+.container {  
+  max-width: 450px;
+  background: var(--light-gray);
+  background: linear-gradient(
+    0deg,
+    var(--white) 0%,
+    var(--light-gray) 100%
+  );
+  border-radius: 20px;
+  padding: 20px 30px;
+  border: 5px solid var(--white);
+  /* box-shadow: rgba(133, 189, 215, 0.8784313725) 0px 30px 30px -20px; */
+  margin: 20px auto;    
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.heading {
+  text-align: center;
+  font-weight: 600;
+  font-size: 25px;
+  color: var(--primary-color);
+  margin-bottom: 15px;
+}
+
+.form {
+  margin-top: 20px;
+  width: 100%;
+}
+
+.user-type-selector {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  padding: 10px;
+  background: var(--light-gray);
+  border-radius: 10px;
+  border: 1px solid #e0e0e0;
+}
+
+.radio-label {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--text-color);
+  font-weight: 500;
+}
+
+.radio-label input[type="radio"] {
+  display: none;
+}
+
+.radio-custom {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid var(--border-color);
+  margin-right: 8px;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.radio-label input[type="radio"]:checked + .radio-custom {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.radio-label input[type="radio"]:checked + .radio-custom::after {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--white);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.form .input {
+  width: 100%;
+  background: var(--white);
+  border: none;
+  padding: 15px 20px;
+  border-radius: 10px;
+  margin-top: 15px;
+  box-shadow: var(--gray-color) 0px 5px 10px -5px;
+  border-inline: 2px solid transparent;
+  box-sizing: border-box;
+  font-size: 16px;
+}
+
+.form .input::-moz-placeholder {
+  color: var(--gray-color);
+}
+
+.form .input::placeholder {
+  color: var(--gray-color);
+}
+
+.form .input:focus {
+  outline: none;
+  border-inline: 2px solid var(--border-color);
+}
+
+.form .forgot-password {
+  display: block;
+  margin-top: 15px;
+  margin-left: 5px;
+  text-align: left;
+  width: 100%;
+}
+
+.form .forgot-password a {
+  font-size: 14px;
+  color: var(--link-color);
+  text-decoration: none;
+}
+
+.form .login-button {
+  display: block;
+  width: 100%;
+  font-weight: bold;
+  background: var(--primary-color);
+  color: var(--white);
+  padding-block: 15px;
+  margin: 20px auto;
+  border-radius: 20px;
+  box-shadow: var(--gray-color) 0px 20px 10px -15px;
+  border: none;
+  transition: all 0.2s ease-in-out;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.form .login-button:hover {
+  transform: scale(1.03);
+  box-shadow: var(--shadow-color) 0px 23px 10px -20px;
+}
+
+.form .login-button:active {
+  transform: scale(0.95);
+  box-shadow: var(--shadow-color) 0px 15px 10px -10px;
+}
+
+/* Touch-friendly improvements */
+@media (hover: none) {
+.form .login-button:hover {
+  transform: none;
+  box-shadow: var(--gray-color) 0px 20px 10px -15px;
+}
+}
+
+/* Responsive styles */
+@media screen and (max-width: 768px) {
+.center {
+  padding: 10px 20px;
+  width: 90%;
+}
+
+.container {
+  margin: 10px auto;
+  padding: 15px 20px;
+}
+
+.heading {
+  font-size: 22px;
+}
+
+.form .input {
+  padding: 12px 15px;
+}
+
+.form .login-button {
+  padding-block: 12px;
+}
+
+.user-type-selector {
+  flex-direction: column;
+  gap: 10px;
+  padding: 15px;
+}
+
+.radio-label {
+  justify-content: center;
+}
+}
+
+@media screen and (max-width: 480px) {
+.center {
+  width: 95%;
+  padding: 5px;
+}
+
+.container {
+  padding: 15px;
+  border-width: 3px;
+}
+
+.heading {
+  font-size: 20px;
+}
+
+.form .input {
+  padding: 10px 15px;
+  font-size: 14px;
+}
+
+.form .forgot-password a {
+  font-size: 13px;
+}
+
+.form .login-button {
+  padding-block: 12px;
+  font-size: 15px;
+}
+}
+
+/* Handle very small screens */
+@media screen and (max-width: 350px) {
+.center {
+  padding: 0;
+  width: 100%;
+  border-radius: 0;
+  height: 100%;
+  position: fixed;
+  overflow-y: auto;
+}
+
+.container {
+  margin: 0;
+  height: 100%;
+  border-radius: 0;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.heading {
+  margin-bottom: 30px;
+}
+}
+
+/* Fix for iOS input zooming */
+@media screen and (max-width: 768px) {
+input[type="text"],
+input[type="password"] {
+  font-size: 16px;
+}
+}
+
+/* Handle landscape orientation */
+@media screen and (max-height: 500px) and (orientation: landscape) {
+.center {
+  position: relative;
+  top: 0;
+  left: 0;
+  transform: none;
+  margin: 20px auto;
+  padding: 0 10px;
+  height: auto;
+}
+
+.container {
+  margin: 10px auto;
+  padding: 15px;
+}
+}

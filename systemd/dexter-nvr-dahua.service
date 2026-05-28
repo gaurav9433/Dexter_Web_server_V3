@@ -1,0 +1,25 @@
+[Unit]
+Description=Dexter HMS — Dahua NVR Poller
+After=network-online.target
+Wants=network-online.target
+PartOf=dexter.target
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/home/pi/Test3
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/usr/bin/python3 /home/pi/Test3/dahua_nvr_dvr_information.py
+Restart=on-failure
+RestartSec=10
+WatchdogSec=3600
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=dexter-nvr-dahua
+MemoryMax=256M
+CPUQuota=80%
+KillMode=mixed
+TimeoutStopSec=30
+
+[Install]
+WantedBy=dexter.target

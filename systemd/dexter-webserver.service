@@ -1,0 +1,19 @@
+[Unit]
+Description=Dexter HMS — Flask Webserver (Engineer Interface)
+After=network.target
+PartOf=dexter.target
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/home/pi/Test3/webserver
+ExecStart=/usr/bin/python3 /home/pi/Test3/webserver/seple.py
+Restart=on-failure
+RestartSec=5
+RestartPreventExitStatus=0 1
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=dexter-webserver
+
+[Install]
+WantedBy=dexter.target

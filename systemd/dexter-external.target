@@ -1,0 +1,9 @@
+[Unit]
+Description=Dexter HMS — External Device Services (Panel/Serial/MQTT)
+# Replaces external_device_active_integration.sh
+# Main panel controller, serial comms, MQTT publisher, network monitor
+PartOf=dexter.target
+After=network-online.target
+
+[Install]
+WantedBy=dexter.target

@@ -1,0 +1,607 @@
+:root {
+    --background-color: #f5f5f5;
+    --text-color: #333;
+    --primary-color: #1d4370;
+    --white: #ffffff;
+    --accent-color: #fca311;
+    --success-color: #28a745;
+    --danger-color: #dc3545;
+    --gray-color: #6c757d;
+}
+
+/* Menu toggle button (only visible on mobile) */
+.menu-toggle {
+    display: none;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 8px;
+    width: 44px;
+    height: 44px;
+    border-radius: 4px;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s;
+    -webkit-tap-highlight-color: transparent;
+    z-index: 1001;
+    position: relative;
+    outline: none;
+}
+
+.menu-toggle:hover,
+.menu-toggle:focus {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.menu-toggle:active {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Icon styling for menu toggle and dropdown */
+.menu-icon,
+.more-icon {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+}
+
+/* Navbar styles */
+.topnav {
+    background-color: var(--primary-color);
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    height: 60px;
+}
+
+.topnav a {
+    display: block;
+    color: var(--white);
+    padding: 12px 16px;
+    text-decoration: none;
+    font-size: 17px;
+    transition: all 0.3s ease;
+}
+
+.topnav a:hover {
+    background-color: var(--accent-color);
+    color: var(--white);
+}
+
+/* Navbar layout elements */
+.nav-left,
+.nav-right {
+    flex: 1;
+}
+
+.nav-center {
+    flex: 2;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.nav-right {
+    display: flex;
+    justify-content: flex-end;
+    margin-right: 25px;
+}
+
+.logo {
+    height: auto;
+    width: auto;
+}
+
+/* Dropdown styles */
+.dropdown2 {
+    position: relative;
+}
+
+.dropbtn2 {
+    font-size: 17px;
+    border: none;
+    outline: none;
+    color: var(--white);
+    background-color: transparent;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+.dropbtn2:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.dropdown-content2 {
+    display: none;
+    position: absolute;
+    right: 0;
+    background-color: var(--white);
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+    border-radius: 4px;
+    margin-top: 5px;
+}
+
+.dropdown-content2 a {
+    color: var(--text-color);
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    text-align: left;
+    transition: all 0.3s ease;
+}
+
+.dropdown-content2 a:hover {
+    background-color: var(--background-color);
+    color: var(--primary-color);
+}
+
+.dropdown2:hover .dropdown-content2 {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
+
+/* Animation for dropdown */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Active state styling */
+.active {
+    background-color: var(--accent-color);
+    color: var(--white);
+}
+
+/* Sidebar menu styles */
+.side-menu {
+    width: 300px;
+    /* Increased from 280px to allow more space for text */
+    position: fixed;
+    height: 100%;
+    background-color: var(--primary-color);
+    font-weight: 700;
+    display: flex;
+    flex-direction: column;
+    padding-top: 30px;
+    overflow-y: auto;
+    box-shadow: 5px 0 10px rgba(0, 0, 0, 0.1);
+    top: 60px;
+    left: 0;
+    height: calc(100% - 60px);
+    z-index: 999;
+}
+
+::-webkit-scrollbar {
+    display: none;
+}
+
+.side-menu .menu-item {
+    
+    padding: 12px 15px;
+    /* Reduced horizontal padding to allow more space for text */
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: visible;
+    /* Changed from hidden to ensure text is fully visible */
+    width: 100%;
+    /* Ensure full width */
+
+    /* Include padding in width calculation */
+     border-top: 2px solid #112a495b;
+     }
+
+.side-menu .menu-item a {
+    color: var(--accent-color);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    /* Changed from flex-start to center for proper vertical alignment */
+    transition: all 0.3s ease;
+    overflow: visible;
+    /* Changed from hidden to ensure text is fully visible */
+    width: 100%;
+    /* Ensure the anchor takes full width */
+    text-overflow: clip;
+    /* Explicitly prevent ellipsis */
+    white-space: normal;
+    /* Allow text wrapping */
+}
+
+/* Icon styling for menu and submenu */
+.menu-icon {
+
+    margin-right: 12px;
+    object-fit: contain;
+    flex-shrink: 0;
+    margin-top: 0;
+    /* Removed margin-top to align with text */
+}
+
+.submenu-icon {
+
+    margin-right: 10px;
+    object-fit: contain;
+    flex-shrink: 0;
+    margin-top: 0;
+    /* Removed margin-top to align with text */
+}
+
+.side-menu .menu-item a span {
+    flex: 1;
+    white-space: normal;
+    /* Allow text wrapping */
+    overflow: visible;
+    /* Ensure text is fully visible */
+    text-overflow: clip;
+    /* Explicitly prevent ellipsis */
+    word-break: break-word;
+    /* Handle long words */
+    font-size: 15px;
+    /* Specified font size for better readability */
+    line-height: 1.3;
+    /* Added line height for better readability */
+    display: inline-block;
+    /* Ensure proper text wrapping */
+    width: 100%;
+    /* Take full width of container */
+}
+
+.side-menu .submenu {
+    display: none;
+    flex-direction: column;
+    padding-left: 10px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    background-color: #0a3569;
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    /* Ensure submenu takes full width */
+    box-sizing: border-box;
+    /* Include padding in width calculation */
+}
+
+.side-menu .submenu a {
+    padding: 10px 15px 10px 25px;
+    /* Adjusted padding for better alignment */
+    position: relative;
+    overflow: visible;
+    /* Ensure text is fully visible */
+    display: flex;
+    align-items: center;
+    /* Changed from flex-start to center for proper vertical alignment */
+    width: 100%;
+    /* Ensure the anchor takes full width */
+    text-overflow: clip;
+    /* Explicitly prevent ellipsis */
+    white-space: normal;
+    /* Allow text wrapping */
+    box-sizing: border-box;
+    /* Include padding in width calculation */
+}
+
+.side-menu .submenu a span {
+    white-space: normal;
+    /* Allow text wrapping */
+    overflow: visible;
+    /* Ensure text is fully visible */
+    text-overflow: clip;
+    /* Explicitly prevent ellipsis */
+    word-break: break-word;
+    /* Handle long words */
+    font-size: 14px;
+    /* Slightly smaller font for submenu items */
+    width: 100%;
+    /* Take full width of container */
+    display: inline-block;
+    /* Ensure proper text wrapping */
+}
+
+/* Hover and active states */
+.side-menu .menu-item:hover,
+.side-menu .menu-item:focus-within,
+.side-menu .menu-item.active {
+    background-color: #0a3569;
+}
+
+.side-menu .menu-item:hover {
+    background-color: #0a3569;
+    transform: translateX(4px);
+}
+
+.side-menu .menu-item:hover a,
+.side-menu .menu-item:focus-within a,
+.side-menu .menu-item.active a,
+.side-menu .menu-item.active .submenu a {
+    color: var(--white);
+    font-weight: 700;
+}
+
+.side-menu .submenu a:hover,
+.side-menu .menu-item.active .submenu a:hover {
+    transform: translateX(4px);
+}
+
+.menu-item:focus-within .submenu,
+.side-menu .menu-item.active .submenu,
+.side-menu .menu-item.submenu-active .submenu {
+    display: flex;
+    max-height: 500px;
+}
+
+/* Accessibility */
+.side-menu .menu-item a:focus {
+    outline: none;
+}
+
+/* Loading overlay for logout and reboot */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    color: white;
+    font-size: 18px;
+}
+
+.loading-overlay p {
+    margin-top: 20px;
+    font-weight: 500;
+}
+
+.loading-spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: var(--accent-color);
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Responsive styles */
+@media screen and (max-width: 768px) {
+    body {
+        padding-left: 0 !important;
+    }
+
+    /* Apply transition to body for smooth content shift */
+    body.menu-open {
+        overflow: hidden;
+    }
+
+    .side-menu {
+        width: 0;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease-in-out;
+        position: fixed !important;
+        top: 60px !important;
+        left: 0 !important;
+        z-index: 999;
+        height: calc(100% - 60px);
+        overflow-y: auto;
+        box-shadow: none;
+        -webkit-overflow-scrolling: touch;
+        /* Smooth scrolling on iOS */
+        visibility: hidden;
+        /* Hide initially */
+        padding-top: 10px !important;
+    }
+
+    .side-menu.open {
+        width: 300px !important;
+        /* Increased from 280px to match desktop */
+        transform: translateX(0) !important;
+        box-shadow: 5px 0 15px rgba(0, 0, 0, 0.3);
+        visibility: visible !important;
+        /* Show when open */
+        display: flex !important;
+        /* Force display */
+        left: 0 !important;
+    }
+
+    /* Preserve the same styling as desktop for menu items */
+    .side-menu .menu-item {
+        padding: 15px !important;
+        cursor: pointer !important;
+        transition: all 0.3s ease !important;
+        position: relative !important;
+    }
+
+    .side-menu .menu-item a {
+        text-decoration: none !important;
+        display: flex !important;
+        align-items: center !important;
+        /* Changed from flex-start to center for proper vertical alignment */
+        transition: all 0.3s ease !important;
+        font-size: 16px !important;
+    }
+
+    .side-menu .submenu {
+        display: none !important;
+        flex-direction: column !important;
+        padding-left: 20px !important;
+        padding-top: 10px !important;
+        position: relative !important;
+        z-index: 2 !important;
+    }
+
+    .side-menu .submenu a {
+        padding: 10px 15px !important;
+        position: relative !important;
+        display: flex !important;
+        align-items: center !important;
+        /* Changed from flex-start to center for proper vertical alignment */
+    }
+
+    .side-menu .submenu a:hover {
+        transform: translateX(4px) !important;
+    }
+
+    .menu-item:focus-within .submenu,
+    .side-menu .menu-item.active .submenu,
+    .side-menu .menu-item.submenu-active .submenu {
+        display: flex !important;
+        max-height: 500px !important;
+    }
+
+    /* Matched styles for active items */
+
+    .topnav {
+        padding: 0 10px;
+    }
+
+    .nav-left {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+    }
+
+    .nav-center {
+        flex: 1;
+    }
+
+    .logo {
+        max-height: 40px;
+        max-width: 120px;
+    }
+
+    .menu-toggle {
+        display: flex !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        position: relative !important;
+        z-index: 1002 !important;
+        color: white !important;
+        background-color: transparent !important;
+        border: none !important;
+        font-size: 24px !important;
+        margin-left: 0 !important;
+        padding: 8px !important;
+        cursor: pointer !important;
+        width: 44px !important;
+        height: 44px !important;
+        box-shadow: none !important;
+    }
+
+    .menu-toggle:active {
+        background-color: rgba(255, 255, 255, 0.2) !important;
+    }
+
+    .nav-left {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: flex-start !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        z-index: 1002 !important;
+    }
+
+    .main-content {
+        margin-left: 0 !important;
+        width: 100% !important;
+        padding: 10px;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .topnav {
+        padding: 0 5px;
+        height: 50px;
+    }
+
+    .logo {
+        max-height: 35px;
+        max-width: 100px;
+    }
+
+    .nav-right {
+        margin-right: 5px;
+    }
+
+    .side-menu.open {
+        width: 100%;
+    }
+
+    .dropdown-content2 {
+        right: -5px;
+        min-width: 140px;
+    }
+
+    .loading-overlay p {
+        font-size: 14px;
+        text-align: center;
+        padding: 0 20px;
+    }
+}
+
+/* Overlay for when mobile menu is open */
+.menu-overlay {
+    display: none;
+    position: fixed;
+    top: 60px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 998;
+}
+
+.menu-overlay.active {
+    display: block;
+}
+
+@media screen and (min-width: 769px) {
+    .side-menu {
+        transform: none !important;
+        width: 300px !important;
+        /* Increased from 280px to match mobile */
+        visibility: visible !important;
+    }
+}
+
+/* Adjust main content area to account for sidebar */
+body {
+    padding-top: 60px;
+    padding-left: 300px;
+    /* Increased from 280px to match sidebar width */
+    margin: 0;
+    font-family: Arial, sans-serif;
+    overflow-x: hidden;
+}

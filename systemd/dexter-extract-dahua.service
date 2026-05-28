@@ -1,0 +1,25 @@
+[Unit]
+Description=Dexter HMS — Dahua Event Log Extractor
+After=network-online.target
+Wants=network-online.target
+PartOf=dexter.target
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/home/pi/Test3
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/usr/bin/python3 /home/pi/Test3/Extract_Logs_Dahua_41.py
+Restart=on-failure
+RestartSec=10
+WatchdogSec=7200
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=dexter-extract-dahua
+MemoryMax=256M
+CPUQuota=80%
+KillMode=mixed
+TimeoutStopSec=30
+
+[Install]
+WantedBy=dexter.target

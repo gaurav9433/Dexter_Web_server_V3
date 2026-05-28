@@ -1,0 +1,9 @@
+[Unit]
+Description=Dexter HMS — Internal Device Services (NVR/DVR/BACS)
+# Replaces internal_device_active_integration.sh
+# All NVR polling, SD card, RTC sync, recording analytics, OTA, RPi health
+PartOf=dexter.target
+After=network-online.target
+
+[Install]
+WantedBy=dexter.target

@@ -1,0 +1,369 @@
+:root {
+    --background-color: #f5f5f5;
+    --text-color: #333;
+    --primary-color: #1d4370;
+    --white: #ffffff;
+    --accent-color: #fca311;
+    --success-color: #28a745;
+    --danger-color: #dc3545;
+    --gray-color: #6c757d;
+    --border-radius: 6px;
+    --box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+body {
+    font-family: Arial, sans-serif;
+    margin-top: 50px;
+    margin-left: 0;
+    padding: 0;
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+    /* Prevent body from scrolling */
+    background-color: var(--background-color);
+}
+
+/* navbar css are in layout.css */
+
+/* Add a black background color to the top navigation */
+
+
+.main-content {
+    margin-left: 300px;
+    /* Same as the width of the side menu */
+    padding: 20px;
+    overflow-y: auto;
+    /* Enable scrolling for the main content */
+    flex: 1;
+    width: calc(100% - 300px);
+    transition: margin-left 0.3s ease, width 0.3s ease;
+}
+
+
+/* body starts */
+
+/* path display css */
+
+.path_content {
+    height: fit-content;
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+
+#breadcrumbContainer {
+    font-size: 18px;
+    color: var(--text-color);
+    background-color: var(--white);
+    padding: 1px;
+    padding-left: 30px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: padding 0.3s ease;
+}
+
+#breadcrumbContainer h5 {
+    font-size: 16px;
+    margin: 10px 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+#breadcrumbContainer i {
+    color: var(--primary-color);
+}
+
+/* path display css */
+
+/* Main content */
+.container {
+    margin-top: 30px;
+    padding: 30px;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+    transition: padding 0.3s ease, margin-top 0.3s ease;
+}
+
+
+
+.section-card {
+    background-color: var(--white);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    padding: 30px;
+    margin-bottom: 20px;
+    border-top: 3px solid var(--primary-color);
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    transition: all 0.3s ease;
+}
+
+h1 {
+    font-size: 36px;
+    margin-bottom: 20px;
+    color: var(--primary-color);
+    transition: font-size 0.3s ease;
+}
+
+p {
+    font-size: 16px;
+    color: var(--text-color);
+    margin: 10px 0;
+    line-height: 1.5;
+    transition: font-size 0.3s ease;
+}
+
+.provisioning-section {
+    padding: 20px;
+    text-align: center;
+    transition: padding 0.3s ease;
+}
+
+.provisioning-section h2 {
+    color: var(--primary-color);
+    margin-bottom: 15px;
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    border-bottom: 1px solid var(--accent-color);
+    padding-bottom: 10px;
+    transition: font-size 0.3s ease;
+}
+
+.provisioning-section h2 i {
+    color: var(--accent-color);
+}
+
+.provisioning-description {
+    max-width: 600px;
+    margin: 0 auto 20px auto;
+    opacity: 0.8;
+}
+
+.provision-btn {
+    background-color: var(--primary-color);
+    color: var(--white);
+    border: none;
+    padding: 14px 30px;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-width: 200px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.provision-btn:before {
+    content: '';
+    position: absolute;
+    background: rgba(255, 255, 255, 0.3);
+    width: 100%;
+    height: 100%;
+    left: -100%;
+    top: 0;
+    transition: all 0.3s ease;
+    opacity: 0;
+}
+
+.provision-btn:hover {
+    background-color: #15335a;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.provision-btn:hover:before {
+    left: 0;
+    opacity: 0.5;
+}
+
+.provision-btn:active,
+.provision-btn.touch-active {
+    transform: translateY(1px);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.provision-btn i {
+    font-size: 18px;
+    transition: transform 0.3s ease;
+}
+
+.provision-btn:hover i {
+    transform: rotate(180deg);
+}
+
+.btn-text {
+    position: relative;
+    z-index: 2;
+}
+
+.form-group {
+    margin: 20px 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+/* Mobile device specific styles */
+.mobile-device .provision-btn {
+    padding: 16px 30px; /* Larger touch target */
+}
+
+.mobile-device .provision-btn:active,
+.mobile-device .provision-btn.touch-active {
+    opacity: 0.8;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 1024px) {
+    .section-card {
+        width: 70%;
+    }
+    
+    .container {
+        padding: 25px;
+    }
+    
+    .provisioning-section {
+        padding: 15px;
+    }
+}
+
+@media (max-width: 992px) {
+    .section-card {
+        width: 80%;
+    }
+    
+    .container {
+        padding: 20px;
+        margin-top: 25px;
+    }
+    
+    .provisioning-section h2 {
+        font-size: 22px;
+    }
+    
+    .provision-btn {
+        min-width: 180px;
+    }
+}
+
+@media (max-width: 768px) {
+    .main-content {
+        margin-left: 0;
+        width: 100%;
+    }
+    
+    .container {
+        padding: 15px;
+        margin-top: 20px;
+    }
+    
+    .section-card {
+        width: 90%;
+        padding: 20px;
+    }
+    
+    #breadcrumbContainer {
+        padding-left: 15px;
+    }
+    
+    .provisioning-section {
+        padding: 10px;
+    }
+    
+    .provisioning-section h2 {
+        font-size: 20px;
+        margin-bottom: 12px;
+        padding-bottom: 8px;
+    }
+    
+    .provisioning-description {
+        font-size: 14px;
+    }
+    
+    .provision-btn {
+        width: 100%;
+        max-width: 250px;
+        font-size: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    body {
+        margin-top: 40px;
+    }
+    
+    .container {
+        padding: 10px;
+        margin-top: 15px;
+    }
+    
+    .section-card {
+        width: 100%;
+        padding: 15px;
+    }
+    
+    .provisioning-section h2 {
+        font-size: 18px;
+    }
+    
+    .provisioning-description {
+        font-size: 13px;
+    }
+    
+    .provision-btn {
+        padding: 12px 20px;
+        font-size: 14px;
+        min-width: unset;
+    }
+    
+    .provision-btn i {
+        font-size: 16px;
+    }
+    
+    #breadcrumbContainer h5 {
+        font-size: 14px;
+    }
+    
+    .path_content {
+        margin-bottom: 10px;
+    }
+    
+    #breadcrumbContainer {
+        padding-left: 10px;
+    }
+    
+    .form-group {
+        margin: 15px 0;
+    }
+}
+
+/* Animation for provision button */
+@keyframes rotateAnimation {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.provision-btn.active i {
+    animation: rotateAnimation 2s infinite linear;
+}
+

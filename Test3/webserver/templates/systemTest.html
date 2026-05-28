@@ -1,0 +1,97 @@
+{% extends "layout.html" %}
+{% block title %}System Test{% endblock %}
+{% block head %}
+    {{ super() }}
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/systemTest.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+{% endblock %}
+{% block body %}
+
+<div class="main-content">
+    <div class="path_content" id="path_content"> 
+        <div id="breadcrumbContainer">
+            <h5><img src="https://img.icons8.com/3d-fluency/94/test-passed.png" 
+                class="menu-icon" style="width: 30px; height: 30px; vertical-align: middle; margin-right: 8px;">
+                System Test > Tests</h5>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="test-header">
+            <h3><i class="fas fa-cogs"></i> System Test</h3>
+            <p class="test-description">Test the system components including lamp, relay, and buzzer functionality.</p>
+        </div>
+        
+        <div class="test-grid">
+            <div class="test-card">
+                <div class="test-icon">
+                    <i class="fas fa-lightbulb"></i>
+                </div>
+                <h4>Lamp Test</h4>
+                <form method="POST" action="/control" class="test-form">
+                    <button class="test-btn {{ 'active' if led_states[1] else '' }}" name="led" value="1" id="lampTestBtn">
+                        <span class="btn-text">{{ 'ON' if led_states[1] else 'OFF' }}</span>
+                    </button>
+                </form>
+            </div>
+
+            <div class="test-card">
+                <div class="test-icon">
+                    <i class="fas fa-plug"></i>
+                </div>
+                <h4>Relay Test</h4>
+                <form method="POST" action="/control" class="test-form">
+                    <button class="test-btn {{ 'active' if led_states[2] else '' }}" name="led" value="2" id="relayTestBtn">
+                        <span class="btn-text">{{ 'ON' if led_states[2] else 'OFF' }}</span>
+                    </button>
+                </form>
+            </div>
+
+            <div class="test-card">
+                <div class="test-icon">
+                    <i class="fas fa-volume-up"></i>
+                </div>
+                <h4>Buzzer Test</h4>
+                <form method="POST" action="/control" class="test-form">
+                    <button class="test-btn {{ 'active' if led_states[3] else '' }}" name="led" value="3" id="buzzerTestBtn">
+                        <span class="btn-text">{{ 'ON' if led_states[3] else 'OFF' }}</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Mobile detection
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    
+    if (isMobile) {
+        document.body.classList.add('mobile-device');
+    }
+    
+    // Add touch support for test buttons
+    document.querySelectorAll('.test-btn').forEach(button => {
+        button.addEventListener('touchstart', function(e) {
+            this.classList.add('touch-active');
+            // Add vibration feedback if supported
+            if (navigator.vibrate) {
+                navigator.vibrate(50);
+            }
+        }, { passive: true });
+        
+        button.addEventListener('touchend', function() {
+            this.classList.remove('touch-active');
+        }, { passive: true });
+        
+        // Add regular click events for visual feedback
+        button.addEventListener('click', function() {
+            // Visual feedback is handled by the form submission
+            console.log('Test button clicked: ' + this.id);
+        });
+    });
+</script>
+
+{% endblock %}
+

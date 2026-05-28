@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Dexter HMS — Response Tool</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #0f1117;
+    color: #e0e0e0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .card {
+    background: #1a1d27;
+    border: 1px solid #2a2d3a;
+    border-radius: 16px;
+    padding: 32px 28px;
+    width: 100%;
+    max-width: 380px;
+  }
+
+  .brand {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #5a6480;
+    margin-bottom: 6px;
+  }
+
+  h1 {
+    font-size: 22px;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 4px;
+  }
+
+  .subtitle {
+    font-size: 13px;
+    color: #5a6480;
+    margin-bottom: 28px;
+  }
+
+  label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #5a6480;
+    margin-bottom: 8px;
+  }
+
+  input[type="text"] {
+    width: 100%;
+    background: #0f1117;
+    border: 1.5px solid #2a2d3a;
+    border-radius: 10px;
+    color: #ffffff;
+    font-size: 28px;
+    font-family: 'Courier New', monospace;
+    font-weight: 700;
+    letter-spacing: 6px;
+    text-align: center;
+    text-transform: uppercase;
+    padding: 16px 12px;
+    outline: none;
+    transition: border-color 0.15s;
+    margin-bottom: 20px;
+  }
+
+  input[type="text"]:focus {
+    border-color: #3d7eff;
+  }
+
+  input[type="text"]::placeholder {
+    color: #2a2d3a;
+    letter-spacing: 4px;
+    font-size: 20px;
+  }
+
+  .btn {
+    width: 100%;
+    background: #3d7eff;
+    color: #ffffff;
+    border: none;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    padding: 15px;
+    cursor: pointer;
+    transition: background 0.15s;
+    margin-bottom: 20px;
+  }
+
+  .btn:hover   { background: #2d6eef; }
+  .btn:active  { background: #1d5edf; }
+
+  .result-box {
+    background: #0f1117;
+    border: 1.5px solid #2a2d3a;
+    border-radius: 10px;
+    padding: 20px 12px;
+    text-align: center;
+    min-height: 80px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    transition: border-color 0.2s;
+  }
+
+  .result-box.ready { border-color: #00c87a; }
+  .result-box.error { border-color: #ff4444; }
+
+  .result-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #5a6480;
+    margin-bottom: 8px;
+  }
+
+  .result-code {
+    font-family: 'Courier New', monospace;
+    font-size: 42px;
+    font-weight: 700;
+    letter-spacing: 8px;
+    color: #00c87a;
+  }
+
+  .result-error {
+    font-size: 14px;
+    color: #ff6666;
+  }
+
+  .result-placeholder {
+    font-size: 36px;
+    letter-spacing: 8px;
+    color: #2a2d3a;
+    font-family: 'Courier New', monospace;
+    font-weight: 700;
+  }
+
+  .divider {
+    border: none;
+    border-top: 1px solid #2a2d3a;
+    margin: 4px 0 16px;
+  }
+
+  .key-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    color: #5a6480;
+  }
+
+  .key-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #00c87a;
+    flex-shrink: 0;
+  }
+
+  .key-dot.missing { background: #ff4444; }
+
+  .copy-btn {
+    background: transparent;
+    border: 1px solid #2a2d3a;
+    color: #5a6480;
+    border-radius: 6px;
+    font-size: 11px;
+    padding: 4px 10px;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: all 0.15s;
+  }
+
+  .copy-btn:hover { border-color: #3d7eff; color: #3d7eff; }
+  .copy-btn.copied { border-color: #00c87a; color: #00c87a; }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="brand">Seple Novaedge</div>
+  <h1>Code Generator Tool</h1>
+  <p class="subtitle">Dexter HMS · Credential Access</p>
+
+  <label for="challenge"> 4 Digit Code (from panel LCD)</label>
+  <input
+    type="text"
+    id="challenge"
+    maxlength="4"
+    placeholder="7A3F"
+    autocomplete="off"
+    autocorrect="off"
+    spellcheck="false"
+    oninput="this.value=this.value.toUpperCase(); onInput();"
+    onkeydown="if(event.key==='Enter') compute();"
+  >
+
+  <button class="btn" onclick="compute()">Get Response</button>
+
+  <div class="result-box" id="result-box">
+    <div class="result-label">Response code</div>
+    <div class="result-placeholder" id="placeholder">— — — — — —</div>
+    <div class="result-code" id="result-code" style="display:none"></div>
+    <div class="result-error" id="result-error" style="display:none"></div>
+    <button class="copy-btn" id="copy-btn" style="display:none" onclick="copyCode()">Copy</button>
+  </div>
+
+  <hr class="divider">
+  <div class="key-status">
+    <div class="key-dot" id="key-dot"></div>
+    <span id="key-status-text">Key configured</span>
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────────────────────────────────────
+// SECRET KEY — replace with your actual key hex string
+// Generated by: python3 -c "import secrets; print(secrets.token_hex(32))"
+// KEEP THIS FILE SECURE — do not share or upload to cloud storage
+// ─────────────────────────────────────────────────────────────────────────────
+const SECRET_KEY_HEX = "e68fea5614659711f1e285e224514d786f66a4d1979972fe09047726fe6f0d28"; 
+
+// ─────────────────────────────────────────────────────────────────────────────
+
+async function computeResponse(challenge, keyHex) {
+  // Identical algorithm to credential_auth.py:
+  // HMAC-SHA256(key, challenge.upper()) → first 4 bytes → int % 1000000 → 6-digit
+  const keyBytes   = hexToBytes(keyHex);
+  const msgBytes   = new TextEncoder().encode(challenge.toUpperCase());
+  const cryptoKey  = await crypto.subtle.importKey(
+    "raw", keyBytes, { name: "HMAC", hash: "SHA-256" }, false, ["sign"]
+  );
+  const sig        = await crypto.subtle.sign("HMAC", cryptoKey, msgBytes);
+  const arr        = new Uint8Array(sig);
+  const val        = ((arr[0] << 24) | (arr[1] << 16) | (arr[2] << 8) | arr[3]) >>> 0;
+  return String(val % 1000000).padStart(6, "0");
+}
+
+function hexToBytes(hex) {
+  const bytes = new Uint8Array(hex.length / 2);
+  for (let i = 0; i < hex.length; i += 2)
+    bytes[i / 2] = parseInt(hex.substr(i, 2), 16);
+  return bytes;
+}
+
+async function compute() {
+  const ch = document.getElementById("challenge").value.trim().toUpperCase();
+
+  resetResult();
+
+  if (!ch || ch.length !== 4 || !/^[0-9A-F]{4}$/.test(ch)) {
+    showError("Enter exactly 4 hex characters (0–9, A–F)");
+    return;
+  }
+
+  if (!SECRET_KEY_HEX || SECRET_KEY_HEX === "REPLACE_WITH_YOUR_64_CHAR_HEX_KEY_HERE") {
+    showError("Key not configured — edit SECRET_KEY_HEX in this file");
+    return;
+  }
+
+  try {
+    const code = await computeResponse(ch, SECRET_KEY_HEX);
+    showCode(code);
+  } catch (e) {
+    showError("Crypto error: " + e.message);
+  }
+}
+
+function onInput() {
+  resetResult();
+  const ch = document.getElementById("challenge").value;
+  if (ch.length === 4) compute();
+}
+
+function showCode(code) {
+  document.getElementById("placeholder").style.display   = "none";
+  document.getElementById("result-error").style.display  = "none";
+  document.getElementById("result-code").style.display   = "block";
+  document.getElementById("copy-btn").style.display      = "inline-block";
+  document.getElementById("result-code").textContent     = code;
+  document.getElementById("result-box").className        = "result-box ready";
+}
+
+function showError(msg) {
+  document.getElementById("placeholder").style.display   = "none";
+  document.getElementById("result-code").style.display   = "none";
+  document.getElementById("copy-btn").style.display      = "none";
+  document.getElementById("result-error").style.display  = "block";
+  document.getElementById("result-error").textContent    = msg;
+  document.getElementById("result-box").className        = "result-box error";
+}
+
+function resetResult() {
+  document.getElementById("placeholder").style.display   = "block";
+  document.getElementById("result-code").style.display   = "none";
+  document.getElementById("result-error").style.display  = "none";
+  document.getElementById("copy-btn").style.display      = "none";
+  document.getElementById("result-box").className        = "result-box";
+}
+
+function copyCode() {
+  const code = document.getElementById("result-code").textContent;
+  navigator.clipboard.writeText(code).then(() => {
+    const btn = document.getElementById("copy-btn");
+    btn.textContent = "Copied!";
+    btn.classList.add("copied");
+    setTimeout(() => {
+      btn.textContent = "Copy";
+      btn.classList.remove("copied");
+    }, 1500);
+  });
+}
+
+// Key status indicator
+window.addEventListener("DOMContentLoaded", () => {
+  const dot  = document.getElementById("key-dot");
+  const text = document.getElementById("key-status-text");
+  if (!SECRET_KEY_HEX || SECRET_KEY_HEX === "REPLACE_WITH_YOUR_64_CHAR_HEX_KEY_HERE") {
+    dot.classList.add("missing");
+    text.textContent = "Key not configured — edit this file";
+  } else {
+    text.textContent = "Key configured (" + SECRET_KEY_HEX.length + " chars)";
+  }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,348 @@
+:root {
+  --background-color: #f5f5f5;
+  --text-color: #333;
+  --primary-color: #1d4370;
+  --white: #ffffff;
+  --accent-color: #fca311;
+  --success-color: #28a745;
+  --danger-color: #dc3545;
+  --gray-color: #6c757d;
+  --light-gray: #f9f9f9;
+  --hover-gray: #f1f1f1;
+  --border-color: #ddd;
+  --table-header: #f4f4f4;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  margin-top: 50px;
+  margin-left: 0;
+  padding: 0;
+  display: flex;
+  height: 100vh;
+  overflow: hidden; /* Prevent body from scrolling */
+  background-color: var(--background-color);
+}
+
+/* navbar & sidebar css are in layout.css */
+
+.main-content {
+  margin-top: 10px;
+  margin-left: 300px; /* Same as the width of the side menu */
+  padding: 20px;
+  overflow-y: auto; /* Enable scrolling for the main content */
+  flex: 1;
+  width: calc(100% - 300px);
+  transition: margin-left 0.3s ease, width 0.3s ease;
+  
+}
+
+/* path display css */
+
+#breadcrumbContainer {
+  font-size: 18px;
+  color: var(--text-color);
+  background-color: var(--white);
+  padding: 10px;
+  padding-left: 30px;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 15px;
+}
+
+#breadcrumbContainer h5 {
+  margin: 0;
+  font-size: 16px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+h1 {
+  text-align: center;
+  color: var(--primary-color);
+  margin-bottom: 20px;
+  font-size: 24px;
+}
+
+/* logs counter */
+.logs-count {
+  margin: 20px 0;
+  padding: 10px;
+  background-color: #f8f9fa;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+.logs-count p {
+  margin: 0;
+  font-size: 1.1em;
+  color: #333;
+}
+.logs-count i {
+  margin-right: 8px;
+  color: #007bff;
+}
+#logsCount {
+  font-weight: bold;
+  color: #007bff;
+}
+
+/* Button Controls */
+.button-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 15px;
+  width: 100%;
+}
+
+.button-controls form {
+  margin: 0;
+  padding: 0;
+  flex: 1;
+  max-width: calc(50% - 7.5px);
+}
+
+.action-button {
+  padding: 10px 20px;
+  font-size: 14px;
+  color: var(--white);
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+#downloadButton {
+  background-color: var(--primary-color);
+  flex: 1;
+  max-width: calc(50% - 7.5px);
+}
+
+#dltBtn {
+  background-color: var(--danger-color);
+  width: 100%;
+}
+
+#downloadButton:hover {
+  background-color: var(--accent-color);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+}
+
+#dltBtn:hover {
+  background-color: #b02a37; /* Darker red on hover */
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+}
+
+.action-button:active, .action-button.touch-active {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.action-button i {
+  margin-right: 5px;
+}
+
+.container {
+  width: 90%;
+  margin: 20px auto;
+  padding: 20px;
+  background-color: var(--white);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  height: calc(100% - 120px);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.table-container {
+  width: 100%;
+  flex: 1;
+  position: relative;
+  overflow-y: auto;
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  min-width: 600px; /* Ensure table doesn't get too squished */
+}
+
+td {
+  padding: 12px;
+  border: 0.5px solid var(--border-color);
+  text-align: left;
+}
+
+th {
+  padding: 12px;
+  text-align: left;
+  background-color: var(--table-header);
+  color: var(--text-color);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+tr:nth-child(even) {
+  background-color: var(--light-gray);
+}
+
+tr:hover {
+  background-color: var(--hover-gray);
+}
+
+/* Responsive Styles */
+@media (max-width: 992px) {
+  .container {
+    width: 90%;
+    padding: 20px 15px;
+  }
+  
+  .button-controls {
+    gap: 10px;
+  }
+}
+
+@media (max-width: 768px) {
+  .main-content {
+    margin-left: 0;
+    width: 100%;
+    padding: 15px;
+  }
+  
+  #breadcrumbContainer {
+    padding-left: 15px;
+  }
+  
+  .container {
+    width: 90%;
+    margin: 10px auto;
+    padding: 15px;
+    height: calc(100% - 80px);
+  }
+  
+  h1 {
+    font-size: 22px;
+    margin-bottom: 15px;
+  }
+  
+  .button-controls {
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
+    gap: 10px;
+  }
+  
+  .button-controls form {
+    max-width: calc(50% - 5px);
+  }
+  
+  #downloadButton {
+    max-width: calc(50% - 5px);
+  }
+  
+  .action-button {
+    padding: 10px 0;
+    font-size: 13px;
+    width: 100%;
+    min-width: 0;
+  }
+  
+  .action-button i {
+    margin-right: 5px;
+    font-size: 14px;
+  }
+  
+  td, th {
+    padding: 10px 8px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 12px 8px;
+  }
+  
+  h1 {
+    font-size: 20px;
+  }
+  
+  #breadcrumbContainer h5 {
+    font-size: 14px;
+  }
+  
+  .button-controls {
+    gap: 8px;
+  }
+  
+  .button-controls form {
+    max-width: calc(50% - 4px);
+  }
+  
+  #downloadButton {
+    max-width: calc(50% - 4px);
+  }
+  
+  .action-button {
+    padding: 8px 0;
+    font-size: 12px;
+  }
+  
+  .action-button i {
+    margin-right: 4px;
+    font-size: 12px;
+  }
+  
+  td, th {
+    padding: 8px 6px;
+    font-size: 13px;
+  }
+}
+
+/* Mobile device specific styles */
+.mobile-device .button-controls button {
+  touch-action: manipulation;
+}
+
+/* Vibration and Touch Feedback */
+@media (hover: none) {
+  #downloadButton:hover, #dltBtn:hover {
+    transform: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  #downloadButton:hover {
+    background-color: var(--primary-color);
+  }
+  
+  #dltBtn:hover {
+    background-color: var(--danger-color);
+  }
+  
+  #downloadButton:active, #downloadButton.touch-active {
+    transform: scale(0.98);
+    background-color: var(--accent-color);
+  }
+  
+  #dltBtn:active, #dltBtn.touch-active {
+    transform: scale(0.98);
+    background-color: #b02a37;
+  }
+}
+

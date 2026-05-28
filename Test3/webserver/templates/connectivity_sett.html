@@ -1,0 +1,165 @@
+{% extends "layout.html" %}
+{% block title %}Connectivity Settings{% endblock %}
+{% block head %}
+{{ super() }}
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/network.css') }}">
+{% endblock %}
+{% block body %}
+
+<div class="main-content">
+    <div class="path_content" id="path_content">
+        <div id="breadcrumbContainer">
+            <h5><img src="https://img.icons8.com/3d-fluency/94/wifi-router.png" class="menu-icon"
+                    style="width: 30px; height: 30px; vertical-align: middle; margin-right: 8px;">
+                Network & Comms Settings > Connectivity Settings</h5>
+        </div>
+    </div>
+
+    <div class="connectivity_settings_container">
+        <h1>Connectivity Settings</h1>
+
+        <!-- Selection Display -->
+        <div class="selection-display">
+            <h3>Current Selection:</h3>
+            <div id="selectionPath">No selection</div>
+        </div>
+
+        <!-- Main Selection Screen -->
+        <div id="mainSelection" class="selection-screen">
+            <h2>Select Connection Type</h2>
+            <div class="option-buttons">
+                <button class="option-btn" onclick="selectConnection('GSM')" id="gsmBtn">
+                    <i class="fas fa-mobile-alt"></i> GSM
+                </button>
+                <button class="option-btn" onclick="selectConnection('Ethernet')" id="ethernetBtn">
+                    <i class="fas fa-network-wired"></i> Ethernet
+                </button>
+            </div>
+        </div>
+
+        <!-- SIM Type Selection Screen (GSM only) -->
+        <div id="simSelection" class="selection-screen" style="display: none;">
+            <h2>Select SIM Type</h2>
+            <div class="option-buttons">
+                <button class="option-btn" onclick="selectSimType('eSIM')" id="esimBtn">
+                    <i class="fas fa-sim-card"></i> eSIM
+                </button>
+                <button class="option-btn" onclick="selectSimType('Physical SIM')" id="physicalSimBtn">
+                    <i class="fas fa-sim-card"></i> Physical SIM
+                </button>
+            </div>
+            <button class="nav-btn back-btn" onclick="goBack()">
+                <i class="fas fa-arrow-left"></i> Back
+            </button>
+        </div>
+
+        <form method="POST" id="saveForm">
+            <input type="hidden" name="gsm_modem_mode" id="gsm_modem_mode_input">
+            <button type="submit" class="save-btn">
+                <i class="fas fa-save"></i> Save Settings
+            </button>
+        </form>
+    </div>
+</div>
+
+<script>
+    let selections = {
+        connectionType: '',
+        simType: ''
+    };
+
+    function selectConnection(type) {
+        document.getElementById('gsmBtn').classList.remove('selected');
+        document.getElementById('ethernetBtn').classList.remove('selected');
+
+        selections.connectionType = type;
+
+        if (type === 'GSM') {
+            document.getElementById('gsmBtn').classList.add('selected');
+            document.getElementById('mainSelection').style.display = 'none';
+            document.getElementById('simSelection').style.display = 'block';
+            selections.simType = '';
+        } else {
+            document.getElementById('ethernetBtn').classList.add('selected');
+            document.getElementById('simSelection').style.display = 'none';
+            selections.simType = 'ethernet';
+        }
+
+        updateHiddenInput();
+        updateSelectionDisplay();
+    }
+
+    function selectSimType(type) {
+        document.getElementById('esimBtn').classList.remove('selected');
+        document.getElementById('physicalSimBtn').classList.remove('selected');
+
+        if (type === 'eSIM') {
+            document.getElementById('esimBtn').classList.add('selected');
+            selections.simType = 'esim';
+        } else {
+            document.getElementById('physicalSimBtn').classList.add('selected');
+            selections.simType = 'physical';
+        }
+
+        updateHiddenInput();
+        updateSelectionDisplay();
+    }
+
+    function goBack() {
+        selections.simType = '';
+        document.getElementById('esimBtn').classList.remove('selected');
+        document.getElementById('physicalSimBtn').classList.remove('selected');
+        document.getElementById('simSelection').style.display = 'none';
+        document.getElementById('mainSelection').style.display = 'block';
+        updateHiddenInput();
+        updateSelectionDisplay();
+    }
+
+    function updateHiddenInput() {
+        document.getElementById('gsm_modem_mode_input').value = selections.simType || '';
+    }
+
+    function updateSelectionDisplay() {
+        const selectionPath = document.getElementById('selectionPath');
+        if (selections.simType === 'ethernet') {
+            selectionPath.textContent = 'Ethernet';
+        } else if (selections.simType === 'esim') {
+            selectionPath.textContent = 'GSM > eSIM';
+        } else if (selections.simType === 'physical') {
+            selectionPath.textContent = 'GSM > Physical SIM';
+        } else if (selections.connectionType) {
+            selectionPath.textContent = selections.connectionType;
+        } else {
+            selectionPath.textContent = 'No selection';
+        }
+    }
+
+    // Auto-load saved value from DB on page load
+    document.addEventListener('DOMContentLoaded', function () {
+        const saved = "{{ saved_gsm_mode }}";
+
+        if (saved === 'ethernet') {
+            selectConnection('Ethernet');
+        } else if (saved === 'esim' || saved === 'physical') {
+            // Navigate into GSM → SIM sub-screen
+            document.getElementById('gsmBtn').classList.add('selected');
+            document.getElementById('mainSelection').style.display = 'none';
+            document.getElementById('simSelection').style.display = 'block';
+            selections.connectionType = 'GSM';
+
+            if (saved === 'esim') {
+                document.getElementById('esimBtn').classList.add('selected');
+                selections.simType = 'esim';
+            } else {
+                document.getElementById('physicalSimBtn').classList.add('selected');
+                selections.simType = 'physical';
+            }
+
+            updateHiddenInput();
+            updateSelectionDisplay();
+        }
+    });
+</script>
+
+{% endblock %}
