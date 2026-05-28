@@ -1,204 +1,183 @@
+"""
+generate_serial_no_GitHub.py
+Dexter HMS — Device serial number generator and ThingsBoard publisher.
+
+Reads panel_number and batch_number from securelink.db (set via autorun4.py
+menu option 14), generates the device serial number, and publishes it once
+to ThingsBoard telemetry.
+
+GitHub pull removed — panel/batch are now entered locally via autorun4.py.
+Called once from autorun4.py after the user saves panel/batch via the menu.
+"""
+
 import sys
 import datetime
-import time
-import os
-import base64
-import subprocess
-import requests
-import pandas as pd
 import sqlite3
-from io import BytesIO
-from dotenv import load_dotenv
+import logging
+import ssl
+import json
+import threading
+import paho.mqtt.client as mqtt
 
-# === Load environment variables from .env file ===
-load_dotenv()
+log = logging.getLogger(__name__)
 
-# cd ~/Test3
-# ls –l
-# nano .env
-#GITHUB_TOKEN = <set in .env>
-#REPO_OWNER = seple_admin
-#REPO_NAME = Dexter-Serial-No.
-#FILE_PATH = Dexter Serial no.xlsx
-#BRANCH = main
+SECURELINK_DB    = "/home/pi/Test3/securelink.db"
+MODEM_DB         = "/home/pi/Test3/modem_config.db"
+THINGSBOARD_HOST = "mqtt.thingsboard.cloud"
+MQTT_PORT        = 8883
+PUBLISH_TIMEOUT  = 15
 
-GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
-REPO_OWNER = os.getenv("REPO_OWNER")
-REPO_NAME = os.getenv("REPO_NAME")
-FILE_PATH = os.getenv("FILE_PATH")
-BRANCH = os.getenv("BRANCH")
 
-print("DEBUG:", os.getenv("GITHUB_TOKEN"))
-print("DEBUG:", os.getenv("REPO_OWNER"))
-print("DEBUG:", os.getenv("REPO_NAME"))
-print("DEBUG:", os.getenv("FILE_PATH"))
-
-# === GitHub API URL ===
-API_URL = f"https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}/contents/{FILE_PATH}"
-
-# === Auth Header ===
-HEADERS = {
-    'Authorization': f'token {GITHUB_TOKEN}',
-    'Accept': 'application/vnd.github.v3+json'
-}
-
-# File paths
-#SERIAL_FILE = '/etc/securelink_serial.txt'    
-DB_FILE = '/home/pi/Test3/securelink.db' 
-#EXCEL_URL = "https://seplsecurity-my.sharepoint.com/personal/rnd_seple_in/_layouts/15/download.aspx?share=EXwrhky8-zhNukCbOyQHGhoBE7r-LAVT6VED0wbDgqp8pg"
-
-def init_db():
-    """Create DB and table if not exists."""
-    conn = sqlite3.connect(DB_FILE)
-    c = conn.cursor()
-    c.execute('''CREATE TABLE IF NOT EXISTS device_info (
-                   id INTEGER PRIMARY KEY,
-                   panel_number TEXT,
-                   batch_number TEXT
-                 )''')
-    conn.commit()
-    conn.close()
-
-def store_device_info(panel, batch):
-    """Insert panel and batch info into DB (once)."""
-    conn = sqlite3.connect(DB_FILE)
-    c = conn.cursor()
-    c.execute("SELECT COUNT(*) FROM device_info")
-    if c.fetchone()[0] == 0:
-        c.execute("INSERT INTO device_info (panel_number, batch_number) VALUES (?, ?)", (panel, batch))
-        conn.commit()
-    conn.close()
-
-def fetch_device_info():
-    """Fetch panel and batch info from DB."""
-    conn = sqlite3.connect(DB_FILE)
-    c = conn.cursor()
-    c.execute("SELECT panel_number, batch_number FROM device_info LIMIT 1")
-    row = c.fetchone()
-    conn.close()
-    return row if row else ('XX', 'BNXXX')
-
-#def download_and_parse_excel():
-#    try:
-#        response = requests.get(EXCEL_URL)
-#        if response.status_code == 200:
-#            df = pd.read_excel(BytesIO(response.content))
-#            if 'panel_number' in df.columns and 'batch_number' in df.columns:
-                #panel = str(df.iloc[0]['panel_number']).zfill(2)
-                #batch = str(df.iloc[0]['batch_number'])
-                
-                # Clean float conversion (e.g., 1.0 -> '1')
-#                panel_raw = df.iloc[0]['panel_number']
-#                batch_raw = df.iloc[0]['batch_number']
-                
-                # Convert to str and remove decimal if present
-#                panel = str(int(panel_raw)).zfill(2) if pd.notnull(panel_raw) else 'XX'  
-                #batch = str(int(batch_raw)) if pd.notnull(batch_raw) else 'BXXXX'
-#                batch = str(batch_raw).split('.')[0]  # Strip any ".0" if present                
-                
-                # Remove the first row
-#                df = df.iloc[1:]
-                
-#                return panel, batch
-#    except Exception as e:
-#        print("Error downloading Excel:", e)
-#    return 'XX', 'BXXXX'
-
-def download_and_parse_excel():
+def _read_modem(col: str) -> str:
     try:
-        response = requests.get(API_URL, headers=HEADERS)
-        response.raise_for_status()
-        content = base64.b64decode(response.json()['content'])
-        file_sha = response.json()['sha']
-
-        df = pd.read_excel(BytesIO(content))
-        if 'panel_number' in df.columns and 'batch_number' in df.columns:
-            panel_raw = df.iloc[0]['panel_number']
-            batch_raw = df.iloc[0]['batch_number']
-            panel = str(int(panel_raw)).zfill(2) if pd.notnull(panel_raw) else 'XX'
-            batch = str(batch_raw).split('.')[0] if pd.notnull(batch_raw) else 'BNXXX'
-
-            updated_df = df.iloc[1:]
-            buffer = BytesIO()
-            updated_df.to_excel(buffer, index=False)
-            buffer.seek(0)
-
-            encoded_content = base64.b64encode(buffer.read()).decode('utf-8')
-
-            payload = {
-                "message": "Deleted first row after serial generation",
-                "content": encoded_content,
-                "branch": BRANCH,
-                "sha": file_sha
-            }
-
-            upload_response = requests.put(API_URL, headers=HEADERS, json=payload)
-            upload_response.raise_for_status()
-            print("Successfully updated Excel on GitHub")
-
-            return panel, batch
+        conn = sqlite3.connect(MODEM_DB)
+        row = conn.execute(
+            f"SELECT {col} FROM modem_parameters WHERE id=1"
+        ).fetchone()
+        conn.close()
+        return (row[0] or "").strip() if row else ""
     except Exception as e:
-        print("Error processing Excel file:", e)
+        log.warning("generate_serial: DB read failed for %s: %s", col, e)
+        return ""
 
-    return 'XX', 'BNXXX'
 
-def ensure_device_info():
-    init_db()
-    panel, batch = fetch_device_info()
-    if panel == 'XX' and batch == 'BNXXX':
-        panel, batch = download_and_parse_excel()
-        store_device_info(panel, batch)
+def _dec(val: str) -> str:
+    if not val:
+        return val
+    try:
+        sys.path.insert(0, "/home/pi/Test3")
+        from secrets_manager import decrypt_value
+        return decrypt_value(val)
+    except Exception:
+        return val
 
-def get_model_year():
-    year = datetime.datetime.now().year
-    return f"SL{str(year)[-2:]}"
 
-def get_rpi_model():
+def _get_panel_batch() -> tuple:
+    try:
+        conn = sqlite3.connect(SECURELINK_DB)
+        row = conn.execute(
+            "SELECT panel_number, batch_number FROM device_info LIMIT 1"
+        ).fetchone()
+        conn.close()
+        if row and row[0] and row[1]:
+            return str(row[0]), str(row[1])
+    except Exception as e:
+        log.warning("generate_serial: securelink.db read failed: %s", e)
+    return "XX", "BNXXX"
+
+
+def _get_rpi_model() -> str:
     try:
         with open('/proc/device-tree/model') as f:
-            model = f.read()
-        if 'Raspberry Pi 3' in model:
-            return 'R3'
-        elif 'Raspberry Pi 4' in model:
+            m = f.read()
+        if 'Raspberry Pi 4' in m:
             return 'R4'
-        elif 'Raspberry Pi 5' in model:
+        if 'Raspberry Pi 5' in m:
             return 'R5'
-    except:
+        if 'Raspberry Pi 3' in m:
+            return 'R3'
+    except Exception:
         pass
     return 'R?'
 
-def get_python_version():
-    return f'P{sys.version_info.major}'
 
-def generate_serial():
-    model_prefix = get_model_year()
-    rpi = get_rpi_model()
-    pyv = get_python_version()
-    panel, batch = fetch_device_info()
-    return f"{model_prefix}{rpi}{pyv}{panel}{batch}"
+def generate_serial() -> str:
+    year   = datetime.datetime.now().year
+    prefix = f"SL{str(year)[-2:]}"
+    rpi    = _get_rpi_model()
+    pyv    = f"P{sys.version_info.major}"
+    panel, batch = _get_panel_batch()
+    return f"{prefix}{rpi}{pyv}{panel}{batch}"
 
-def get_or_create_serial():
-    #if os.path.exists(SERIAL_FILE):
-    #    with open(SERIAL_FILE) as f:
-    #        return f.read().strip()
-    ensure_device_info()
-    return generate_serial()
-    #serial = generate_serial()
-    #with open(SERIAL_FILE, 'w') as f:
-    #    f.write(serial)
-    #return serial
 
-def generate_serial_no():
-    subprocess.call(["sudo", "pon", "c16qs"])
-    time.sleep(20.0)
-    get_or_create_serial()
-    time.sleep(10)  # Wait for 10 seconds
-    subprocess.call(["sudo", "poff", "c16qs"])
-    time.sleep(5.0)
-#    subprocess.call(["sudo", "reboot"])
+def send_serial_to_tb(serial: str) -> bool:
+    """Publish serial number once to ThingsBoard telemetry. Returns True on success."""
+    client_id = _dec(_read_modem("client_id"))
+    user_name = _dec(_read_modem("user_name"))
+    password  = _dec(_read_modem("password"))
+
+    if not client_id or not user_name:
+        log.error("generate_serial: MQTT credentials not set in modem_config.db")
+        return False
+
+    published = threading.Event()
+    success   = [False]
+
+    def on_connect(client, userdata, flags, rc):
+        if rc == 0:
+            result = client.publish(
+                "v1/devices/me/telemetry",
+                json.dumps({"serial_number": serial}),
+                qos=1
+            )
+            if result.rc != mqtt.MQTT_ERR_SUCCESS:
+                log.error("generate_serial: publish call failed — rc=%s", result.rc)
+                published.set()
+        else:
+            log.error("generate_serial: MQTT connect rejected — rc=%s", rc)
+            published.set()
+
+    def on_publish(client, userdata, mid):
+        log.info("generate_serial: serial_number published — mid=%s", mid)
+        success[0] = True
+        published.set()
+
+    ctx = ssl.create_default_context()
+    ctx.check_hostname  = True
+    ctx.verify_mode     = ssl.CERT_REQUIRED
+    ctx.minimum_version = ssl.TLSVersion.TLSv1_2
+
+    client = mqtt.Client(
+        client_id=client_id,
+        callback_api_version=mqtt.CallbackAPIVersion.VERSION1,
+    )
+    client.username_pw_set(user_name, password=password)
+    client.tls_set_context(ctx)
+    client.on_connect = on_connect
+    client.on_publish = on_publish
+
+    try:
+        client.connect(THINGSBOARD_HOST, MQTT_PORT, keepalive=60)
+        client.loop_start()
+        published.wait(timeout=PUBLISH_TIMEOUT)
+    except Exception as e:
+        log.error("generate_serial: connection error — %s", e)
+    finally:
+        client.loop_stop()
+        client.disconnect()
+
+    return success[0]
+
+
+def run_once() -> bool:
+    """
+    Generate serial from securelink.db and publish to ThingsBoard once.
+    Called from autorun4.py after panel/batch are saved via menu option 14.
+    Returns True if published successfully.
+    """
+    panel, batch = _get_panel_batch()
+    if panel == "XX" and batch == "BNXXX":
+        log.error(
+            "generate_serial: panel_number/batch_number not set in securelink.db — "
+            "use autorun4.py menu option 14 to set them first."
+        )
+        return False
+
+    serial = generate_serial()
+    log.info("generate_serial: serial = %s", serial)
+    ok = send_serial_to_tb(serial)
+    if ok:
+        log.info("generate_serial: published to ThingsBoard — done.")
+    else:
+        log.error("generate_serial: failed to publish to ThingsBoard.")
+    return ok
 
 
 if __name__ == "__main__":
-    #serial = generate_serial_no()
-    serial = get_or_create_serial()
-    print("System Serial Number:", serial)
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s %(levelname)s %(name)s — %(message)s"
+    )
+    result = run_once()
+    print("Serial published to TB:", result)
+    sys.exit(0 if result else 1)

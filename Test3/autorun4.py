@@ -618,6 +618,26 @@ def serial_number_menu():
 
     print()
     print(ok(f"  Saved. Generated serial: {bold(serial)}"))
+
+    # Send serial number to ThingsBoard once now that panel/batch are set.
+    try:
+        import importlib, importlib.util as _ilu
+        _spec = _ilu.spec_from_file_location(
+            "generate_serial_no_GitHub",
+            os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                         "generate_serial_no_GitHub.py")
+        )
+        _gsg = importlib.util.module_from_spec(_spec)
+        _spec.loader.exec_module(_gsg)
+        print(info("  Sending serial number to ThingsBoard..."))
+        _sent = _gsg.run_once()
+        if _sent:
+            print(ok("  Serial number sent to ThingsBoard successfully."))
+        else:
+            print(warn("  Failed to send serial number to ThingsBoard — check MQTT credentials."))
+    except Exception as _e:
+        print(warn(f"  Could not send serial to ThingsBoard: {_e}"))
+
     press_enter()
 
 
