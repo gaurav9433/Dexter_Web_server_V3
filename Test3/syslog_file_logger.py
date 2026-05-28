@@ -1,6 +1,7 @@
 import logging
 import logging.handlers
 import os
+import sys
 from datetime import datetime, timedelta
 
 LOG_FILE       = "/home/pi/Test3/update.log"
@@ -99,6 +100,13 @@ def get_dual_logger(name: str) -> 'logging.Logger':
             datefmt='%Y-%m-%d %H:%M:%S'
         ))
         root.addHandler(file_handler)
+
+        # ---- Stream Handler (stdout → Docker logs) ----
+        stream_handler = logging.StreamHandler(sys.stdout)
+        stream_handler.setFormatter(logging.Formatter(
+            '%(asctime)s %(levelname)s %(name)s — %(message)s'
+        ))
+        root.addHandler(stream_handler)
 
     # ── Named logger for the caller ──────────────────────────────────────────
     # No handlers needed here — propagate=True (default) sends everything to
